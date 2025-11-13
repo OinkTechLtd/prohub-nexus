@@ -57,6 +57,16 @@ export default {
           border: "hsl(var(--sidebar-border))",
           ring: "hsl(var(--sidebar-ring))",
         },
+        forum: {
+          header: "hsl(var(--forum-header))",
+          hover: "hsl(var(--forum-hover))",
+        },
+        category: {
+          bg: "hsl(var(--category-bg))",
+        },
+        topic: {
+          hover: "hsl(var(--topic-hover))",
+        },
       },
       borderRadius: {
         lg: "var(--radius)",
