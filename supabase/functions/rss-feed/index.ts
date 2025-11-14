@@ -46,8 +46,10 @@ serve(async (req) => {
     const rssItems = topics?.map(topic => {
       const topicUrl = `${baseUrl}/topic/${topic.id}`;
       const pubDate = new Date(topic.created_at).toUTCString();
-      const categoryName = topic.categories?.name || 'Общее';
-      const username = topic.profiles?.username || 'Аноним';
+      const categories = topic.categories as any;
+      const profiles = topic.profiles as any;
+      const categoryName = (Array.isArray(categories) ? categories[0]?.name : categories?.name) || 'Общее';
+      const username = (Array.isArray(profiles) ? profiles[0]?.username : profiles?.username) || 'Аноним';
       
       // Strip HTML and truncate content for description
       const description = topic.content
@@ -85,8 +87,9 @@ serve(async (req) => {
     });
   } catch (error) {
     console.error('Error generating RSS feed:', error);
+    const errorMessage = error instanceof Error ? error.message : 'Unknown error';
     return new Response(
-      JSON.stringify({ error: error.message }), 
+      JSON.stringify({ error: errorMessage }), 
       {
         status: 500,
         headers: { ...corsHeaders, 'Content-Type': 'application/json' },

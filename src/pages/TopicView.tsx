@@ -114,14 +114,33 @@ const TopicView = () => {
 
   const handlePostSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    if (!user || !newPost.trim()) return;
+    
+    if (!user || !newPost.trim()) {
+      toast({
+        title: "Войдите в систему",
+        description: "Для отправки сообщений нужно войти в систему",
+        variant: "destructive",
+      });
+      return;
+    }
+
+    // Check content moderation
+    const moderationCheck = moderateContent(newPost);
+    if (!moderationCheck.isClean) {
+      toast({
+        title: "Неприемлемый контент",
+        description: moderationCheck.reason,
+        variant: "destructive",
+      });
+      return;
+    }
 
     setPosting(true);
     try {
       const { error } = await supabase.from("posts").insert({
         topic_id: id,
         user_id: user.id,
-        content: newPost,
+        content: newPost.trim(),
       });
 
       if (error) throw error;

@@ -68,11 +68,11 @@ const Videos = () => {
     }
   };
 
-  const handleVideoClick = async (videoId: string) => {
+  const handleVideoClick = async (videoId: string, currentViews: number) => {
     // Increment view count
     await supabase
       .from("videos")
-      .update({ views: supabase.rpc('increment', { x: 1 }) })
+      .update({ views: currentViews + 1 })
       .eq("id", videoId);
   };
 
@@ -103,7 +103,7 @@ const Videos = () => {
                 key={video.id}
                 className="hover:shadow-lg transition-shadow cursor-pointer overflow-hidden"
                 onClick={() => {
-                  handleVideoClick(video.id);
+                  handleVideoClick(video.id, video.views);
                   navigate(`/video/${video.id}`);
                 }}
               >

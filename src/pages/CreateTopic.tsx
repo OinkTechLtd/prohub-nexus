@@ -65,7 +65,35 @@ const CreateTopic = () => {
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    if (!user || !selectedCategory) return;
+    if (!user || !selectedCategory || !title.trim() || !content.trim()) {
+      toast({
+        title: "Заполните все поля",
+        description: "Все поля обязательны для заполнения",
+        variant: "destructive",
+      });
+      return;
+    }
+
+    // Check content moderation
+    const titleCheck = moderateContent(title);
+    if (!titleCheck.isClean) {
+      toast({
+        title: "Неприемлемый контент",
+        description: titleCheck.reason,
+        variant: "destructive",
+      });
+      return;
+    }
+
+    const contentCheck = moderateContent(content);
+    if (!contentCheck.isClean) {
+      toast({
+        title: "Неприемлемый контент",
+        description: contentCheck.reason,
+        variant: "destructive",
+      });
+      return;
+    }
 
     setLoading(true);
     try {
@@ -74,8 +102,8 @@ const CreateTopic = () => {
         .insert({
           category_id: selectedCategory,
           user_id: user.id,
-          title,
-          content,
+          title: title.trim(),
+          content: content.trim(),
         })
         .select()
         .single();
