@@ -4,6 +4,7 @@ import { Avatar, AvatarFallback } from "./ui/avatar";
 import { supabase } from "@/integrations/supabase/client";
 import { useToast } from "@/hooks/use-toast";
 import { LogOut, User } from "lucide-react";
+import RSSFeed from "./RSSFeed";
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -45,6 +46,7 @@ const Header = ({ user }: HeaderProps) => {
           <Link to="/videos" className="text-sm font-medium hover:text-primary transition-colors">
             Видео
           </Link>
+          <RSSFeed />
         </nav>
 
         <div className="flex items-center space-x-4">
