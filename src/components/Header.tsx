@@ -37,10 +37,13 @@ const Header = ({ user }: HeaderProps) => {
 
         <nav className="hidden md:flex items-center space-x-6">
           <Link to="/" className="text-sm font-medium hover:text-primary transition-colors">
-            Главная
+            Форум
           </Link>
           <Link to="/resources" className="text-sm font-medium hover:text-primary transition-colors">
             Ресурсы
+          </Link>
+          <Link to="/videos" className="text-sm font-medium hover:text-primary transition-colors">
+            Видео
           </Link>
         </nav>
 
