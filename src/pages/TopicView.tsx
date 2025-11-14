@@ -7,6 +7,7 @@ import { Button } from "@/components/ui/button";
 import { Textarea } from "@/components/ui/textarea";
 import { Avatar, AvatarFallback } from "@/components/ui/avatar";
 import { useToast } from "@/hooks/use-toast";
+import { moderateContent } from "@/lib/moderation";
 import { formatDistanceToNow } from "date-fns";
 import { ru } from "date-fns/locale";
 import { Pin, Lock, Send } from "lucide-react";

@@ -11,6 +11,9 @@ import CreateTopic from "./pages/CreateTopic";
 import Resources from "./pages/Resources";
 import CreateResource from "./pages/CreateResource";
 import Profile from "./pages/Profile";
+import Videos from "./pages/Videos";
+import UploadVideo from "./pages/UploadVideo";
+import VideoView from "./pages/VideoView";
 import NotFound from "./pages/NotFound";
 
 const queryClient = new QueryClient();
@@ -29,6 +32,9 @@ const App = () => (
           <Route path="/create-topic" element={<CreateTopic />} />
           <Route path="/resources" element={<Resources />} />
           <Route path="/create-resource" element={<CreateResource />} />
+          <Route path="/videos" element={<Videos />} />
+          <Route path="/upload-video" element={<UploadVideo />} />
+          <Route path="/video/:id" element={<VideoView />} />
           <Route path="/profile" element={<Profile />} />
           {/* ADD ALL CUSTOM ROUTES ABOVE THE CATCH-ALL "*" ROUTE */}
           <Route path="*" element={<NotFound />} />
