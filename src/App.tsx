@@ -14,6 +14,7 @@ import Profile from "./pages/Profile";
 import Videos from "./pages/Videos";
 import UploadVideo from "./pages/UploadVideo";
 import VideoView from "./pages/VideoView";
+import VideoSwiper from "./pages/VideoSwiper";
 import NotFound from "./pages/NotFound";
 
 const queryClient = new QueryClient();
@@ -33,6 +34,7 @@ const App = () => (
           <Route path="/resources" element={<Resources />} />
           <Route path="/create-resource" element={<CreateResource />} />
           <Route path="/videos" element={<Videos />} />
+          <Route path="/videos/swipe" element={<VideoSwiper />} />
           <Route path="/upload-video" element={<UploadVideo />} />
           <Route path="/video/:id" element={<VideoView />} />
           <Route path="/profile" element={<Profile />} />

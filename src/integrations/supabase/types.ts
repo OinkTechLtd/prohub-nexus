@@ -44,6 +44,41 @@ export type Database = {
         }
         Relationships: []
       }
+      moderated_content: {
+        Row: {
+          content_id: string
+          content_type: string
+          created_at: string | null
+          id: string
+          moderator_id: string | null
+          reason: string
+        }
+        Insert: {
+          content_id: string
+          content_type: string
+          created_at?: string | null
+          id?: string
+          moderator_id?: string | null
+          reason: string
+        }
+        Update: {
+          content_id?: string
+          content_type?: string
+          created_at?: string | null
+          id?: string
+          moderator_id?: string | null
+          reason?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "moderated_content_moderator_id_fkey"
+            columns: ["moderator_id"]
+            isOneToOne: false
+            referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       moderation_words: {
         Row: {
           created_at: string | null
@@ -70,6 +105,7 @@ export type Database = {
           content: string
           created_at: string | null
           id: string
+          is_hidden: boolean | null
           topic_id: string | null
           updated_at: string | null
           user_id: string | null
@@ -78,6 +114,7 @@ export type Database = {
           content: string
           created_at?: string | null
           id?: string
+          is_hidden?: boolean | null
           topic_id?: string | null
           updated_at?: string | null
           user_id?: string | null
@@ -86,6 +123,7 @@ export type Database = {
           content?: string
           created_at?: string | null
           id?: string
+          is_hidden?: boolean | null
           topic_id?: string | null
           updated_at?: string | null
           user_id?: string | null
@@ -111,6 +149,7 @@ export type Database = {
         Row: {
           avatar_url: string | null
           bio: string | null
+          cover_url: string | null
           created_at: string | null
           id: string
           updated_at: string | null
@@ -119,6 +158,7 @@ export type Database = {
         Insert: {
           avatar_url?: string | null
           bio?: string | null
+          cover_url?: string | null
           created_at?: string | null
           id: string
           updated_at?: string | null
@@ -127,6 +167,7 @@ export type Database = {
         Update: {
           avatar_url?: string | null
           bio?: string | null
+          cover_url?: string | null
           created_at?: string | null
           id?: string
           updated_at?: string | null
@@ -139,7 +180,9 @@ export type Database = {
           created_at: string | null
           description: string
           downloads: number | null
+          file_url: string | null
           id: string
+          is_hidden: boolean | null
           rating: number | null
           resource_type: string
           title: string
@@ -151,7 +194,9 @@ export type Database = {
           created_at?: string | null
           description: string
           downloads?: number | null
+          file_url?: string | null
           id?: string
+          is_hidden?: boolean | null
           rating?: number | null
           resource_type: string
           title: string
@@ -163,7 +208,9 @@ export type Database = {
           created_at?: string | null
           description?: string
           downloads?: number | null
+          file_url?: string | null
           id?: string
+          is_hidden?: boolean | null
           rating?: number | null
           resource_type?: string
           title?: string
@@ -187,6 +234,7 @@ export type Database = {
           content: string
           created_at: string | null
           id: string
+          is_hidden: boolean | null
           is_locked: boolean | null
           is_pinned: boolean | null
           title: string
@@ -199,6 +247,7 @@ export type Database = {
           content: string
           created_at?: string | null
           id?: string
+          is_hidden?: boolean | null
           is_locked?: boolean | null
           is_pinned?: boolean | null
           title: string
@@ -211,6 +260,7 @@ export type Database = {
           content?: string
           created_at?: string | null
           id?: string
+          is_hidden?: boolean | null
           is_locked?: boolean | null
           is_pinned?: boolean | null
           title?: string
@@ -235,11 +285,41 @@ export type Database = {
           },
         ]
       }
+      user_roles: {
+        Row: {
+          created_at: string | null
+          id: string
+          role: Database["public"]["Enums"]["app_role"]
+          user_id: string
+        }
+        Insert: {
+          created_at?: string | null
+          id?: string
+          role?: Database["public"]["Enums"]["app_role"]
+          user_id: string
+        }
+        Update: {
+          created_at?: string | null
+          id?: string
+          role?: Database["public"]["Enums"]["app_role"]
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "user_roles_user_id_fkey"
+            columns: ["user_id"]
+            isOneToOne: false
+            referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       videos: {
         Row: {
           created_at: string | null
           description: string | null
           id: string
+          is_hidden: boolean | null
           likes: number | null
           thumbnail_url: string | null
           title: string
@@ -252,6 +332,7 @@ export type Database = {
           created_at?: string | null
           description?: string | null
           id?: string
+          is_hidden?: boolean | null
           likes?: number | null
           thumbnail_url?: string | null
           title: string
@@ -264,6 +345,7 @@ export type Database = {
           created_at?: string | null
           description?: string | null
           id?: string
+          is_hidden?: boolean | null
           likes?: number | null
           thumbnail_url?: string | null
           title?: string
@@ -287,10 +369,21 @@ export type Database = {
       [_ in never]: never
     }
     Functions: {
-      [_ in never]: never
+      check_and_upgrade_role: { Args: { _user_id: string }; Returns: undefined }
+      get_user_role: {
+        Args: { _user_id: string }
+        Returns: Database["public"]["Enums"]["app_role"]
+      }
+      has_role: {
+        Args: {
+          _role: Database["public"]["Enums"]["app_role"]
+          _user_id: string
+        }
+        Returns: boolean
+      }
     }
     Enums: {
-      [_ in never]: never
+      app_role: "newbie" | "pro" | "editor" | "moderator" | "admin"
     }
     CompositeTypes: {
       [_ in never]: never
@@ -417,6 +510,8 @@ export type CompositeTypes<
 
 export const Constants = {
   public: {
-    Enums: {},
+    Enums: {
+      app_role: ["newbie", "pro", "editor", "moderator", "admin"],
+    },
   },
 } as const
