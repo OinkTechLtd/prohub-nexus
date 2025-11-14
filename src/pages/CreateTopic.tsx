@@ -15,6 +15,7 @@ import {
   SelectValue,
 } from "@/components/ui/select";
 import { useToast } from "@/hooks/use-toast";
+import { moderateContent } from "@/lib/moderation";
 
 const CreateTopic = () => {
   const [user, setUser] = useState<any>(null);
