@@ -87,12 +87,18 @@ const Videos = () => {
             <h1 className="text-4xl font-bold mb-2">Видео</h1>
             <p className="text-muted-foreground">Смотрите и делитесь обучающими видео</p>
           </div>
-          {user && (
-            <Button onClick={() => navigate("/upload-video")} size="lg">
-              <Plus className="mr-2 h-5 w-5" />
-              Загрузить видео
+          <div className="flex gap-2">
+            <Button onClick={() => navigate("/videos/swipe")} variant="outline" size="lg">
+              <Play className="mr-2 h-5 w-5" />
+              Свайп режим
             </Button>
-          )}
+            {user && (
+              <Button onClick={() => navigate("/upload-video")} size="lg">
+                <Plus className="mr-2 h-5 w-5" />
+                Загрузить видео
+              </Button>
+            )}
+          </div>
         </div>
 
         {loading ? (

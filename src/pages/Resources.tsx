@@ -14,6 +14,8 @@ interface Resource {
   description: string;
   resource_type: string;
   url: string | null;
+  file_url: string | null;
+  is_hidden: boolean;
   downloads: number;
   rating: number;
   created_at: string;
@@ -81,6 +83,24 @@ const Resources = () => {
     return colors[type] || "bg-gray-500";
   };
 
+  const handleOpenResource = async (resource: Resource) => {
+    if (resource.file_url) {
+      // Download file
+      window.open(resource.file_url, '_blank');
+    } else if (resource.url) {
+      // Open URL
+      window.open(resource.url, '_blank');
+    }
+    
+    // Increment download count
+    await supabase
+      .from('resources')
+      .update({ downloads: resource.downloads + 1 })
+      .eq('id', resource.id);
+    
+    loadResources();
+  };
+
   return (
     <div className="min-h-screen bg-background">
       <Header user={user} />
@@ -128,21 +148,31 @@ const Resources = () => {
                 </CardHeader>
                 <CardContent>
                   <p className="text-sm mb-4">{resource.description}</p>
-                  <div className="flex items-center justify-between">
+                  <div className="flex items-center justify-between mb-4">
                     <div className="flex items-center text-sm text-muted-foreground">
                       <Download className="mr-1 h-4 w-4" />
                       {resource.downloads} загрузок
                     </div>
-                    {resource.url && (
-                      <Button
-                        size="sm"
-                        variant="outline"
-                        onClick={() => window.open(resource.url!, "_blank")}
-                      >
-                        <ExternalLink className="h-4 w-4" />
-                      </Button>
-                    )}
+                    <span className="text-sm text-muted-foreground">
+                      @{resource.profiles?.username}
+                    </span>
                   </div>
+                  <Button
+                    className="w-full"
+                    onClick={() => handleOpenResource(resource)}
+                  >
+                    {resource.file_url ? (
+                      <>
+                        <Download className="mr-2 h-4 w-4" />
+                        Скачать
+                      </>
+                    ) : (
+                      <>
+                        <ExternalLink className="mr-2 h-4 w-4" />
+                        Открыть
+                      </>
+                    )}
+                  </Button>
                 </CardContent>
               </Card>
             ))}

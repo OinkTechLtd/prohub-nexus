@@ -7,6 +7,7 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
 import { Label } from "@/components/ui/label";
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import {
   Select,
   SelectContent,
@@ -15,12 +16,16 @@ import {
   SelectValue,
 } from "@/components/ui/select";
 import { useToast } from "@/hooks/use-toast";
+import { resourceSchema } from "@/lib/schemas";
+import { Upload, Link2 } from "lucide-react";
 
 const CreateResource = () => {
   const [user, setUser] = useState<any>(null);
   const [title, setTitle] = useState("");
   const [description, setDescription] = useState("");
   const [url, setUrl] = useState("");
+  const [file, setFile] = useState<File | null>(null);
+  const [uploadType, setUploadType] = useState<"url" | "file">("url");
   const [resourceType, setResourceType] = useState("");
   const [loading, setLoading] = useState(false);
   const navigate = useNavigate();
@@ -49,15 +54,81 @@ const CreateResource = () => {
     e.preventDefault();
     if (!user) return;
 
+    // Validate with Zod
+    const validation = resourceSchema.safeParse({
+      title,
+      description,
+      resource_type: resourceType,
+      url: uploadType === "url" ? url : "",
+    });
+
+    if (!validation.success) {
+      const firstError = validation.error.issues[0];
+      toast({
+        title: "Ошибка валидации",
+        description: firstError.message,
+        variant: "destructive",
+      });
+      return;
+    }
+
     setLoading(true);
     try {
+      let fileUrl = null;
+
+      // Upload file if selected
+      if (uploadType === "file" && file) {
+        const fileExt = file.name.split('.').pop();
+        const fileName = `${user.id}-${Date.now()}.${fileExt}`;
+        const filePath = `${fileName}`;
+
+        const { error: uploadError } = await supabase.storage
+          .from('resource-files')
+          .upload(filePath, file);
+
+        if (uploadError) throw uploadError;
+
+        const { data: { publicUrl } } = supabase.storage
+          .from('resource-files')
+          .getPublicUrl(filePath);
+
+        fileUrl = publicUrl;
+      }
+
+      // Server-side moderation
+      const { data: { session } } = await supabase.auth.getSession();
+      const contentToModerate = `${title} ${description}`;
+      
+      const { data: moderationResult, error: moderationError } = await supabase.functions.invoke(
+        'moderate-content',
+        {
+          body: { content: contentToModerate, type: 'resource' },
+          headers: {
+            Authorization: `Bearer ${session?.access_token}`,
+          },
+        }
+      );
+
+      if (moderationError) throw moderationError;
+
+      if (!moderationResult.approved) {
+        toast({
+          title: "Неприемлемый контент",
+          description: moderationResult.reason || "Контент не прошёл модерацию",
+          variant: "destructive",
+        });
+        setLoading(false);
+        return;
+      }
+
       const { error } = await supabase
         .from("resources")
         .insert({
           user_id: user.id,
           title,
           description,
-          url: url || null,
+          url: uploadType === "url" ? url : null,
+          file_url: fileUrl,
           resource_type: resourceType,
         });
 
@@ -129,15 +200,46 @@ const CreateResource = () => {
                 />
               </div>
 
-              <div className="space-y-2">
-                <Label htmlFor="url">Ссылка (необязательно)</Label>
-                <Input
-                  id="url"
-                  type="url"
-                  value={url}
-                  onChange={(e) => setUrl(e.target.value)}
-                  placeholder="https://..."
-                />
+              <div className="space-y-4">
+                <Label>Способ добавления</Label>
+                <Tabs value={uploadType} onValueChange={(v) => setUploadType(v as "url" | "file")}>
+                  <TabsList className="grid w-full grid-cols-2">
+                    <TabsTrigger value="url">
+                      <Link2 className="mr-2 h-4 w-4" />
+                      Ссылка
+                    </TabsTrigger>
+                    <TabsTrigger value="file">
+                      <Upload className="mr-2 h-4 w-4" />
+                      Загрузить файл
+                    </TabsTrigger>
+                  </TabsList>
+                  
+                  <TabsContent value="url" className="space-y-2">
+                    <Label htmlFor="url">Ссылка на ресурс</Label>
+                    <Input
+                      id="url"
+                      type="url"
+                      value={url}
+                      onChange={(e) => setUrl(e.target.value)}
+                      placeholder="https://example.com/resource"
+                      required={uploadType === "url"}
+                    />
+                  </TabsContent>
+                  
+                  <TabsContent value="file" className="space-y-2">
+                    <Label htmlFor="file">Загрузить файл</Label>
+                    <Input
+                      id="file"
+                      type="file"
+                      onChange={(e) => setFile(e.target.files?.[0] || null)}
+                      required={uploadType === "file"}
+                      accept=".zip,.rar,.7z,.tar,.gz,.pdf,.doc,.docx,.txt,.md"
+                    />
+                    <p className="text-sm text-muted-foreground">
+                      Поддерживаемые форматы: архивы, документы
+                    </p>
+                  </TabsContent>
+                </Tabs>
               </div>
 
               <div className="flex space-x-4">
