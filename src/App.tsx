@@ -38,6 +38,7 @@ const App = () => (
           <Route path="/upload-video" element={<UploadVideo />} />
           <Route path="/video/:id" element={<VideoView />} />
           <Route path="/profile" element={<Profile />} />
+          <Route path="/profile/:username" element={<Profile />} />
           {/* ADD ALL CUSTOM ROUTES ABOVE THE CATCH-ALL "*" ROUTE */}
           <Route path="*" element={<NotFound />} />
         </Routes>
