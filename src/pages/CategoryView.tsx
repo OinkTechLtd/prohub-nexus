@@ -68,6 +68,7 @@ const CategoryView = () => {
           )
         `)
         .eq("category_id", categoryData.id)
+        .eq("is_hidden", false)
         .order("is_pinned", { ascending: false })
         .order("created_at", { ascending: false });
 
@@ -78,7 +79,8 @@ const CategoryView = () => {
           const { count } = await supabase
             .from("posts")
             .select("*", { count: "exact", head: true })
-            .eq("topic_id", topic.id);
+            .eq("topic_id", topic.id)
+            .eq("is_hidden", false);
 
           return {
             ...topic,

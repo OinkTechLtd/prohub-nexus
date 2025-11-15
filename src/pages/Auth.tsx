@@ -7,6 +7,7 @@ import { Label } from "@/components/ui/label";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { useToast } from "@/hooks/use-toast";
+import { signUpSchema, signInSchema } from "@/lib/authSchemas";
 
 const Auth = () => {
   const [email, setEmail] = useState("");
@@ -29,6 +30,24 @@ const Auth = () => {
     setLoading(true);
 
     try {
+      // Validate input
+      const validation = signUpSchema.safeParse({
+        email,
+        password,
+        username: username || undefined,
+      });
+
+      if (!validation.success) {
+        const firstError = validation.error.issues[0];
+        toast({
+          title: "Ошибка валидации",
+          description: firstError.message,
+          variant: "destructive",
+        });
+        setLoading(false);
+        return;
+      }
+
       const { error } = await supabase.auth.signUp({
         email,
         password,
@@ -64,6 +83,23 @@ const Auth = () => {
     setLoading(true);
 
     try {
+      // Validate input
+      const validation = signInSchema.safeParse({
+        email,
+        password,
+      });
+
+      if (!validation.success) {
+        const firstError = validation.error.issues[0];
+        toast({
+          title: "Ошибка валидации",
+          description: firstError.message,
+          variant: "destructive",
+        });
+        setLoading(false);
+        return;
+      }
+
       const { error } = await supabase.auth.signInWithPassword({
         email,
         password,

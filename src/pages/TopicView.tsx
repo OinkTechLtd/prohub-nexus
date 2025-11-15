@@ -7,7 +7,6 @@ import { Button } from "@/components/ui/button";
 import { Textarea } from "@/components/ui/textarea";
 import { Avatar, AvatarFallback } from "@/components/ui/avatar";
 import { useToast } from "@/hooks/use-toast";
-import { moderateContent } from "@/lib/moderation";
 import { formatDistanceToNow } from "date-fns";
 import { ru } from "date-fns/locale";
 import { Pin, Lock, Send } from "lucide-react";
@@ -97,6 +96,7 @@ const TopicView = () => {
           )
         `)
         .eq("topic_id", id)
+        .eq("is_hidden", false)
         .order("created_at", { ascending: true });
 
       if (postsError) throw postsError;
@@ -124,19 +124,33 @@ const TopicView = () => {
       return;
     }
 
-    // Check content moderation
-    const moderationCheck = moderateContent(newPost);
-    if (!moderationCheck.isClean) {
-      toast({
-        title: "Неприемлемый контент",
-        description: moderationCheck.reason,
-        variant: "destructive",
-      });
-      return;
-    }
-
     setPosting(true);
+
     try {
+      // Server-side moderation check
+      const { data: { session } } = await supabase.auth.getSession();
+      const { data: moderationResult, error: moderationError } = await supabase.functions.invoke(
+        'moderate-content',
+        {
+          body: { content: newPost, type: 'post' },
+          headers: {
+            Authorization: `Bearer ${session?.access_token}`,
+          },
+        }
+      );
+
+      if (moderationError) throw moderationError;
+
+      if (!moderationResult.approved) {
+        toast({
+          title: "Неприемлемый контент",
+          description: moderationResult.reason || "Контент не прошёл модерацию",
+          variant: "destructive",
+        });
+        setPosting(false);
+        return;
+      }
+
       const { error } = await supabase.from("posts").insert({
         topic_id: id,
         user_id: user.id,
@@ -147,6 +161,10 @@ const TopicView = () => {
 
       setNewPost("");
       loadTopicAndPosts();
+      
+      // Check and upgrade user role
+      await supabase.rpc('check_and_upgrade_role', { _user_id: user.id });
+      
       toast({
         title: "Сообщение отправлено",
       });
