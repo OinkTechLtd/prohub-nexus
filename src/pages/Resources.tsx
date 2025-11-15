@@ -55,6 +55,7 @@ const Resources = () => {
             username
           )
         `)
+        .eq("is_hidden", false)
         .order("created_at", { ascending: false });
 
       if (error) throw error;

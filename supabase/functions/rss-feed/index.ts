@@ -30,6 +30,7 @@ serve(async (req) => {
         profiles!topics_user_id_fkey (username),
         categories!topics_category_id_fkey (name, slug)
       `)
+      .eq('is_hidden', false)
       .order('created_at', { ascending: false })
       .limit(50);
 

@@ -53,7 +53,8 @@ const Forum = () => {
           const { count } = await supabase
             .from("topics")
             .select("*", { count: "exact", head: true })
-            .eq("category_id", category.id);
+            .eq("category_id", category.id)
+            .eq("is_hidden", false);
 
           return {
             ...category,
