@@ -2,6 +2,7 @@ import { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { supabase } from "@/integrations/supabase/client";
 import Header from "@/components/Header";
+import UserLink from "@/components/UserLink";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
@@ -144,7 +145,9 @@ const Resources = () => {
                     </div>
                   </div>
                   <CardTitle className="text-xl">{resource.title}</CardTitle>
-                  <CardDescription>от {resource.profiles?.username}</CardDescription>
+                  <CardDescription className="flex items-center gap-2">
+                    от <UserLink username={resource.profiles?.username} showAvatar={false} />
+                  </CardDescription>
                 </CardHeader>
                 <CardContent>
                   <p className="text-sm mb-4">{resource.description}</p>
@@ -153,9 +156,6 @@ const Resources = () => {
                       <Download className="mr-1 h-4 w-4" />
                       {resource.downloads} загрузок
                     </div>
-                    <span className="text-sm text-muted-foreground">
-                      @{resource.profiles?.username}
-                    </span>
                   </div>
                   <Button
                     className="w-full"

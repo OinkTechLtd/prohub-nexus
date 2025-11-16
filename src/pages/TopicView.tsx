@@ -2,6 +2,7 @@ import { useEffect, useState } from "react";
 import { useParams, useNavigate } from "react-router-dom";
 import { supabase } from "@/integrations/supabase/client";
 import Header from "@/components/Header";
+import UserLink from "@/components/UserLink";
 import { Card, CardContent } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Textarea } from "@/components/ui/textarea";
@@ -213,8 +214,8 @@ const TopicView = () => {
                   {topic?.is_locked && <Lock className="h-4 w-4 text-muted-foreground" />}
                   <h1 className="text-3xl font-bold">{topic?.title}</h1>
                 </div>
-                <p className="text-sm text-muted-foreground mb-4">
-                  от {topic?.profiles?.username} •{" "}
+                <p className="text-sm text-muted-foreground mb-4 flex items-center gap-2">
+                  от <UserLink username={topic?.profiles?.username} showAvatar={false} /> •{" "}
                   {formatDistanceToNow(new Date(topic?.created_at), {
                     addSuffix: true,
                     locale: ru,
@@ -240,7 +241,7 @@ const TopicView = () => {
                   </Avatar>
                   <div className="flex-1">
                     <div className="flex items-center space-x-2 mb-2">
-                      <span className="font-semibold">{post.profiles?.username}</span>
+                      <UserLink username={post.profiles?.username} avatarUrl={post.profiles?.avatar_url} />
                       <span className="text-xs text-muted-foreground">
                         {formatDistanceToNow(new Date(post.created_at), {
                           addSuffix: true,
