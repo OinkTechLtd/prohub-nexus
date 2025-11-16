@@ -200,7 +200,7 @@ const Profile = () => {
 
     const file = e.target.files[0];
     const fileExt = file.name.split('.').pop();
-    const fileName = `${currentUser.id}-avatar.${fileExt}`;
+    const fileName = `${currentUser.id}/avatar-${Date.now()}.${fileExt}`;
 
     try {
       const { error: uploadError } = await supabase.storage
@@ -236,7 +236,7 @@ const Profile = () => {
 
     const file = e.target.files[0];
     const fileExt = file.name.split('.').pop();
-    const fileName = `${currentUser.id}-cover.${fileExt}`;
+    const fileName = `${currentUser.id}/cover-${Date.now()}.${fileExt}`;
 
     try {
       const { error: uploadError } = await supabase.storage

@@ -2,6 +2,7 @@ import { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { supabase } from "@/integrations/supabase/client";
 import Header from "@/components/Header";
+import UserLink from "@/components/UserLink";
 import { Card, CardContent } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Plus, Play, Eye, ThumbsUp } from "lucide-react";
@@ -145,13 +146,12 @@ const Videos = () => {
                   <p className="text-sm text-muted-foreground line-clamp-2">
                     {video.description || "Без описания"}
                   </p>
-                  <div className="flex items-center gap-2 mt-2">
-                    <div className="w-6 h-6 rounded-full bg-primary/20 flex items-center justify-center text-xs font-semibold">
-                      {video.profiles?.username?.[0]?.toUpperCase() || "?"}
-                    </div>
-                    <span className="text-xs text-muted-foreground">
-                      {video.profiles?.username || "Аноним"}
-                    </span>
+                  <div className="mt-2">
+                    <UserLink 
+                      username={video.profiles?.username || "Аноним"} 
+                      avatarUrl={video.profiles?.avatar_url}
+                      className="text-xs"
+                    />
                   </div>
                 </CardContent>
               </Card>

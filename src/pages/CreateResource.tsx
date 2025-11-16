@@ -80,7 +80,7 @@ const CreateResource = () => {
       if (uploadType === "file" && file) {
         const fileExt = file.name.split('.').pop();
         const fileName = `${user.id}-${Date.now()}.${fileExt}`;
-        const filePath = `${fileName}`;
+        const filePath = `${user.id}/${fileName}`;
 
         const { error: uploadError } = await supabase.storage
           .from('resource-files')

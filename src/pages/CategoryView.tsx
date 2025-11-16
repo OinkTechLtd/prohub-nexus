@@ -2,6 +2,7 @@ import { useEffect, useState } from "react";
 import { useParams, useNavigate } from "react-router-dom";
 import { supabase } from "@/integrations/supabase/client";
 import Header from "@/components/Header";
+import UserLink from "@/components/UserLink";
 import { Card, CardContent } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { MessageSquare, Eye, Pin, Lock, Plus } from "lucide-react";
@@ -155,8 +156,8 @@ const CategoryView = () => {
                           {topic.title}
                         </h3>
                       </div>
-                      <p className="text-sm text-muted-foreground">
-                        от {topic.profiles?.username} •{" "}
+                      <p className="text-sm text-muted-foreground flex items-center gap-2">
+                        от <UserLink username={topic.profiles?.username} showAvatar={false} /> •{" "}
                         {formatDistanceToNow(new Date(topic.created_at), {
                           addSuffix: true,
                           locale: ru,
