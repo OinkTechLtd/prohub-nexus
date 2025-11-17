@@ -287,18 +287,27 @@ export type Database = {
       }
       user_roles: {
         Row: {
+          assigned_at: string | null
+          can_moderate_resources: boolean | null
+          can_moderate_topics: boolean | null
           created_at: string | null
           id: string
           role: Database["public"]["Enums"]["app_role"]
           user_id: string
         }
         Insert: {
+          assigned_at?: string | null
+          can_moderate_resources?: boolean | null
+          can_moderate_topics?: boolean | null
           created_at?: string | null
           id?: string
           role?: Database["public"]["Enums"]["app_role"]
           user_id: string
         }
         Update: {
+          assigned_at?: string | null
+          can_moderate_resources?: boolean | null
+          can_moderate_topics?: boolean | null
           created_at?: string | null
           id?: string
           role?: Database["public"]["Enums"]["app_role"]
@@ -370,6 +379,10 @@ export type Database = {
     }
     Functions: {
       check_and_upgrade_role: { Args: { _user_id: string }; Returns: undefined }
+      check_editor_to_moderator_upgrade: {
+        Args: { _user_id: string }
+        Returns: boolean
+      }
       get_user_role: {
         Args: { _user_id: string }
         Returns: Database["public"]["Enums"]["app_role"]
@@ -381,6 +394,7 @@ export type Database = {
         }
         Returns: boolean
       }
+      randomly_assign_editor_role: { Args: never; Returns: undefined }
     }
     Enums: {
       app_role: "newbie" | "pro" | "editor" | "moderator" | "admin"
