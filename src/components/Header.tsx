@@ -3,8 +3,9 @@ import { Button } from "./ui/button";
 import { Avatar, AvatarFallback } from "./ui/avatar";
 import { supabase } from "@/integrations/supabase/client";
 import { useToast } from "@/hooks/use-toast";
-import { LogOut, User } from "lucide-react";
+import { LogOut, User, Shield } from "lucide-react";
 import RSSFeed from "./RSSFeed";
+import { useUserRole } from "@/hooks/useUserRole";
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -19,6 +20,7 @@ interface HeaderProps {
 const Header = ({ user }: HeaderProps) => {
   const navigate = useNavigate();
   const { toast } = useToast();
+  const { canModerateResources, canModerateTopics } = useUserRole();
 
   const handleSignOut = async () => {
     await supabase.auth.signOut();
@@ -28,6 +30,8 @@ const Header = ({ user }: HeaderProps) => {
     });
     navigate("/auth");
   };
+
+  const showModeratorLink = canModerateResources || canModerateTopics;
 
   return (
     <header className="sticky top-0 z-50 w-full border-b bg-card shadow-sm">
@@ -46,6 +50,12 @@ const Header = ({ user }: HeaderProps) => {
           <Link to="/videos" className="text-sm font-medium hover:text-primary transition-colors">
             Видео
           </Link>
+          {showModeratorLink && (
+            <Link to="/moderator/resources" className="text-sm font-medium hover:text-primary transition-colors flex items-center gap-1">
+              <Shield className="h-4 w-4" />
+              Модерация
+            </Link>
+          )}
           <RSSFeed />
         </nav>
 
