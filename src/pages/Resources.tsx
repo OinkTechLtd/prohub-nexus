@@ -6,7 +6,8 @@ import UserLink from "@/components/UserLink";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
-import { Download, Star, Plus, ExternalLink } from "lucide-react";
+import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert";
+import { Download, Star, Plus, ExternalLink, AlertCircle } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
 
 interface Resource {
@@ -58,7 +59,6 @@ const Resources = () => {
             username
           )
         `)
-        .eq("is_hidden", false)
         .order("created_at", { ascending: false });
 
       if (error) throw error;
@@ -157,22 +157,33 @@ const Resources = () => {
                       {resource.downloads} загрузок
                     </div>
                   </div>
-                  <Button
-                    className="w-full"
-                    onClick={() => handleOpenResource(resource)}
-                  >
-                    {resource.file_url ? (
-                      <>
-                        <Download className="mr-2 h-4 w-4" />
-                        Скачать
-                      </>
-                    ) : (
-                      <>
-                        <ExternalLink className="mr-2 h-4 w-4" />
-                        Открыть
-                      </>
-                    )}
-                  </Button>
+                  
+                  {resource.is_hidden ? (
+                    <Alert variant="destructive">
+                      <AlertCircle className="h-4 w-4" />
+                      <AlertTitle>Ресурс удалён</AlertTitle>
+                      <AlertDescription>
+                        Данный ресурс был удалён модератором и больше недоступен.
+                      </AlertDescription>
+                    </Alert>
+                  ) : (
+                    <Button
+                      className="w-full"
+                      onClick={() => handleOpenResource(resource)}
+                    >
+                      {resource.file_url ? (
+                        <>
+                          <Download className="mr-2 h-4 w-4" />
+                          Скачать
+                        </>
+                      ) : (
+                        <>
+                          <ExternalLink className="mr-2 h-4 w-4" />
+                          Открыть
+                        </>
+                      )}
+                    </Button>
+                  )}
                 </CardContent>
               </Card>
             ))}

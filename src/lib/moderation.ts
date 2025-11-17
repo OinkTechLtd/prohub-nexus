@@ -1,4 +1,6 @@
 // Simple content moderation utility
+import { supabase } from "@/integrations/supabase/client";
+
 const BLOCKED_PATTERNS = [
   /спам/gi,
   /реклама/gi,
@@ -46,4 +48,135 @@ export function moderateContent(text: string): { isClean: boolean; reason?: stri
   }
 
   return { isClean: true };
+}
+
+// Новые функции для модерации
+
+export async function hideContent(
+  contentType: 'topic' | 'post' | 'resource' | 'video',
+  contentId: string,
+  reason: string
+) {
+  const { data: { user } } = await supabase.auth.getUser();
+  if (!user) throw new Error('Not authenticated');
+
+  // Скрыть контент
+  const tableName = contentType === 'post' ? 'posts' : 
+                   contentType === 'topic' ? 'topics' : 
+                   contentType === 'resource' ? 'resources' : 'videos';
+
+  const { error: updateError } = await supabase
+    .from(tableName)
+    .update({ is_hidden: true })
+    .eq('id', contentId);
+
+  if (updateError) throw updateError;
+
+  // Добавить запись в moderated_content
+  const { error: moderationError } = await supabase
+    .from('moderated_content')
+    .insert({
+      content_type: contentType,
+      content_id: contentId,
+      reason,
+      moderator_id: user.id,
+    });
+
+  if (moderationError) throw moderationError;
+}
+
+export async function unhideContent(
+  contentType: 'topic' | 'post' | 'resource' | 'video',
+  contentId: string,
+  reason?: string
+) {
+  const { data: { user } } = await supabase.auth.getUser();
+  if (!user) throw new Error('Not authenticated');
+
+  // Восстановить контент
+  const tableName = contentType === 'post' ? 'posts' : 
+                   contentType === 'topic' ? 'topics' : 
+                   contentType === 'resource' ? 'resources' : 'videos';
+
+  const { error: updateError } = await supabase
+    .from(tableName)
+    .update({ is_hidden: false })
+    .eq('id', contentId);
+
+  if (updateError) throw updateError;
+
+  // Опционально добавить запись о восстановлении
+  if (reason) {
+    await supabase
+      .from('moderated_content')
+      .insert({
+        content_type: contentType,
+        content_id: contentId,
+        reason: `Восстановлено: ${reason}`,
+        moderator_id: user.id,
+      });
+  }
+}
+
+export async function getModerationHistory(
+  contentType: string,
+  contentId: string
+) {
+  const { data, error } = await supabase
+    .from('moderated_content')
+    .select(`
+      *,
+      profiles:moderator_id (
+        username
+      )
+    `)
+    .eq('content_type', contentType)
+    .eq('content_id', contentId)
+    .order('created_at', { ascending: false });
+
+  if (error) throw error;
+  return data;
+}
+
+export async function getModeratedContent(
+  contentType: 'topic' | 'post' | 'resource' | 'video',
+  filters?: {
+    status?: 'all' | 'hidden' | 'active';
+    search?: string;
+  }
+) {
+  const tableName = contentType === 'post' ? 'posts' : 
+                   contentType === 'topic' ? 'topics' : 
+                   contentType === 'resource' ? 'resources' : 'videos';
+
+  let query = supabase
+    .from(tableName)
+    .select(`
+      *,
+      profiles (
+        username
+      )
+    `);
+
+  // Фильтр по статусу
+  if (filters?.status === 'hidden') {
+    query = query.eq('is_hidden', true);
+  } else if (filters?.status === 'active') {
+    query = query.eq('is_hidden', false);
+  }
+
+  // Поиск по названию/контенту
+  if (filters?.search) {
+    if (contentType === 'resource' || contentType === 'video') {
+      query = query.ilike('title', `%${filters.search}%`);
+    } else {
+      query = query.or(`title.ilike.%${filters.search}%,content.ilike.%${filters.search}%`);
+    }
+  }
+
+  query = query.order('created_at', { ascending: false }).limit(100);
+
+  const { data, error } = await query;
+  if (error) throw error;
+  return data;
 }
