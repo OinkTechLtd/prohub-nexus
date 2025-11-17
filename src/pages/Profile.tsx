@@ -12,7 +12,7 @@ import { Badge } from "@/components/ui/badge";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { useToast } from "@/hooks/use-toast";
 import { profileSchema } from "@/lib/schemas";
-import { Upload, Camera, Edit } from "lucide-react";
+import { Upload, Camera, Edit, MessageCircle } from "lucide-react";
 import { formatDistanceToNow } from "date-fns";
 import { ru } from "date-fns/locale";
 
@@ -304,6 +304,61 @@ const Profile = () => {
     }
   };
 
+  const handleStartChat = async () => {
+    if (!currentUser || !profile) return;
+
+    try {
+      // Проверить, есть ли уже чат между этими пользователями
+      const { data: existingChats } = await supabase
+        .from("chat_participants")
+        .select("chat_id")
+        .eq("user_id", currentUser.id);
+
+      if (existingChats && existingChats.length > 0) {
+        // Проверить, есть ли общий чат с этим пользователем
+        const chatIds = existingChats.map((c) => c.chat_id);
+        const { data: otherUserChats } = await supabase
+          .from("chat_participants")
+          .select("chat_id")
+          .eq("user_id", profile.id)
+          .in("chat_id", chatIds);
+
+        if (otherUserChats && otherUserChats.length > 0) {
+          // Чат уже существует, перейти к нему
+          navigate(`/chat/${otherUserChats[0].chat_id}`);
+          return;
+        }
+      }
+
+      // Создать новый чат
+      const { data: newChat, error: chatError } = await supabase
+        .from("chats")
+        .insert({})
+        .select()
+        .single();
+
+      if (chatError) throw chatError;
+
+      // Добавить участников
+      const { error: participantsError } = await supabase
+        .from("chat_participants")
+        .insert([
+          { chat_id: newChat.id, user_id: currentUser.id },
+          { chat_id: newChat.id, user_id: profile.id },
+        ]);
+
+      if (participantsError) throw participantsError;
+
+      navigate(`/chat/${newChat.id}`);
+    } catch (error: any) {
+      toast({
+        title: "Ошибка",
+        description: error.message,
+        variant: "destructive",
+      });
+    }
+  };
+
   const getRoleBadgeColor = (role: string) => {
     const colors: Record<string, string> = {
       admin: "bg-red-500",
@@ -397,6 +452,12 @@ const Profile = () => {
                     <Button variant="outline" size="sm" onClick={() => setEditMode(true)}>
                       <Edit className="h-4 w-4 mr-2" />
                       Редактировать
+                    </Button>
+                  )}
+                  {!isOwnProfile && (
+                    <Button variant="default" size="sm" onClick={handleStartChat}>
+                      <MessageCircle className="h-4 w-4 mr-2" />
+                      Написать сообщение
                     </Button>
                   )}
                 </div>
