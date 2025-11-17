@@ -16,6 +16,8 @@ import UploadVideo from "./pages/UploadVideo";
 import VideoView from "./pages/VideoView";
 import VideoSwiper from "./pages/VideoSwiper";
 import ModeratorResources from "./pages/ModeratorResources";
+import Messages from "./pages/Messages";
+import Chat from "./pages/Chat";
 import NotFound from "./pages/NotFound";
 
 const queryClient = new QueryClient();
@@ -41,6 +43,8 @@ const App = () => (
           <Route path="/profile" element={<Profile />} />
           <Route path="/profile/:username" element={<Profile />} />
           <Route path="/moderator/resources" element={<ModeratorResources />} />
+          <Route path="/messages" element={<Messages />} />
+          <Route path="/chat/:id" element={<Chat />} />
           {/* ADD ALL CUSTOM ROUTES ABOVE THE CATCH-ALL "*" ROUTE */}
           <Route path="*" element={<NotFound />} />
         </Routes>

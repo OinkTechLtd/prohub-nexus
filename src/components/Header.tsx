@@ -3,7 +3,7 @@ import { Button } from "./ui/button";
 import { Avatar, AvatarFallback } from "./ui/avatar";
 import { supabase } from "@/integrations/supabase/client";
 import { useToast } from "@/hooks/use-toast";
-import { LogOut, User, Shield } from "lucide-react";
+import { LogOut, User, Shield, MessageCircle } from "lucide-react";
 import RSSFeed from "./RSSFeed";
 import { useUserRole } from "@/hooks/useUserRole";
 import {
@@ -61,27 +61,41 @@ const Header = ({ user }: HeaderProps) => {
 
         <div className="flex items-center space-x-4">
           {user ? (
-            <DropdownMenu>
-              <DropdownMenuTrigger asChild>
-                <Button variant="ghost" className="relative h-10 w-10 rounded-full">
-                  <Avatar>
-                    <AvatarFallback className="bg-primary text-primary-foreground">
-                      {user.email?.[0]?.toUpperCase()}
-                    </AvatarFallback>
-                  </Avatar>
-                </Button>
-              </DropdownMenuTrigger>
-              <DropdownMenuContent align="end">
-                <DropdownMenuItem onClick={() => navigate("/profile")}>
-                  <User className="mr-2 h-4 w-4" />
-                  Профиль
-                </DropdownMenuItem>
-                <DropdownMenuItem onClick={handleSignOut}>
-                  <LogOut className="mr-2 h-4 w-4" />
-                  Выйти
-                </DropdownMenuItem>
-              </DropdownMenuContent>
-            </DropdownMenu>
+            <>
+              <Button
+                variant="ghost"
+                size="sm"
+                onClick={() => navigate("/messages")}
+                className="hidden md:flex"
+              >
+                <MessageCircle className="h-5 w-5" />
+              </Button>
+              <DropdownMenu>
+                <DropdownMenuTrigger asChild>
+                  <Button variant="ghost" className="relative h-10 w-10 rounded-full">
+                    <Avatar>
+                      <AvatarFallback className="bg-primary text-primary-foreground">
+                        {user.email?.[0]?.toUpperCase()}
+                      </AvatarFallback>
+                    </Avatar>
+                  </Button>
+                </DropdownMenuTrigger>
+                <DropdownMenuContent align="end">
+                  <DropdownMenuItem onClick={() => navigate("/profile")}>
+                    <User className="mr-2 h-4 w-4" />
+                    Профиль
+                  </DropdownMenuItem>
+                  <DropdownMenuItem onClick={() => navigate("/messages")} className="md:hidden">
+                    <MessageCircle className="mr-2 h-4 w-4" />
+                    Сообщения
+                  </DropdownMenuItem>
+                  <DropdownMenuItem onClick={handleSignOut}>
+                    <LogOut className="mr-2 h-4 w-4" />
+                    Выйти
+                  </DropdownMenuItem>
+                </DropdownMenuContent>
+              </DropdownMenu>
+            </>
           ) : (
             <Button onClick={() => navigate("/auth")}>
               Войти
