@@ -160,6 +160,11 @@ const TopicView = () => {
 
       if (error) throw error;
 
+      // Check achievements
+      await supabase.rpc("check_and_award_achievements", {
+        _user_id: user.id,
+      });
+
       setNewPost("");
       loadTopicAndPosts();
       

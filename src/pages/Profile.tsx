@@ -12,9 +12,11 @@ import { Badge } from "@/components/ui/badge";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { useToast } from "@/hooks/use-toast";
 import { profileSchema } from "@/lib/schemas";
-import { Upload, Camera, Edit, MessageCircle } from "lucide-react";
+import { Upload, Camera, Edit, MessageCircle, Trophy } from "lucide-react";
 import { formatDistanceToNow } from "date-fns";
 import { ru } from "date-fns/locale";
+import { useAchievements } from "@/hooks/useAchievements";
+import { AchievementCard } from "@/components/AchievementCard";
 
 interface Topic {
   id: string;
@@ -56,6 +58,15 @@ const Profile = () => {
   const [stats, setStats] = useState({ topics: 0, posts: 0, resources: 0 });
   const navigate = useNavigate();
   const { toast } = useToast();
+  
+  const { 
+    achievementsWithProgress, 
+    totalPoints, 
+    earnedCount, 
+    totalCount,
+    checkAchievements,
+    isLoading: isLoadingAchievements 
+  } = useAchievements(profile?.id);
 
   useEffect(() => {
     supabase.auth.getSession().then(({ data: { session } }) => {
@@ -92,6 +103,16 @@ const Profile = () => {
       setIsOwnProfile(currentUserId === profileData.id);
       
       await loadUserData(profileData.id);
+      
+      // Check achievements after loading profile
+      if (profileData.id) {
+        checkAchievements(profileData.id);
+      }
+      
+      // Check achievements after loading profile
+      if (profileData.id) {
+        checkAchievements(profileData.id);
+      }
     } catch (error: any) {
       toast({
         title: "Пользователь не найден",
@@ -513,6 +534,14 @@ const Profile = () => {
                     <div className="text-2xl font-bold">{stats.resources}</div>
                     <div className="text-sm text-muted-foreground">Ресурсов</div>
                   </div>
+                  <div className="text-center">
+                    <div className="text-2xl font-bold">{earnedCount}/{totalCount}</div>
+                    <div className="text-sm text-muted-foreground">Достижений</div>
+                  </div>
+                  <div className="text-center">
+                    <div className="text-2xl font-bold text-amber-600 dark:text-amber-400">{totalPoints}</div>
+                    <div className="text-sm text-muted-foreground">Очков</div>
+                  </div>
                 </div>
               </div>
             </div>
@@ -521,10 +550,14 @@ const Profile = () => {
 
         {/* Tabs with Content */}
         <Tabs defaultValue="topics" className="mt-6">
-          <TabsList className="grid w-full grid-cols-3">
+          <TabsList className="grid w-full grid-cols-4">
             <TabsTrigger value="topics">Темы</TabsTrigger>
             <TabsTrigger value="posts">Сообщения</TabsTrigger>
             <TabsTrigger value="resources">Ресурсы</TabsTrigger>
+            <TabsTrigger value="achievements">
+              <Trophy className="h-4 w-4 mr-2" />
+              Достижения
+            </TabsTrigger>
           </TabsList>
 
           <TabsContent value="topics" className="space-y-4 mt-4">
@@ -624,6 +657,64 @@ const Profile = () => {
                   </Card>
                 ))}
               </div>
+            )}
+          </TabsContent>
+
+          <TabsContent value="achievements" className="space-y-4 mt-4">
+            {isLoadingAchievements ? (
+              <Card>
+                <CardContent className="py-12 text-center text-muted-foreground">
+                  Загрузка достижений...
+                </CardContent>
+              </Card>
+            ) : achievementsWithProgress.length === 0 ? (
+              <Card>
+                <CardContent className="py-12 text-center text-muted-foreground">
+                  Достижений пока нет
+                </CardContent>
+              </Card>
+            ) : (
+              <>
+                <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-3">
+                  {achievementsWithProgress
+                    .filter((a) => a.earned)
+                    .map((achievement) => (
+                      <AchievementCard
+                        key={achievement.id}
+                        name={achievement.name}
+                        description={achievement.description}
+                        icon={achievement.icon}
+                        color={achievement.badge_color}
+                        points={achievement.points}
+                        earned={achievement.earned}
+                        earnedAt={achievement.earnedAt}
+                      />
+                    ))}
+                </div>
+                
+                {achievementsWithProgress.filter((a) => !a.earned).length > 0 && (
+                  <div className="mt-8">
+                    <h3 className="text-lg font-semibold mb-4 text-muted-foreground">
+                      Заблокированные достижения
+                    </h3>
+                    <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-3">
+                      {achievementsWithProgress
+                        .filter((a) => !a.earned)
+                        .map((achievement) => (
+                          <AchievementCard
+                            key={achievement.id}
+                            name={achievement.name}
+                            description={achievement.description}
+                            icon={achievement.icon}
+                            color={achievement.badge_color}
+                            points={achievement.points}
+                            earned={false}
+                          />
+                        ))}
+                    </div>
+                  </div>
+                )}
+              </>
             )}
           </TabsContent>
         </Tabs>
