@@ -101,6 +101,11 @@ const UploadVideo = () => {
 
       if (insertError) throw insertError;
 
+      // Check achievements
+      await supabase.rpc("check_and_award_achievements", {
+        _user_id: user.id,
+      });
+
       toast({
         title: "Видео загружено!",
         description: "Ваше видео успешно опубликовано",
