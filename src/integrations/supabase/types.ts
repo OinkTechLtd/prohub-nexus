@@ -50,6 +50,162 @@ export type Database = {
         }
         Relationships: []
       }
+      ad_campaigns: {
+        Row: {
+          ad_type: string
+          budget_spent: number
+          budget_total: number
+          cost_per_click: number
+          cost_per_view: number
+          created_at: string | null
+          description: string | null
+          id: string
+          status: string
+          target_interests: string[] | null
+          title: string
+          updated_at: string | null
+          user_id: string
+        }
+        Insert: {
+          ad_type: string
+          budget_spent?: number
+          budget_total?: number
+          cost_per_click?: number
+          cost_per_view?: number
+          created_at?: string | null
+          description?: string | null
+          id?: string
+          status?: string
+          target_interests?: string[] | null
+          title: string
+          updated_at?: string | null
+          user_id: string
+        }
+        Update: {
+          ad_type?: string
+          budget_spent?: number
+          budget_total?: number
+          cost_per_click?: number
+          cost_per_view?: number
+          created_at?: string | null
+          description?: string | null
+          id?: string
+          status?: string
+          target_interests?: string[] | null
+          title?: string
+          updated_at?: string | null
+          user_id?: string
+        }
+        Relationships: []
+      }
+      ad_clicks: {
+        Row: {
+          ad_id: string
+          clicked_at: string | null
+          id: string
+          user_id: string | null
+        }
+        Insert: {
+          ad_id: string
+          clicked_at?: string | null
+          id?: string
+          user_id?: string | null
+        }
+        Update: {
+          ad_id?: string
+          clicked_at?: string | null
+          id?: string
+          user_id?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "ad_clicks_ad_id_fkey"
+            columns: ["ad_id"]
+            isOneToOne: false
+            referencedRelation: "ads"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      ad_impressions: {
+        Row: {
+          ad_id: string
+          duration_viewed: number | null
+          id: string
+          user_id: string | null
+          viewed_at: string | null
+        }
+        Insert: {
+          ad_id: string
+          duration_viewed?: number | null
+          id?: string
+          user_id?: string | null
+          viewed_at?: string | null
+        }
+        Update: {
+          ad_id?: string
+          duration_viewed?: number | null
+          id?: string
+          user_id?: string | null
+          viewed_at?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "ad_impressions_ad_id_fkey"
+            columns: ["ad_id"]
+            isOneToOne: false
+            referencedRelation: "ads"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      ads: {
+        Row: {
+          campaign_id: string
+          click_url: string | null
+          created_at: string | null
+          description: string | null
+          duration: number | null
+          height: number | null
+          id: string
+          media_url: string | null
+          title: string
+          width: number | null
+        }
+        Insert: {
+          campaign_id: string
+          click_url?: string | null
+          created_at?: string | null
+          description?: string | null
+          duration?: number | null
+          height?: number | null
+          id?: string
+          media_url?: string | null
+          title: string
+          width?: number | null
+        }
+        Update: {
+          campaign_id?: string
+          click_url?: string | null
+          created_at?: string | null
+          description?: string | null
+          duration?: number | null
+          height?: number | null
+          id?: string
+          media_url?: string | null
+          title?: string
+          width?: number | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "ads_campaign_id_fkey"
+            columns: ["campaign_id"]
+            isOneToOne: false
+            referencedRelation: "ad_campaigns"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       categories: {
         Row: {
           created_at: string | null
@@ -483,6 +639,71 @@ export type Database = {
           },
         ]
       }
+      user_earnings: {
+        Row: {
+          ad_id: string | null
+          amount: number
+          crypto_tx_id: string | null
+          earned_at: string | null
+          id: string
+          source: string
+          user_id: string
+          withdrawn: boolean | null
+        }
+        Insert: {
+          ad_id?: string | null
+          amount?: number
+          crypto_tx_id?: string | null
+          earned_at?: string | null
+          id?: string
+          source: string
+          user_id: string
+          withdrawn?: boolean | null
+        }
+        Update: {
+          ad_id?: string | null
+          amount?: number
+          crypto_tx_id?: string | null
+          earned_at?: string | null
+          id?: string
+          source?: string
+          user_id?: string
+          withdrawn?: boolean | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "user_earnings_ad_id_fkey"
+            columns: ["ad_id"]
+            isOneToOne: false
+            referencedRelation: "ads"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      user_interests: {
+        Row: {
+          id: string
+          interest: string
+          score: number | null
+          updated_at: string | null
+          user_id: string
+        }
+        Insert: {
+          id?: string
+          interest: string
+          score?: number | null
+          updated_at?: string | null
+          user_id: string
+        }
+        Update: {
+          id?: string
+          interest?: string
+          score?: number | null
+          updated_at?: string | null
+          user_id?: string
+        }
+        Relationships: []
+      }
       user_roles: {
         Row: {
           assigned_at: string | null
@@ -570,6 +791,42 @@ export type Database = {
             referencedColumns: ["id"]
           },
         ]
+      }
+      withdrawal_requests: {
+        Row: {
+          amount: number
+          created_at: string | null
+          crypto_address: string
+          crypto_currency: string
+          id: string
+          processed_at: string | null
+          status: string
+          tx_id: string | null
+          user_id: string
+        }
+        Insert: {
+          amount: number
+          created_at?: string | null
+          crypto_address: string
+          crypto_currency?: string
+          id?: string
+          processed_at?: string | null
+          status?: string
+          tx_id?: string | null
+          user_id: string
+        }
+        Update: {
+          amount?: number
+          created_at?: string | null
+          crypto_address?: string
+          crypto_currency?: string
+          id?: string
+          processed_at?: string | null
+          status?: string
+          tx_id?: string | null
+          user_id?: string
+        }
+        Relationships: []
       }
     }
     Views: {

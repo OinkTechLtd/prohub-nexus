@@ -18,6 +18,9 @@ import VideoSwiper from "./pages/VideoSwiper";
 import ModeratorResources from "./pages/ModeratorResources";
 import Messages from "./pages/Messages";
 import Chat from "./pages/Chat";
+import CreateAd from "./pages/CreateAd";
+import AdsDashboard from "./pages/AdsDashboard";
+import Withdraw from "./pages/Withdraw";
 import NotFound from "./pages/NotFound";
 
 const queryClient = new QueryClient();
@@ -45,6 +48,9 @@ const App = () => (
           <Route path="/moderator/resources" element={<ModeratorResources />} />
           <Route path="/messages" element={<Messages />} />
           <Route path="/chat/:id" element={<Chat />} />
+          <Route path="/create-ad" element={<CreateAd />} />
+          <Route path="/ads-dashboard" element={<AdsDashboard />} />
+          <Route path="/withdraw" element={<Withdraw />} />
           {/* ADD ALL CUSTOM ROUTES ABOVE THE CATCH-ALL "*" ROUTE */}
           <Route path="*" element={<NotFound />} />
         </Routes>

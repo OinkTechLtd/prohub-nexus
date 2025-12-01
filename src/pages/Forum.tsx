@@ -2,6 +2,7 @@ import { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { supabase } from "@/integrations/supabase/client";
 import Header from "@/components/Header";
+import AdDisplay from "@/components/AdDisplay";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { MessageSquare, Eye, Plus } from "lucide-react";
@@ -96,32 +97,38 @@ const Forum = () => {
         {loading ? (
           <div className="text-center py-12">Загрузка...</div>
         ) : (
-          <div className="space-y-4">
-            {categories.map((category) => (
-              <Card
-                key={category.id}
-                className="hover:shadow-md transition-shadow cursor-pointer"
-                onClick={() => navigate(`/category/${category.slug}`)}
-              >
-                <CardHeader>
-                  <div className="flex items-center justify-between">
-                    <div className="flex items-center space-x-3">
-                      <span className="text-3xl">{category.icon}</span>
-                      <div>
-                        <CardTitle className="text-xl">{category.name}</CardTitle>
-                        <CardDescription>{category.description}</CardDescription>
+          <div className="grid gap-4 lg:grid-cols-3">
+            <div className="lg:col-span-2 space-y-4">
+              {categories.map((category) => (
+                <Card
+                  key={category.id}
+                  className="hover:shadow-md transition-shadow cursor-pointer"
+                  onClick={() => navigate(`/category/${category.slug}`)}
+                >
+                  <CardHeader>
+                    <div className="flex items-center justify-between">
+                      <div className="flex items-center space-x-3">
+                        <span className="text-3xl">{category.icon}</span>
+                        <div>
+                          <CardTitle className="text-xl">{category.name}</CardTitle>
+                          <CardDescription>{category.description}</CardDescription>
+                        </div>
+                      </div>
+                      <div className="flex items-center space-x-4 text-sm text-muted-foreground">
+                        <div className="flex items-center">
+                          <MessageSquare className="mr-1 h-4 w-4" />
+                          {category.topicCount} тем
+                        </div>
                       </div>
                     </div>
-                    <div className="flex items-center space-x-4 text-sm text-muted-foreground">
-                      <div className="flex items-center">
-                        <MessageSquare className="mr-1 h-4 w-4" />
-                        {category.topicCount} тем
-                      </div>
-                    </div>
-                  </div>
-                </CardHeader>
-              </Card>
-            ))}
+                  </CardHeader>
+                </Card>
+              ))}
+            </div>
+            
+            <div className="space-y-4">
+              <AdDisplay location="sidebar" interests={["forum", "programming"]} />
+            </div>
           </div>
         )}
       </main>
