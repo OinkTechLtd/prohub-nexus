@@ -15,7 +15,7 @@ import {
   SelectValue,
 } from "@/components/ui/select";
 import { useToast } from "@/hooks/use-toast";
-import { moderateContent } from "@/lib/moderation";
+import { topicSchema } from "@/lib/schemas";
 
 const CreateTopic = () => {
   const [user, setUser] = useState<any>(null);
@@ -65,31 +65,20 @@ const CreateTopic = () => {
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    if (!user || !selectedCategory || !title.trim() || !content.trim()) {
-      toast({
-        title: "Заполните все поля",
-        description: "Все поля обязательны для заполнения",
-        variant: "destructive",
-      });
-      return;
-    }
+    if (!user) return;
 
-    // Check content moderation
-    const titleCheck = moderateContent(title);
-    if (!titleCheck.isClean) {
-      toast({
-        title: "Неприемлемый контент",
-        description: titleCheck.reason,
-        variant: "destructive",
-      });
-      return;
-    }
+    // Validate with Zod
+    const validation = topicSchema.safeParse({
+      title,
+      content,
+      category_id: selectedCategory,
+    });
 
-    const contentCheck = moderateContent(content);
-    if (!contentCheck.isClean) {
+    if (!validation.success) {
+      const firstError = validation.error.issues[0];
       toast({
-        title: "Неприемлемый контент",
-        description: contentCheck.reason,
+        title: "Ошибка валидации",
+        description: firstError.message,
         variant: "destructive",
       });
       return;
@@ -97,6 +86,32 @@ const CreateTopic = () => {
 
     setLoading(true);
     try {
+      // Server-side moderation
+      const { data: { session } } = await supabase.auth.getSession();
+      const contentToModerate = `${title} ${content}`;
+      
+      const { data: moderationResult, error: moderationError } = await supabase.functions.invoke(
+        'moderate-content',
+        {
+          body: { content: contentToModerate, type: 'topic' },
+          headers: {
+            Authorization: `Bearer ${session?.access_token}`,
+          },
+        }
+      );
+
+      if (moderationError) throw moderationError;
+
+      if (!moderationResult.approved) {
+        toast({
+          title: "Неприемлемый контент",
+          description: moderationResult.reason || "Контент не прошёл модерацию",
+          variant: "destructive",
+        });
+        setLoading(false);
+        return;
+      }
+
       const { data, error } = await supabase
         .from("topics")
         .insert({
