@@ -11,6 +11,7 @@ import { useToast } from "@/hooks/use-toast";
 import { formatDistanceToNow } from "date-fns";
 import { ru } from "date-fns/locale";
 import { Pin, Lock, Send } from "lucide-react";
+import { useInterestTracking } from "@/hooks/useInterestTracking";
 
 interface Post {
   id: string;
@@ -32,6 +33,7 @@ const TopicView = () => {
   const [loading, setLoading] = useState(true);
   const [posting, setPosting] = useState(false);
   const { toast } = useToast();
+  const { trackInterest } = useInterestTracking(user?.id);
 
   useEffect(() => {
     supabase.auth.getSession().then(({ data: { session } }) => {
@@ -49,6 +51,12 @@ const TopicView = () => {
     loadTopicAndPosts();
     incrementViews();
   }, [id]);
+
+  useEffect(() => {
+    if (topic?.categories?.slug) {
+      trackInterest(topic.categories.slug);
+    }
+  }, [topic]);
 
   const incrementViews = async () => {
     if (!id) return;
