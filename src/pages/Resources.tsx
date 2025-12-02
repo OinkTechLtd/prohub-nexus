@@ -9,6 +9,7 @@ import { Badge } from "@/components/ui/badge";
 import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert";
 import { Download, Star, Plus, ExternalLink, AlertCircle } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
+import { useInterestTracking } from "@/hooks/useInterestTracking";
 
 interface Resource {
   id: string;
@@ -32,6 +33,7 @@ const Resources = () => {
   const [loading, setLoading] = useState(true);
   const navigate = useNavigate();
   const { toast } = useToast();
+  const { trackInterest } = useInterestTracking(user?.id);
 
   useEffect(() => {
     supabase.auth.getSession().then(({ data: { session } }) => {
@@ -86,6 +88,9 @@ const Resources = () => {
   };
 
   const handleOpenResource = async (resource: Resource) => {
+    // Track interest
+    trackInterest(resource.resource_type);
+
     if (resource.file_url) {
       // Download file
       window.open(resource.file_url, '_blank');

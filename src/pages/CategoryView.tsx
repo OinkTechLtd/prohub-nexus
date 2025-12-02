@@ -9,6 +9,7 @@ import { MessageSquare, Eye, Pin, Lock, Plus } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
 import { formatDistanceToNow } from "date-fns";
 import { ru } from "date-fns/locale";
+import { useInterestTracking } from "@/hooks/useInterestTracking";
 
 interface Topic {
   id: string;
@@ -32,6 +33,7 @@ const CategoryView = () => {
   const [topics, setTopics] = useState<Topic[]>([]);
   const [loading, setLoading] = useState(true);
   const { toast } = useToast();
+  const { trackInterest } = useInterestTracking(user?.id);
 
   useEffect(() => {
     supabase.auth.getSession().then(({ data: { session } }) => {
@@ -48,6 +50,12 @@ const CategoryView = () => {
   useEffect(() => {
     loadCategoryAndTopics();
   }, [slug]);
+
+  useEffect(() => {
+    if (category?.slug) {
+      trackInterest(category.slug);
+    }
+  }, [category]);
 
   const loadCategoryAndTopics = async () => {
     try {

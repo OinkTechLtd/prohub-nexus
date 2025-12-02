@@ -3,10 +3,12 @@ import { useNavigate } from "react-router-dom";
 import { supabase } from "@/integrations/supabase/client";
 import Header from "@/components/Header";
 import AdDisplay from "@/components/AdDisplay";
+import ForumStats from "@/components/ForumStats";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { MessageSquare, Eye, Plus } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
+import { useNotifications } from "@/hooks/useNotifications";
 
 interface Category {
   id: string;
@@ -23,6 +25,9 @@ const Forum = () => {
   const [loading, setLoading] = useState(true);
   const navigate = useNavigate();
   const { toast } = useToast();
+
+  // Enable real-time notifications
+  useNotifications(user?.id);
 
   useEffect(() => {
     const { data: { subscription } } = supabase.auth.onAuthStateChange((_event, session) => {
@@ -86,12 +91,19 @@ const Forum = () => {
             <h1 className="text-4xl font-bold mb-2">ProHub Форум</h1>
             <p className="text-muted-foreground">Сообщество разработчиков и профессионалов</p>
           </div>
-          {user && (
-            <Button onClick={() => navigate("/create-topic")} size="lg">
-              <Plus className="mr-2 h-5 w-5" />
-              Создать тему
-            </Button>
-          )}
+          <div className="flex gap-2">
+            {user && (
+              <>
+                <Button onClick={() => navigate("/create-ad")} variant="outline">
+                  Создать рекламу
+                </Button>
+                <Button onClick={() => navigate("/create-topic")} size="lg">
+                  <Plus className="mr-2 h-5 w-5" />
+                  Создать тему
+                </Button>
+              </>
+            )}
+          </div>
         </div>
 
         {loading ? (
@@ -127,10 +139,31 @@ const Forum = () => {
             </div>
             
             <div className="space-y-4">
+              <Card>
+                <CardHeader>
+                  <CardTitle className="text-sm">Рекламный сервис</CardTitle>
+                  <CardDescription className="text-xs">Создайте и запустите свою рекламу</CardDescription>
+                </CardHeader>
+                <CardContent className="space-y-2">
+                  <Button onClick={() => navigate("/create-ad")} className="w-full" size="sm">
+                    Создать кампанию
+                  </Button>
+                  <Button onClick={() => navigate("/ads-dashboard")} variant="outline" className="w-full" size="sm">
+                    Мои кампании
+                  </Button>
+                  <Button onClick={() => navigate("/withdraw")} variant="outline" className="w-full" size="sm">
+                    Вывод средств
+                  </Button>
+                </CardContent>
+              </Card>
               <AdDisplay location="sidebar" interests={["forum", "programming"]} />
             </div>
           </div>
         )}
+
+        <div className="mt-8">
+          <ForumStats />
+        </div>
       </main>
     </div>
   );
