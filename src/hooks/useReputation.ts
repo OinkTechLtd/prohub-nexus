@@ -68,12 +68,6 @@ export const useReputation = (userId?: string) => {
           .delete()
           .eq("id", existingLike.id);
 
-        // Update author reputation
-        await supabase.rpc("update_reputation_on_unlike", {
-          _author_id: authorId,
-          _liker_id: session.user.id,
-        });
-
         return false;
       } else {
         // Like
@@ -84,12 +78,6 @@ export const useReputation = (userId?: string) => {
             content_type: contentType,
             content_id: contentId,
           });
-
-        // Update author reputation  
-        await supabase.rpc("update_reputation_on_like", {
-          _author_id: authorId,
-          _liker_id: session.user.id,
-        });
 
         return true;
       }
@@ -114,11 +102,22 @@ export const useReputation = (userId?: string) => {
     return !!data;
   }, []);
 
+  const getLikesCount = useCallback(async (contentType: string, contentId: string): Promise<number> => {
+    const { count } = await supabase
+      .from("content_likes")
+      .select("*", { count: "exact", head: true })
+      .eq("content_type", contentType)
+      .eq("content_id", contentId);
+
+    return count || 0;
+  }, []);
+
   return {
     reputation,
     loading,
     likeContent,
     checkIfLiked,
+    getLikesCount,
     refresh: loadReputation,
   };
 };

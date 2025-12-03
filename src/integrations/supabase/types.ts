@@ -989,6 +989,14 @@ export type Database = {
         Returns: boolean
       }
       randomly_assign_editor_role: { Args: never; Returns: undefined }
+      update_reputation_on_like: {
+        Args: { _author_id: string; _liker_id: string }
+        Returns: undefined
+      }
+      update_reputation_on_unlike: {
+        Args: { _author_id: string; _liker_id: string }
+        Returns: undefined
+      }
     }
     Enums: {
       app_role: "newbie" | "pro" | "editor" | "moderator" | "admin"
