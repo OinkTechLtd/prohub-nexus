@@ -206,6 +206,33 @@ export type Database = {
           },
         ]
       }
+      ai_role_evaluations: {
+        Row: {
+          evaluated_at: string | null
+          id: string
+          reason: string
+          suggested_role: string
+          user_id: string
+          was_applied: boolean | null
+        }
+        Insert: {
+          evaluated_at?: string | null
+          id?: string
+          reason: string
+          suggested_role: string
+          user_id: string
+          was_applied?: boolean | null
+        }
+        Update: {
+          evaluated_at?: string | null
+          id?: string
+          reason?: string
+          suggested_role?: string
+          user_id?: string
+          was_applied?: boolean | null
+        }
+        Relationships: []
+      }
       categories: {
         Row: {
           created_at: string | null
@@ -283,6 +310,30 @@ export type Database = {
           created_at?: string | null
           id?: string
           updated_at?: string | null
+        }
+        Relationships: []
+      }
+      content_likes: {
+        Row: {
+          content_id: string
+          content_type: string
+          created_at: string | null
+          id: string
+          user_id: string
+        }
+        Insert: {
+          content_id: string
+          content_type: string
+          created_at?: string | null
+          id?: string
+          user_id: string
+        }
+        Update: {
+          content_id?: string
+          content_type?: string
+          created_at?: string | null
+          id?: string
+          user_id?: string
         }
         Relationships: []
       }
@@ -425,12 +476,46 @@ export type Database = {
         }
         Relationships: []
       }
+      online_presence: {
+        Row: {
+          current_page: string | null
+          id: string
+          ip_hash: string | null
+          last_seen_at: string | null
+          session_id: string
+          user_agent: string | null
+          user_id: string | null
+          user_type: string
+        }
+        Insert: {
+          current_page?: string | null
+          id?: string
+          ip_hash?: string | null
+          last_seen_at?: string | null
+          session_id: string
+          user_agent?: string | null
+          user_id?: string | null
+          user_type?: string
+        }
+        Update: {
+          current_page?: string | null
+          id?: string
+          ip_hash?: string | null
+          last_seen_at?: string | null
+          session_id?: string
+          user_agent?: string | null
+          user_id?: string | null
+          user_type?: string
+        }
+        Relationships: []
+      }
       posts: {
         Row: {
           content: string
           created_at: string | null
           id: string
           is_hidden: boolean | null
+          likes: number | null
           topic_id: string | null
           updated_at: string | null
           user_id: string | null
@@ -440,6 +525,7 @@ export type Database = {
           created_at?: string | null
           id?: string
           is_hidden?: boolean | null
+          likes?: number | null
           topic_id?: string | null
           updated_at?: string | null
           user_id?: string | null
@@ -449,6 +535,7 @@ export type Database = {
           created_at?: string | null
           id?: string
           is_hidden?: boolean | null
+          likes?: number | null
           topic_id?: string | null
           updated_at?: string | null
           user_id?: string | null
@@ -703,6 +790,50 @@ export type Database = {
           user_id?: string
         }
         Relationships: []
+      }
+      user_reputation: {
+        Row: {
+          helpful_posts: number
+          helpful_resources: number
+          helpful_videos: number
+          id: string
+          likes_given: number
+          likes_received: number
+          reputation_points: number
+          updated_at: string | null
+          user_id: string
+        }
+        Insert: {
+          helpful_posts?: number
+          helpful_resources?: number
+          helpful_videos?: number
+          id?: string
+          likes_given?: number
+          likes_received?: number
+          reputation_points?: number
+          updated_at?: string | null
+          user_id: string
+        }
+        Update: {
+          helpful_posts?: number
+          helpful_resources?: number
+          helpful_videos?: number
+          id?: string
+          likes_given?: number
+          likes_received?: number
+          reputation_points?: number
+          updated_at?: string | null
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "user_reputation_user_id_fkey"
+            columns: ["user_id"]
+            isOneToOne: true
+            referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
+        ]
       }
       user_roles: {
         Row: {

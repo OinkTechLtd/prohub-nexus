@@ -5,3 +5,9 @@ verify_jwt = false
 
 [functions.moderate-content]
 verify_jwt = true
+
+[functions.evaluate-user-role]
+verify_jwt = false
+
+[functions.track-presence]
+verify_jwt = false
