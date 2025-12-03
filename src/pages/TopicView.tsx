@@ -10,13 +10,15 @@ import { Avatar, AvatarFallback } from "@/components/ui/avatar";
 import { useToast } from "@/hooks/use-toast";
 import { formatDistanceToNow } from "date-fns";
 import { ru } from "date-fns/locale";
-import { Pin, Lock, Send } from "lucide-react";
+import { Pin, Lock, Send, Eye } from "lucide-react";
 import { useInterestTracking } from "@/hooks/useInterestTracking";
+import { LikeButton } from "@/components/LikeButton";
 
 interface Post {
   id: string;
   content: string;
   created_at: string;
+  user_id: string;
   profiles: {
     username: string;
     avatar_url: string | null;
@@ -237,6 +239,17 @@ const TopicView = () => {
                 <div className="prose prose-sm max-w-none">
                   <p className="whitespace-pre-wrap">{topic?.content}</p>
                 </div>
+                <div className="flex items-center gap-4 mt-4 pt-4 border-t">
+                  <LikeButton 
+                    contentType="topic" 
+                    contentId={topic?.id} 
+                    authorId={topic?.user_id} 
+                  />
+                  <span className="text-sm text-muted-foreground flex items-center gap-1">
+                    <Eye className="h-4 w-4" />
+                    {topic?.views} просмотров
+                  </span>
+                </div>
               </div>
             </div>
           </CardContent>
@@ -263,6 +276,14 @@ const TopicView = () => {
                       </span>
                     </div>
                     <p className="whitespace-pre-wrap">{post.content}</p>
+                    <div className="mt-2">
+                      <LikeButton 
+                        contentType="post" 
+                        contentId={post.id} 
+                        authorId={post.user_id}
+                        size="sm"
+                      />
+                    </div>
                   </div>
                 </div>
               </CardContent>

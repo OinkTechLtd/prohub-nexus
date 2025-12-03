@@ -39,10 +39,11 @@ const AdDisplay = ({ location, interests = [] }: AdDisplayProps) => {
   }, []);
 
   useEffect(() => {
-    if (user && !impressionRecorded) {
+    // Fetch ads for everyone, not just logged in users
+    if (!impressionRecorded) {
       fetchAd();
     }
-  }, [user, interests, impressionRecorded]);
+  }, [interests, impressionRecorded]);
 
   const fetchAd = async () => {
     try {
@@ -72,60 +73,84 @@ const AdDisplay = ({ location, interests = [] }: AdDisplayProps) => {
             budget_spent
           )
         `)
-        .eq("ad_campaigns.status", "active")
-        .lt("ad_campaigns.budget_spent", "ad_campaigns.budget_total");
+        .eq("ad_campaigns.status", "active");
 
       if (error) throw error;
+      
+      // Filter ads where budget is not exhausted
+      const availableAds = (ads || []).filter((ad: any) => {
+        const spent = parseFloat(ad.ad_campaigns.budget_spent?.toString() || "0");
+        const total = parseFloat(ad.ad_campaigns.budget_total?.toString() || "0");
+        return spent < total;
+      });
 
       // Filter by interests and select best match
-      const matchedAds = (ads || []).filter((ad: any) => {
+      const matchedAds = availableAds.filter((ad: any) => {
         const targetInterests = ad.ad_campaigns.target_interests || [];
+        if (targetInterests.length === 0) return true; // Show ads without targeting
         return targetInterests.some((interest: string) => 
           userInterests.includes(interest)
         );
       });
 
-      if (matchedAds.length > 0) {
-        // Random selection from matched ads
-        const selectedAd = matchedAds[Math.floor(Math.random() * matchedAds.length)];
+      // If no matched ads, use all available ads
+      const adsToShow = matchedAds.length > 0 ? matchedAds : availableAds;
+
+      if (adsToShow.length > 0) {
+        // Random selection from ads
+        const selectedAd = adsToShow[Math.floor(Math.random() * adsToShow.length)];
         setAd(selectedAd);
-        recordImpression(selectedAd.id);
+        await recordImpressionForAd(selectedAd);
       }
     } catch (error) {
       console.error("Error fetching ad:", error);
     }
   };
 
-  const recordImpression = async (adId: string) => {
+  const recordImpressionForAd = async (selectedAd: any) => {
     try {
       await supabase.from("ad_impressions").insert({
-        ad_id: adId,
+        ad_id: selectedAd.id,
         user_id: user?.id || null,
       });
 
       // Update campaign budget
-      if (ad?.ad_campaigns) {
-        const costPerView = parseFloat(ad.ad_campaigns.cost_per_view.toString());
+      if (selectedAd?.ad_campaigns) {
+        const costPerView = parseFloat(selectedAd.ad_campaigns.cost_per_view?.toString() || "0");
         const { data: campaign } = await supabase
           .from("ad_campaigns")
           .select("budget_spent")
-          .eq("id", ad.campaign_id)
+          .eq("id", selectedAd.campaign_id)
           .single();
 
         if (campaign) {
           await supabase
             .from("ad_campaigns")
             .update({ budget_spent: parseFloat(campaign.budget_spent.toString()) + costPerView })
-            .eq("id", ad.campaign_id);
+            .eq("id", selectedAd.campaign_id);
         }
       }
 
       setImpressionRecorded(true);
 
-      // Notify content creator about earnings
-      await recordEarnings(adId, ad?.ad_campaigns?.cost_per_view || 0, "ad_views");
+      // Record earnings for the user viewing the ad
+      if (user) {
+        await supabase.from("user_earnings").insert({
+          user_id: user.id,
+          amount: selectedAd.ad_campaigns?.cost_per_view || 0,
+          source: "ad_view",
+          ad_id: selectedAd.id,
+        });
+      }
     } catch (error) {
       console.error("Error recording impression:", error);
+    }
+  };
+
+  const recordImpression = async (adId: string) => {
+    // Legacy function - kept for compatibility
+    if (ad) {
+      await recordImpressionForAd(ad);
     }
   };
 
