@@ -6,6 +6,8 @@ import { useToast } from "@/hooks/use-toast";
 import { LogOut, User, Shield, MessageCircle } from "lucide-react";
 import RSSFeed from "./RSSFeed";
 import { useUserRole } from "@/hooks/useUserRole";
+import { ThemeToggle } from "./ThemeToggle";
+import { MobileNav } from "./MobileNav";
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -35,10 +37,21 @@ const Header = ({ user }: HeaderProps) => {
 
   return (
     <header className="sticky top-0 z-50 w-full border-b bg-card shadow-sm">
-      <div className="container mx-auto flex h-16 items-center justify-between px-4">
-        <Link to="/" className="flex items-center space-x-2">
-          <span className="text-2xl font-bold text-primary">ProHub</span>
-        </Link>
+      <div className="container mx-auto flex h-14 md:h-16 items-center justify-between px-3 md:px-4">
+        <div className="flex items-center gap-2">
+          <MobileNav 
+            user={user} 
+            showModeratorLink={showModeratorLink}
+            onSignOut={handleSignOut}
+          />
+          
+          <Link to="/" className="flex items-center">
+            <span className="text-xl md:text-2xl font-bold text-primary">ProHub</span>
+            <span className="ml-1 text-[10px] md:text-xs bg-primary/10 text-primary px-1 md:px-1.5 py-0.5 rounded font-medium">
+              Beta
+            </span>
+          </Link>
+        </div>
 
         <nav className="hidden md:flex items-center space-x-6">
           <Link to="/" className="text-sm font-medium hover:text-primary transition-colors">
@@ -59,22 +72,24 @@ const Header = ({ user }: HeaderProps) => {
           <RSSFeed />
         </nav>
 
-        <div className="flex items-center space-x-4">
+        <div className="flex items-center gap-1 md:gap-2">
+          <ThemeToggle />
+          
           {user ? (
             <>
               <Button
                 variant="ghost"
-                size="sm"
+                size="icon"
                 onClick={() => navigate("/messages")}
-                className="hidden md:flex"
+                className="hidden md:flex h-9 w-9"
               >
-                <MessageCircle className="h-5 w-5" />
+                <MessageCircle className="h-4 w-4" />
               </Button>
               <DropdownMenu>
                 <DropdownMenuTrigger asChild>
-                  <Button variant="ghost" className="relative h-10 w-10 rounded-full">
-                    <Avatar>
-                      <AvatarFallback className="bg-primary text-primary-foreground">
+                  <Button variant="ghost" className="relative h-8 w-8 md:h-10 md:w-10 rounded-full">
+                    <Avatar className="h-8 w-8 md:h-10 md:w-10">
+                      <AvatarFallback className="bg-primary text-primary-foreground text-sm">
                         {user.email?.[0]?.toUpperCase()}
                       </AvatarFallback>
                     </Avatar>
@@ -97,7 +112,7 @@ const Header = ({ user }: HeaderProps) => {
               </DropdownMenu>
             </>
           ) : (
-            <Button onClick={() => navigate("/auth")}>
+            <Button size="sm" onClick={() => navigate("/auth")}>
               Войти
             </Button>
           )}

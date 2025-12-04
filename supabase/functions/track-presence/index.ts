@@ -72,7 +72,7 @@ serve(async (req) => {
     // Get current counts
     const { data: presenceData } = await supabase
       .from('online_presence')
-      .select('user_type')
+      .select('user_type, user_id, current_page')
       .gt('last_seen_at', fiveMinutesAgo);
 
     const counts = {
@@ -82,14 +82,38 @@ serve(async (req) => {
       total: 0
     };
 
+    const userIds: string[] = [];
     for (const p of presenceData || []) {
-      if (p.user_type === 'user') counts.users++;
+      if (p.user_type === 'user') {
+        counts.users++;
+        if (p.user_id) userIds.push(p.user_id);
+      }
       else if (p.user_type === 'guest') counts.guests++;
       else if (p.user_type === 'robot') counts.robots++;
       counts.total++;
     }
 
-    return new Response(JSON.stringify({ success: true, counts }), {
+    // Get usernames for logged-in users
+    let usernames: Record<string, string> = {};
+    if (userIds.length > 0) {
+      const { data: profiles } = await supabase
+        .from('profiles')
+        .select('id, username')
+        .in('id', userIds);
+      
+      for (const p of profiles || []) {
+        usernames[p.id] = p.username;
+      }
+    }
+
+    // Build online users list
+    const onlineUsers = (presenceData || []).slice(0, 20).map(p => ({
+      user_type: p.user_type,
+      username: p.user_id ? usernames[p.user_id] : undefined,
+      current_page: p.current_page
+    }));
+
+    return new Response(JSON.stringify({ success: true, counts, onlineUsers }), {
       headers: { ...corsHeaders, 'Content-Type': 'application/json' },
     });
   } catch (error: unknown) {

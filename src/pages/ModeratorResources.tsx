@@ -83,13 +83,13 @@ const ModeratorResources = () => {
     <div className="min-h-screen bg-background">
       <Header user={user} />
 
-      <main className="container mx-auto px-4 py-8">
-        <div className="mb-8">
+      <main className="container mx-auto px-3 md:px-4 py-4 md:py-8">
+        <div className="mb-6 md:mb-8">
           <div className="flex items-center gap-2 mb-2">
-            <Shield className="h-8 w-8 text-primary" />
-            <h1 className="text-4xl font-bold">Модерация ресурсов</h1>
+            <Shield className="h-6 w-6 md:h-8 md:w-8 text-primary" />
+            <h1 className="text-2xl md:text-4xl font-bold">Модерация ресурсов</h1>
           </div>
-          <p className="text-muted-foreground">
+          <p className="text-sm md:text-base text-muted-foreground">
             Управление ресурсами и модерация контента
           </p>
         </div>
@@ -99,8 +99,8 @@ const ModeratorResources = () => {
             <CardTitle>Фильтры</CardTitle>
           </CardHeader>
           <CardContent>
-            <div className="flex gap-4 flex-wrap">
-              <div className="flex-1 min-w-[200px]">
+            <div className="flex flex-col md:flex-row gap-3 md:gap-4">
+              <div className="flex-1">
                 <div className="relative">
                   <Search className="absolute left-3 top-3 h-4 w-4 text-muted-foreground" />
                   <Input
@@ -112,7 +112,7 @@ const ModeratorResources = () => {
                 </div>
               </div>
               <Select value={statusFilter} onValueChange={(value: any) => setStatusFilter(value)}>
-                <SelectTrigger className="w-[200px]">
+                <SelectTrigger className="w-full md:w-[200px]">
                   <SelectValue />
                 </SelectTrigger>
                 <SelectContent>
@@ -134,19 +134,19 @@ const ModeratorResources = () => {
             </CardContent>
           </Card>
         ) : (
-          <div className="space-y-4">
+          <div className="space-y-3 md:space-y-4">
             {resources.map((resource) => (
               <Card key={resource.id}>
-                <CardContent className="py-4">
-                  <div className="flex items-start justify-between">
+                <CardContent className="py-3 md:py-4">
+                  <div className="flex flex-col md:flex-row md:items-start justify-between gap-3">
                     <div className="flex-1">
-                      <div className="flex items-center gap-2 mb-2">
-                        <h3 className="font-semibold text-lg">{resource.title}</h3>
+                      <div className="flex items-center gap-2 mb-2 flex-wrap">
+                        <h3 className="font-semibold text-base md:text-lg">{resource.title}</h3>
                         <Badge variant={resource.is_hidden ? "destructive" : "default"}>
                           {resource.is_hidden ? "Скрыт" : "Активен"}
                         </Badge>
                       </div>
-                      <p className="text-sm text-muted-foreground mb-2">
+                      <p className="text-xs md:text-sm text-muted-foreground mb-2 line-clamp-2">
                         {resource.description}
                       </p>
                       <p className="text-xs text-muted-foreground">
@@ -157,6 +157,7 @@ const ModeratorResources = () => {
                       onClick={() => setSelectedResource(resource)}
                       variant="outline"
                       size="sm"
+                      className="self-end md:self-start"
                     >
                       Модерировать
                     </Button>

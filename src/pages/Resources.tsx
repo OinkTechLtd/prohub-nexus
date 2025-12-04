@@ -113,17 +113,17 @@ const Resources = () => {
       <Header user={user} />
 
       <main className="container mx-auto px-4 py-8">
-        <div className="mb-8 flex items-center justify-between">
+        <div className="mb-6 md:mb-8 flex flex-col md:flex-row md:items-center justify-between gap-4">
           <div>
-            <h1 className="text-4xl font-bold mb-2">Ресурсы</h1>
-            <p className="text-muted-foreground">
-              Полезные материалы, библиотеки и инструменты для разработки
+            <h1 className="text-2xl md:text-4xl font-bold mb-1 md:mb-2">Ресурсы</h1>
+            <p className="text-sm md:text-base text-muted-foreground">
+              Полезные материалы, библиотеки и инструменты
             </p>
           </div>
           {user && (
-            <Button onClick={() => navigate("/create-resource")}>
-              <Plus className="mr-2 h-4 w-4" />
-              Добавить ресурс
+            <Button onClick={() => navigate("/create-resource")} size="sm" className="self-start md:self-auto">
+              <Plus className="mr-1 md:mr-2 h-4 w-4" />
+              Добавить
             </Button>
           )}
         </div>

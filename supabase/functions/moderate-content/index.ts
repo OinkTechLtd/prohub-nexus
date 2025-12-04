@@ -13,8 +13,31 @@ const BLOCKED_PATTERNS = [
   /ставк[аи]/gi,
   /купи(ть|те)/gi,
   /заработок/gi,
-  /http[s]?:\/\/(?!prohub\.|localhost)/gi,
+  /\b(porn|xxx|sex|fuck|dick|pussy|cock|bitch|shit)\b/i,
+  /(.)\1{4,}/i, // 5+ repeated characters (spammy)
 ];
+
+// Check if text is gibberish (random characters)
+function isGibberish(text: string): boolean {
+  const cleaned = text.replace(/\s+/g, '').toLowerCase();
+  
+  // Count vowels vs consonants
+  const vowels = (cleaned.match(/[aeiouаеёиоуыэюя]/gi) || []).length;
+  const total = cleaned.length;
+  
+  // If less than 15% vowels and text is longer than 5 chars, likely gibberish
+  if (total > 5 && vowels / total < 0.15) {
+    return true;
+  }
+  
+  // Check for repeating patterns like "hshs" or "enen"
+  const repeatPattern = /(.{2,4})\1{2,}/i;
+  if (repeatPattern.test(cleaned)) {
+    return true;
+  }
+  
+  return false;
+}
 
 function moderateContent(text: string): { isClean: boolean; reason?: string } {
   if (!text || typeof text !== 'string') {
@@ -22,6 +45,23 @@ function moderateContent(text: string): { isClean: boolean; reason?: string } {
   }
 
   const normalized = text.toLowerCase().trim();
+
+  // Check for very short/meaningless content (less than 5 meaningful chars)
+  const meaningful = text.replace(/[^a-zA-Zа-яА-ЯёЁ0-9]/g, '');
+  if (meaningful.length < 5) {
+    return { 
+      isClean: false, 
+      reason: "Контент слишком короткий или бессмысленный" 
+    };
+  }
+
+  // Check for gibberish
+  if (isGibberish(text)) {
+    return { 
+      isClean: false, 
+      reason: "Контент похож на бессмысленный набор символов" 
+    };
+  }
 
   // Check for excessive caps
   const capsCount = (text.match(/[A-ZА-Я]/g) || []).length;
@@ -37,7 +77,7 @@ function moderateContent(text: string): { isClean: boolean; reason?: string } {
     if (pattern.test(text)) {
       return { 
         isClean: false, 
-        reason: "Контент содержит запрещенные слова или ссылки" 
+        reason: "Контент содержит запрещенные слова или паттерны" 
       };
     }
   }

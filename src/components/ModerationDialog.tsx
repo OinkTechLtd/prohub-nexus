@@ -1,12 +1,15 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle } from "@/components/ui/dialog";
 import { Button } from "@/components/ui/button";
 import { Textarea } from "@/components/ui/textarea";
 import { Label } from "@/components/ui/label";
 import { Alert, AlertDescription } from "@/components/ui/alert";
-import { AlertCircle } from "lucide-react";
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { AlertCircle, History, User } from "lucide-react";
 import { hideContent, unhideContent, getModerationHistory } from "@/lib/moderation";
 import { useToast } from "@/hooks/use-toast";
+import { format } from "date-fns";
+import { ru } from "date-fns/locale";
 
 interface ModerationDialogProps {
   open: boolean;
@@ -30,14 +33,24 @@ const ModerationDialog = ({
   const [reason, setReason] = useState("");
   const [loading, setLoading] = useState(false);
   const [history, setHistory] = useState<any[]>([]);
+  const [loadingHistory, setLoadingHistory] = useState(false);
   const { toast } = useToast();
 
+  useEffect(() => {
+    if (open) {
+      loadHistory();
+    }
+  }, [open, contentId]);
+
   const loadHistory = async () => {
+    setLoadingHistory(true);
     try {
       const data = await getModerationHistory(contentType, contentId);
       setHistory(data || []);
     } catch (error: any) {
       console.error('Error loading history:', error);
+    } finally {
+      setLoadingHistory(false);
     }
   };
 
@@ -94,10 +107,10 @@ const ModerationDialog = ({
 
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
-      <DialogContent className="max-w-2xl">
+      <DialogContent className="max-w-2xl max-h-[90vh] overflow-y-auto">
         <DialogHeader>
           <DialogTitle>Модерация контента</DialogTitle>
-          <DialogDescription>
+          <DialogDescription className="break-words">
             {contentTitle}
           </DialogDescription>
         </DialogHeader>
@@ -113,6 +126,33 @@ const ModerationDialog = ({
               )}
             </AlertDescription>
           </Alert>
+
+          {/* Moderation History */}
+          {history.length > 0 && (
+            <Card>
+              <CardHeader className="py-3">
+                <CardTitle className="text-sm flex items-center gap-2">
+                  <History className="h-4 w-4" />
+                  История модерации
+                </CardTitle>
+              </CardHeader>
+              <CardContent className="py-2 space-y-2 max-h-40 overflow-y-auto">
+                {history.map((item, index) => (
+                  <div key={index} className="text-sm border-l-2 border-primary/30 pl-3 py-1">
+                    <div className="flex items-center gap-2 text-xs text-muted-foreground">
+                      <User className="h-3 w-3" />
+                      <span>{item.profiles?.username || 'Система'}</span>
+                      <span>•</span>
+                      <span>
+                        {format(new Date(item.created_at), 'dd MMM yyyy, HH:mm', { locale: ru })}
+                      </span>
+                    </div>
+                    <p className="text-sm mt-1 font-medium">{item.reason}</p>
+                  </div>
+                ))}
+              </CardContent>
+            </Card>
+          )}
 
           <div className="space-y-2">
             <Label htmlFor="reason">
