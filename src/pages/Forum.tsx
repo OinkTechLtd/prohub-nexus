@@ -86,19 +86,19 @@ const Forum = () => {
       <Header user={user} />
 
       <main className="container mx-auto px-4 py-8">
-        <div className="mb-8 flex items-center justify-between">
+        <div className="mb-6 md:mb-8 flex flex-col md:flex-row md:items-center justify-between gap-4">
           <div>
-            <h1 className="text-4xl font-bold mb-2">ProHub Форум</h1>
-            <p className="text-muted-foreground">Сообщество разработчиков и профессионалов</p>
+            <h1 className="text-2xl md:text-4xl font-bold mb-1 md:mb-2">ProHub Форум</h1>
+            <p className="text-sm md:text-base text-muted-foreground">Сообщество разработчиков и профессионалов</p>
           </div>
           <div className="flex gap-2">
             {user && (
               <>
-                <Button onClick={() => navigate("/create-ad")} variant="outline">
+                <Button onClick={() => navigate("/create-ad")} variant="outline" size="sm" className="text-xs md:text-sm">
                   Создать рекламу
                 </Button>
-                <Button onClick={() => navigate("/create-topic")} size="lg">
-                  <Plus className="mr-2 h-5 w-5" />
+                <Button onClick={() => navigate("/create-topic")} size="sm" className="text-xs md:text-sm">
+                  <Plus className="mr-1 md:mr-2 h-4 w-4" />
                   Создать тему
                 </Button>
               </>
@@ -117,20 +117,18 @@ const Forum = () => {
                   className="hover:shadow-md transition-shadow cursor-pointer"
                   onClick={() => navigate(`/category/${category.slug}`)}
                 >
-                  <CardHeader>
-                    <div className="flex items-center justify-between">
-                      <div className="flex items-center space-x-3">
-                        <span className="text-3xl">{category.icon}</span>
+                  <CardHeader className="p-4 md:p-6">
+                    <div className="flex items-start md:items-center justify-between gap-2">
+                      <div className="flex items-center space-x-2 md:space-x-3">
+                        <span className="text-2xl md:text-3xl">{category.icon}</span>
                         <div>
-                          <CardTitle className="text-xl">{category.name}</CardTitle>
-                          <CardDescription>{category.description}</CardDescription>
+                          <CardTitle className="text-base md:text-xl">{category.name}</CardTitle>
+                          <CardDescription className="text-xs md:text-sm">{category.description}</CardDescription>
                         </div>
                       </div>
-                      <div className="flex items-center space-x-4 text-sm text-muted-foreground">
-                        <div className="flex items-center">
-                          <MessageSquare className="mr-1 h-4 w-4" />
-                          {category.topicCount} тем
-                        </div>
+                      <div className="flex items-center text-xs md:text-sm text-muted-foreground">
+                        <MessageSquare className="mr-1 h-3 w-3 md:h-4 md:w-4" />
+                        {category.topicCount}
                       </div>
                     </div>
                   </CardHeader>

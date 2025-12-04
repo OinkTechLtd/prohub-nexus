@@ -23,6 +23,12 @@ export interface OnlineCounts {
   total: number;
 }
 
+export interface OnlineUser {
+  user_type: string;
+  username?: string;
+  current_page?: string;
+}
+
 export const usePresenceTracking = () => {
   const [counts, setCounts] = useState<OnlineCounts>({
     users: 0,
@@ -30,6 +36,7 @@ export const usePresenceTracking = () => {
     robots: 0,
     total: 0,
   });
+  const [onlineUsers, setOnlineUsers] = useState<OnlineUser[]>([]);
 
   const trackPresence = useCallback(async () => {
     try {
@@ -47,6 +54,9 @@ export const usePresenceTracking = () => {
 
       if (response.data?.counts) {
         setCounts(response.data.counts);
+      }
+      if (response.data?.onlineUsers) {
+        setOnlineUsers(response.data.onlineUsers);
       }
     } catch (error) {
       console.error("Error tracking presence:", error);
@@ -74,5 +84,5 @@ export const usePresenceTracking = () => {
     };
   }, [trackPresence]);
 
-  return { counts, trackPresence };
+  return { counts, onlineUsers, trackPresence };
 };
