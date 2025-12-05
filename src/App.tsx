@@ -22,6 +22,8 @@ import CreateAd from "./pages/CreateAd";
 import AdsDashboard from "./pages/AdsDashboard";
 import Withdraw from "./pages/Withdraw";
 import NotFound from "./pages/NotFound";
+import RecruitmentBanner from "./components/RecruitmentBanner";
+import PWAInstallPrompt from "./components/PWAInstallPrompt";
 
 const queryClient = new QueryClient();
 
@@ -30,7 +32,9 @@ const App = () => (
     <TooltipProvider>
       <Toaster />
       <Sonner />
+      <PWAInstallPrompt />
       <BrowserRouter>
+        <RecruitmentBanner />
         <Routes>
           <Route path="/" element={<Forum />} />
           <Route path="/auth" element={<Auth />} />

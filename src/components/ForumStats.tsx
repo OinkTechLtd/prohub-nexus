@@ -1,7 +1,8 @@
 import { Card, CardContent } from "@/components/ui/card";
-import { Users, FileText, MessageSquare, Package, Video, Globe, Bot, Eye, MapPin } from "lucide-react";
+import { Users, FileText, MessageSquare, Package, Video, Globe, Bot, Eye, MapPin, Search } from "lucide-react";
 import { useForumStats } from "@/hooks/useForumStats";
 import { usePresenceTracking, OnlineUser } from "@/hooks/usePresenceTracking";
+import { Link } from "react-router-dom";
 
 const ForumStats = () => {
   const { stats, loading } = useForumStats();
@@ -9,16 +10,47 @@ const ForumStats = () => {
 
   if (loading) return null;
 
-  const getPageName = (path: string) => {
-    if (path === "/" || path === "") return "Главная";
-    if (path.startsWith("/category")) return "Категория";
-    if (path.startsWith("/topic")) return "Тема";
-    if (path.startsWith("/resources")) return "Ресурсы";
-    if (path.startsWith("/videos")) return "Видео";
-    if (path.startsWith("/profile")) return "Профиль";
-    if (path.startsWith("/messages")) return "Сообщения";
-    if (path.startsWith("/auth")) return "Авторизация";
-    return "Просмотр";
+  const getPageDisplay = (user: OnlineUser) => {
+    const path = user.current_page || '/';
+    
+    // If user is searching, show that
+    if (user.search_query) {
+      return (
+        <span className="flex items-center gap-1 text-orange-500">
+          <Search className="h-3 w-3" />
+          ищет: "{user.search_query}"
+        </span>
+      );
+    }
+    
+    // Parse page path for more descriptive names
+    if (path === "/" || path === "") return "Главная страница";
+    if (path.startsWith("/category/")) {
+      const slug = path.split("/category/")[1];
+      return `Категория: ${slug}`;
+    }
+    if (path.startsWith("/topic/")) return "Просматривает тему";
+    if (path === "/resources") return "Ресурсы";
+    if (path.startsWith("/create-resource")) return "Создаёт ресурс";
+    if (path === "/videos") return "Видео";
+    if (path.startsWith("/videos/swipe")) return "Смотрит видео";
+    if (path.startsWith("/video/")) return "Просматривает видео";
+    if (path === "/profile") return "Свой профиль";
+    if (path.startsWith("/profile/")) {
+      const username = path.split("/profile/")[1];
+      return `Профиль: ${username}`;
+    }
+    if (path === "/messages") return "Сообщения";
+    if (path.startsWith("/chat/")) return "В чате";
+    if (path === "/auth") return "Авторизация";
+    if (path === "/create-topic") return "Создаёт тему";
+    if (path === "/upload-video") return "Загружает видео";
+    if (path === "/moderator/resources") return "Модерация ресурсов";
+    if (path === "/create-ad") return "Создаёт рекламу";
+    if (path === "/ads-dashboard") return "Панель рекламы";
+    if (path === "/withdraw") return "Вывод средств";
+    
+    return path;
   };
 
   return (
@@ -114,20 +146,29 @@ const ForumStats = () => {
               <MapPin className="h-3 w-3" />
               Кто где находится
             </h4>
-            <div className="space-y-1.5 max-h-40 overflow-y-auto">
+            <div className="space-y-2 max-h-48 overflow-y-auto">
               {onlineUsers.map((user, index) => (
-                <div key={index} className="flex items-center justify-between text-xs md:text-sm">
+                <div key={index} className="flex items-center justify-between text-xs md:text-sm py-1 border-b border-border/50 last:border-0">
                   <span className="flex items-center gap-1.5">
-                    <span className={`w-2 h-2 rounded-full ${
+                    <span className={`w-2 h-2 rounded-full flex-shrink-0 ${
                       user.user_type === 'user' ? 'bg-blue-500' : 
                       user.user_type === 'guest' ? 'bg-yellow-500' : 'bg-purple-500'
                     }`} />
-                    <span className="font-medium truncate max-w-[120px] md:max-w-[200px]">
-                      {user.username || (user.user_type === 'robot' ? 'Робот' : 'Гость')}
-                    </span>
+                    {user.username ? (
+                      <Link 
+                        to={`/profile/${user.username}`} 
+                        className="font-medium hover:text-primary transition-colors truncate max-w-[100px] md:max-w-[150px]"
+                      >
+                        {user.username}
+                      </Link>
+                    ) : (
+                      <span className="text-muted-foreground">
+                        {user.user_type === 'robot' ? 'Робот' : 'Гость'}
+                      </span>
+                    )}
                   </span>
-                  <span className="text-muted-foreground text-[10px] md:text-xs">
-                    {getPageName(user.current_page || '/')}
+                  <span className="text-muted-foreground text-[10px] md:text-xs truncate max-w-[140px] md:max-w-[200px]">
+                    {getPageDisplay(user)}
                   </span>
                 </div>
               ))}
