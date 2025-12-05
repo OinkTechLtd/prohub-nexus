@@ -2,6 +2,7 @@ import { useEffect, useState, useCallback } from "react";
 import { supabase } from "@/integrations/supabase/client";
 
 const SESSION_ID_KEY = "prohub_session_id";
+const SEARCH_ACTIVITY_KEY = "prohub_search_activity";
 
 function generateSessionId(): string {
   return Math.random().toString(36).substring(2) + Date.now().toString(36);
@@ -27,6 +28,7 @@ export interface OnlineUser {
   user_type: string;
   username?: string;
   current_page?: string;
+  search_query?: string;
 }
 
 export const usePresenceTracking = () => {
@@ -37,11 +39,22 @@ export const usePresenceTracking = () => {
     total: 0,
   });
   const [onlineUsers, setOnlineUsers] = useState<OnlineUser[]>([]);
+  const [searchActivity, setSearchActivity] = useState<string | null>(null);
+
+  const setCurrentSearchActivity = useCallback((query: string | null) => {
+    setSearchActivity(query);
+    if (query) {
+      sessionStorage.setItem(SEARCH_ACTIVITY_KEY, query);
+    } else {
+      sessionStorage.removeItem(SEARCH_ACTIVITY_KEY);
+    }
+  }, []);
 
   const trackPresence = useCallback(async () => {
     try {
       const sessionId = getOrCreateSessionId();
       const { data: { session } } = await supabase.auth.getSession();
+      const currentSearch = sessionStorage.getItem(SEARCH_ACTIVITY_KEY);
       
       const response = await supabase.functions.invoke("track-presence", {
         body: {
@@ -49,6 +62,7 @@ export const usePresenceTracking = () => {
           user_id: session?.user?.id,
           current_page: window.location.pathname,
           user_agent: navigator.userAgent,
+          search_query: currentSearch || undefined,
         },
       });
 
@@ -57,6 +71,13 @@ export const usePresenceTracking = () => {
       }
       if (response.data?.onlineUsers) {
         setOnlineUsers(response.data.onlineUsers);
+      }
+      
+      // Clear search activity after tracking
+      if (currentSearch) {
+        setTimeout(() => {
+          sessionStorage.removeItem(SEARCH_ACTIVITY_KEY);
+        }, 35000);
       }
     } catch (error) {
       console.error("Error tracking presence:", error);
@@ -84,5 +105,5 @@ export const usePresenceTracking = () => {
     };
   }, [trackPresence]);
 
-  return { counts, onlineUsers, trackPresence };
+  return { counts, onlineUsers, trackPresence, setCurrentSearchActivity };
 };
