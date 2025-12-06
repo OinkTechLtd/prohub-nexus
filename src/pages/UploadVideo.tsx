@@ -71,11 +71,36 @@ const UploadVideo = () => {
     setUploading(true);
 
     try {
+      // AI moderation check before upload
+      toast({
+        title: "Проверка контента...",
+        description: "ИИ анализирует видео на соответствие тематике форума",
+      });
+
+      const { data: moderationData, error: moderationError } = await supabase.functions.invoke('moderate-video', {
+        body: { title: title.trim(), description: description.trim() }
+      });
+
+      if (moderationError) {
+        console.error('Moderation error:', moderationError);
+        throw new Error('Ошибка проверки контента');
+      }
+
+      if (!moderationData.approve) {
+        toast({
+          title: "Видео отклонено",
+          description: moderationData.reason || "Контент не соответствует тематике форума. Загружайте обучающие видео, туториалы или обзоры по IT тематике.",
+          variant: "destructive",
+        });
+        setUploading(false);
+        return;
+      }
+
       // Upload video file
       const fileExt = videoFile.name.split('.').pop();
       const fileName = `${user.id}/${Date.now()}.${fileExt}`;
       
-      const { error: uploadError, data: uploadData } = await supabase.storage
+      const { error: uploadError } = await supabase.storage
         .from('videos')
         .upload(fileName, videoFile, {
           cacheControl: '3600',
