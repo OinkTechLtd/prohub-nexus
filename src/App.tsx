@@ -21,6 +21,7 @@ import Chat from "./pages/Chat";
 import CreateAd from "./pages/CreateAd";
 import AdsDashboard from "./pages/AdsDashboard";
 import Withdraw from "./pages/Withdraw";
+import AdminPanel from "./pages/AdminPanel";
 import NotFound from "./pages/NotFound";
 import RecruitmentBanner from "./components/RecruitmentBanner";
 import PWAInstallPrompt from "./components/PWAInstallPrompt";
@@ -55,6 +56,7 @@ const App = () => (
           <Route path="/create-ad" element={<CreateAd />} />
           <Route path="/ads-dashboard" element={<AdsDashboard />} />
           <Route path="/withdraw" element={<Withdraw />} />
+          <Route path="/admin" element={<AdminPanel />} />
           {/* ADD ALL CUSTOM ROUTES ABOVE THE CATCH-ALL "*" ROUTE */}
           <Route path="*" element={<NotFound />} />
         </Routes>

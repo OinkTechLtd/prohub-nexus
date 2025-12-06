@@ -1,0 +1,520 @@
+import { useEffect, useState } from "react";
+import { useNavigate } from "react-router-dom";
+import { supabase } from "@/integrations/supabase/client";
+import Header from "@/components/Header";
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { Button } from "@/components/ui/button";
+import { Input } from "@/components/ui/input";
+import { Badge } from "@/components/ui/badge";
+import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select";
+import { Switch } from "@/components/ui/switch";
+import { Label } from "@/components/ui/label";
+import { useToast } from "@/hooks/use-toast";
+import { useUserRole } from "@/hooks/useUserRole";
+import { 
+  Users, 
+  Shield, 
+  FileText, 
+  Video, 
+  Search,
+  BadgeCheck,
+  Crown,
+  UserCog
+} from "lucide-react";
+import VerifiedBadge from "@/components/VerifiedBadge";
+
+interface User {
+  id: string;
+  username: string;
+  avatar_url: string | null;
+  is_verified: boolean;
+  created_at: string;
+  role?: string;
+}
+
+interface ContentItem {
+  id: string;
+  title: string;
+  is_hidden: boolean;
+  created_at: string;
+  user_id: string;
+  profiles?: { username: string };
+}
+
+const AdminPanel = () => {
+  const [currentUser, setCurrentUser] = useState<any>(null);
+  const [users, setUsers] = useState<User[]>([]);
+  const [topics, setTopics] = useState<ContentItem[]>([]);
+  const [resources, setResources] = useState<ContentItem[]>([]);
+  const [videos, setVideos] = useState<ContentItem[]>([]);
+  const [searchTerm, setSearchTerm] = useState("");
+  const [loading, setLoading] = useState(true);
+  const navigate = useNavigate();
+  const { toast } = useToast();
+  const { isAdmin, loading: roleLoading } = useUserRole();
+
+  useEffect(() => {
+    supabase.auth.getSession().then(({ data: { session } }) => {
+      setCurrentUser(session?.user ?? null);
+      if (!session?.user) {
+        navigate("/auth");
+      }
+    });
+
+    const { data: { subscription } } = supabase.auth.onAuthStateChange((_event, session) => {
+      setCurrentUser(session?.user ?? null);
+    });
+
+    return () => subscription.unsubscribe();
+  }, [navigate]);
+
+  useEffect(() => {
+    if (!roleLoading && !isAdmin) {
+      toast({
+        title: "Доступ запрещён",
+        description: "У вас нет прав для доступа к админ-панели",
+        variant: "destructive",
+      });
+      navigate("/");
+    }
+  }, [isAdmin, roleLoading, navigate, toast]);
+
+  useEffect(() => {
+    if (isAdmin) {
+      loadData();
+    }
+  }, [isAdmin]);
+
+  const loadData = async () => {
+    setLoading(true);
+    try {
+      // Load users with their roles
+      const { data: usersData } = await supabase
+        .from("profiles")
+        .select("*")
+        .order("created_at", { ascending: false });
+
+      if (usersData) {
+        const usersWithRoles = await Promise.all(
+          usersData.map(async (user) => {
+            const { data: roleData } = await supabase.rpc("get_user_role", {
+              _user_id: user.id,
+            });
+            return { ...user, role: roleData || "newbie" };
+          })
+        );
+        setUsers(usersWithRoles);
+      }
+
+      // Load topics
+      const { data: topicsData } = await supabase
+        .from("topics")
+        .select("id, title, is_hidden, created_at, user_id, profiles(username)")
+        .order("created_at", { ascending: false })
+        .limit(50);
+      setTopics(topicsData || []);
+
+      // Load resources
+      const { data: resourcesData } = await supabase
+        .from("resources")
+        .select("id, title, is_hidden, created_at, user_id, profiles(username)")
+        .order("created_at", { ascending: false })
+        .limit(50);
+      setResources(resourcesData || []);
+
+      // Load videos
+      const { data: videosData } = await supabase
+        .from("videos")
+        .select("id, title, is_hidden, created_at, user_id, profiles(username)")
+        .order("created_at", { ascending: false })
+        .limit(50);
+      setVideos(videosData || []);
+    } catch (error: any) {
+      toast({
+        title: "Ошибка загрузки",
+        description: error.message,
+        variant: "destructive",
+      });
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const updateUserRole = async (userId: string, newRole: string) => {
+    try {
+      // Remove existing role
+      await supabase.from("user_roles").delete().eq("user_id", userId);
+
+      // Add new role
+      const { error } = await supabase.from("user_roles").insert({
+        user_id: userId,
+        role: newRole as any,
+        can_moderate_resources: newRole === "moderator" || newRole === "admin",
+        can_moderate_topics: newRole === "admin",
+      });
+
+      if (error) throw error;
+
+      setUsers(users.map(u => u.id === userId ? { ...u, role: newRole } : u));
+      toast({ title: "Роль обновлена" });
+    } catch (error: any) {
+      toast({
+        title: "Ошибка",
+        description: error.message,
+        variant: "destructive",
+      });
+    }
+  };
+
+  const toggleVerified = async (userId: string, currentValue: boolean) => {
+    try {
+      const { error } = await supabase
+        .from("profiles")
+        .update({ is_verified: !currentValue })
+        .eq("id", userId);
+
+      if (error) throw error;
+
+      setUsers(users.map(u => u.id === userId ? { ...u, is_verified: !currentValue } : u));
+      toast({ title: currentValue ? "Галочка снята" : "Галочка выдана" });
+    } catch (error: any) {
+      toast({
+        title: "Ошибка",
+        description: error.message,
+        variant: "destructive",
+      });
+    }
+  };
+
+  const toggleContentHidden = async (
+    type: "topics" | "resources" | "videos",
+    id: string,
+    currentValue: boolean
+  ) => {
+    try {
+      const { error } = await supabase
+        .from(type)
+        .update({ is_hidden: !currentValue })
+        .eq("id", id);
+
+      if (error) throw error;
+
+      const setFn = type === "topics" ? setTopics : type === "resources" ? setResources : setVideos;
+      const items = type === "topics" ? topics : type === "resources" ? resources : videos;
+      setFn(items.map(item => item.id === id ? { ...item, is_hidden: !currentValue } : item));
+      
+      toast({ title: currentValue ? "Контент показан" : "Контент скрыт" });
+    } catch (error: any) {
+      toast({
+        title: "Ошибка",
+        description: error.message,
+        variant: "destructive",
+      });
+    }
+  };
+
+  const deleteContent = async (type: "topics" | "resources" | "videos", id: string) => {
+    try {
+      const { error } = await supabase.from(type).delete().eq("id", id);
+
+      if (error) throw error;
+
+      const setFn = type === "topics" ? setTopics : type === "resources" ? setResources : setVideos;
+      const items = type === "topics" ? topics : type === "resources" ? resources : videos;
+      setFn(items.filter(item => item.id !== id));
+      
+      toast({ title: "Контент удалён" });
+    } catch (error: any) {
+      toast({
+        title: "Ошибка",
+        description: error.message,
+        variant: "destructive",
+      });
+    }
+  };
+
+  const getRoleBadgeColor = (role: string) => {
+    const colors: Record<string, string> = {
+      admin: "bg-red-500",
+      moderator: "bg-purple-500",
+      editor: "bg-blue-500",
+      pro: "bg-green-500",
+      newbie: "bg-gray-500",
+    };
+    return colors[role] || "bg-gray-500";
+  };
+
+  const filteredUsers = users.filter(u =>
+    u.username.toLowerCase().includes(searchTerm.toLowerCase())
+  );
+
+  if (roleLoading || loading) {
+    return (
+      <div className="min-h-screen bg-background">
+        <Header user={currentUser} />
+        <main className="container mx-auto px-4 py-8">
+          <p className="text-muted-foreground">Загрузка...</p>
+        </main>
+      </div>
+    );
+  }
+
+  return (
+    <div className="min-h-screen bg-background">
+      <Header user={currentUser} />
+
+      <main className="container mx-auto px-4 py-8 max-w-7xl">
+        <div className="flex items-center gap-3 mb-8">
+          <Shield className="h-8 w-8 text-primary" />
+          <h1 className="text-3xl font-bold">Админ-панель</h1>
+        </div>
+
+        <Tabs defaultValue="users" className="space-y-6">
+          <TabsList className="grid w-full grid-cols-4">
+            <TabsTrigger value="users" className="gap-2">
+              <Users className="h-4 w-4" />
+              <span className="hidden sm:inline">Пользователи</span>
+            </TabsTrigger>
+            <TabsTrigger value="topics" className="gap-2">
+              <FileText className="h-4 w-4" />
+              <span className="hidden sm:inline">Темы</span>
+            </TabsTrigger>
+            <TabsTrigger value="resources" className="gap-2">
+              <FileText className="h-4 w-4" />
+              <span className="hidden sm:inline">Ресурсы</span>
+            </TabsTrigger>
+            <TabsTrigger value="videos" className="gap-2">
+              <Video className="h-4 w-4" />
+              <span className="hidden sm:inline">Видео</span>
+            </TabsTrigger>
+          </TabsList>
+
+          <TabsContent value="users" className="space-y-4">
+            <Card>
+              <CardHeader>
+                <CardTitle className="flex items-center gap-2">
+                  <UserCog className="h-5 w-5" />
+                  Управление пользователями
+                </CardTitle>
+              </CardHeader>
+              <CardContent>
+                <div className="relative mb-4">
+                  <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 h-4 w-4 text-muted-foreground" />
+                  <Input
+                    placeholder="Поиск пользователя..."
+                    value={searchTerm}
+                    onChange={(e) => setSearchTerm(e.target.value)}
+                    className="pl-10"
+                  />
+                </div>
+
+                <div className="space-y-4">
+                  {filteredUsers.map((user) => (
+                    <div
+                      key={user.id}
+                      className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4 p-4 border rounded-lg"
+                    >
+                      <div className="flex items-center gap-3">
+                        <Avatar>
+                          <AvatarImage src={user.avatar_url || undefined} />
+                          <AvatarFallback>{user.username[0]?.toUpperCase()}</AvatarFallback>
+                        </Avatar>
+                        <div>
+                          <div className="flex items-center gap-2">
+                            <span className="font-medium">{user.username}</span>
+                            {user.is_verified && <VerifiedBadge />}
+                            <Badge className={getRoleBadgeColor(user.role || "newbie")}>
+                              {user.role || "newbie"}
+                            </Badge>
+                          </div>
+                          <span className="text-sm text-muted-foreground">
+                            ID: {user.id.slice(0, 8)}...
+                          </span>
+                        </div>
+                      </div>
+
+                      <div className="flex flex-wrap items-center gap-3">
+                        <div className="flex items-center gap-2">
+                          <Label htmlFor={`verified-${user.id}`} className="text-sm">
+                            Галочка
+                          </Label>
+                          <Switch
+                            id={`verified-${user.id}`}
+                            checked={user.is_verified}
+                            onCheckedChange={() => toggleVerified(user.id, user.is_verified)}
+                          />
+                        </div>
+
+                        <Select
+                          value={user.role || "newbie"}
+                          onValueChange={(value) => updateUserRole(user.id, value)}
+                        >
+                          <SelectTrigger className="w-[140px]">
+                            <SelectValue />
+                          </SelectTrigger>
+                          <SelectContent>
+                            <SelectItem value="newbie">Новичок</SelectItem>
+                            <SelectItem value="pro">Профи</SelectItem>
+                            <SelectItem value="editor">Редактор</SelectItem>
+                            <SelectItem value="moderator">Модератор</SelectItem>
+                            <SelectItem value="admin">Админ</SelectItem>
+                          </SelectContent>
+                        </Select>
+                      </div>
+                    </div>
+                  ))}
+                </div>
+              </CardContent>
+            </Card>
+          </TabsContent>
+
+          <TabsContent value="topics" className="space-y-4">
+            <Card>
+              <CardHeader>
+                <CardTitle>Управление темами</CardTitle>
+              </CardHeader>
+              <CardContent>
+                <div className="space-y-3">
+                  {topics.map((topic) => (
+                    <div
+                      key={topic.id}
+                      className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3 p-4 border rounded-lg"
+                    >
+                      <div>
+                        <div className="font-medium">{topic.title}</div>
+                        <div className="text-sm text-muted-foreground">
+                          от {topic.profiles?.username || "Неизвестно"}
+                        </div>
+                      </div>
+                      <div className="flex items-center gap-2">
+                        <Badge variant={topic.is_hidden ? "destructive" : "default"}>
+                          {topic.is_hidden ? "Скрыта" : "Активна"}
+                        </Badge>
+                        <Button
+                          size="sm"
+                          variant="outline"
+                          onClick={() => toggleContentHidden("topics", topic.id, topic.is_hidden)}
+                        >
+                          {topic.is_hidden ? "Показать" : "Скрыть"}
+                        </Button>
+                        <Button
+                          size="sm"
+                          variant="destructive"
+                          onClick={() => deleteContent("topics", topic.id)}
+                        >
+                          Удалить
+                        </Button>
+                      </div>
+                    </div>
+                  ))}
+                </div>
+              </CardContent>
+            </Card>
+          </TabsContent>
+
+          <TabsContent value="resources" className="space-y-4">
+            <Card>
+              <CardHeader>
+                <CardTitle>Управление ресурсами</CardTitle>
+              </CardHeader>
+              <CardContent>
+                <div className="space-y-3">
+                  {resources.map((resource) => (
+                    <div
+                      key={resource.id}
+                      className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3 p-4 border rounded-lg"
+                    >
+                      <div>
+                        <div className="font-medium">{resource.title}</div>
+                        <div className="text-sm text-muted-foreground">
+                          от {resource.profiles?.username || "Неизвестно"}
+                        </div>
+                      </div>
+                      <div className="flex items-center gap-2">
+                        <Badge variant={resource.is_hidden ? "destructive" : "default"}>
+                          {resource.is_hidden ? "Скрыт" : "Активен"}
+                        </Badge>
+                        <Button
+                          size="sm"
+                          variant="outline"
+                          onClick={() => toggleContentHidden("resources", resource.id, resource.is_hidden)}
+                        >
+                          {resource.is_hidden ? "Показать" : "Скрыть"}
+                        </Button>
+                        <Button
+                          size="sm"
+                          variant="destructive"
+                          onClick={() => deleteContent("resources", resource.id)}
+                        >
+                          Удалить
+                        </Button>
+                      </div>
+                    </div>
+                  ))}
+                </div>
+              </CardContent>
+            </Card>
+          </TabsContent>
+
+          <TabsContent value="videos" className="space-y-4">
+            <Card>
+              <CardHeader>
+                <CardTitle>Управление видео</CardTitle>
+              </CardHeader>
+              <CardContent>
+                <div className="space-y-3">
+                  {videos.length === 0 ? (
+                    <p className="text-muted-foreground">Видео не найдены</p>
+                  ) : (
+                    videos.map((video) => (
+                      <div
+                        key={video.id}
+                        className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3 p-4 border rounded-lg"
+                      >
+                        <div>
+                          <div className="font-medium">{video.title}</div>
+                          <div className="text-sm text-muted-foreground">
+                            от {video.profiles?.username || "Неизвестно"}
+                          </div>
+                        </div>
+                        <div className="flex items-center gap-2">
+                          <Badge variant={video.is_hidden ? "destructive" : "default"}>
+                            {video.is_hidden ? "Скрыто" : "Активно"}
+                          </Badge>
+                          <Button
+                            size="sm"
+                            variant="outline"
+                            onClick={() => toggleContentHidden("videos", video.id, video.is_hidden)}
+                          >
+                            {video.is_hidden ? "Показать" : "Скрыть"}
+                          </Button>
+                          <Button
+                            size="sm"
+                            variant="destructive"
+                            onClick={() => deleteContent("videos", video.id)}
+                          >
+                            Удалить
+                          </Button>
+                        </div>
+                      </div>
+                    ))
+                  )}
+                </div>
+              </CardContent>
+            </Card>
+          </TabsContent>
+        </Tabs>
+      </main>
+    </div>
+  );
+};
+
+export default AdminPanel;

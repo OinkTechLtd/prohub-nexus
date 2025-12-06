@@ -13,6 +13,7 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { useToast } from "@/hooks/use-toast";
 import { profileSchema } from "@/lib/schemas";
 import { Upload, Camera, Edit, MessageCircle, Trophy } from "lucide-react";
+import VerifiedBadge from "@/components/VerifiedBadge";
 import { formatDistanceToNow } from "date-fns";
 import { ru } from "date-fns/locale";
 import { useAchievements } from "@/hooks/useAchievements";
@@ -435,7 +436,10 @@ const Profile = () => {
               {/* Profile Info */}
               <div className="flex-1 text-center md:text-left">
                 <div className="flex flex-col md:flex-row items-center gap-3 mb-2">
-                  <h1 className="text-3xl font-bold">{username}</h1>
+                  <div className="flex items-center gap-2">
+                    <h1 className="text-3xl font-bold">{username}</h1>
+                    {profile?.is_verified && <VerifiedBadge className="h-6 w-6" />}
+                  </div>
                   <Badge className={getRoleBadgeColor(userRole)}>
                     {getRoleLabel(userRole)}
                   </Badge>

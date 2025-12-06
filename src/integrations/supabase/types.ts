@@ -564,6 +564,7 @@ export type Database = {
           cover_url: string | null
           created_at: string | null
           id: string
+          is_verified: boolean | null
           updated_at: string | null
           username: string
         }
@@ -573,6 +574,7 @@ export type Database = {
           cover_url?: string | null
           created_at?: string | null
           id: string
+          is_verified?: boolean | null
           updated_at?: string | null
           username: string
         }
@@ -582,6 +584,7 @@ export type Database = {
           cover_url?: string | null
           created_at?: string | null
           id?: string
+          is_verified?: boolean | null
           updated_at?: string | null
           username?: string
         }
