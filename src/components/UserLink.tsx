@@ -1,14 +1,22 @@
 import { useNavigate } from "react-router-dom";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
+import VerifiedBadge from "@/components/VerifiedBadge";
 
 interface UserLinkProps {
   username: string;
   avatarUrl?: string | null;
   showAvatar?: boolean;
+  isVerified?: boolean;
   className?: string;
 }
 
-const UserLink = ({ username, avatarUrl, showAvatar = true, className = "" }: UserLinkProps) => {
+const UserLink = ({ 
+  username, 
+  avatarUrl, 
+  showAvatar = true, 
+  isVerified = false,
+  className = "" 
+}: UserLinkProps) => {
   const navigate = useNavigate();
 
   const handleClick = (e: React.MouseEvent) => {
@@ -30,6 +38,7 @@ const UserLink = ({ username, avatarUrl, showAvatar = true, className = "" }: Us
       <span className="font-medium text-foreground hover:underline">
         {username}
       </span>
+      {isVerified && <VerifiedBadge className="h-4 w-4" />}
     </div>
   );
 };

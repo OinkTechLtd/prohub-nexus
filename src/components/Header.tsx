@@ -4,12 +4,13 @@ import { Button } from "./ui/button";
 import { Avatar, AvatarFallback } from "./ui/avatar";
 import { supabase } from "@/integrations/supabase/client";
 import { useToast } from "@/hooks/use-toast";
-import { LogOut, User, Shield, MessageCircle, Search } from "lucide-react";
+import { LogOut, User, Shield, MessageCircle, Search, Settings } from "lucide-react";
 import RSSFeed from "./RSSFeed";
 import { useUserRole } from "@/hooks/useUserRole";
 import { ThemeToggle } from "./ThemeToggle";
 import { MobileNav } from "./MobileNav";
 import GlobalSearch from "./GlobalSearch";
+import NotificationCenter from "./NotificationCenter";
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -25,7 +26,7 @@ interface HeaderProps {
 const Header = ({ user, onSearchActivity }: HeaderProps) => {
   const navigate = useNavigate();
   const { toast } = useToast();
-  const { canModerateResources, canModerateTopics } = useUserRole();
+  const { canModerateResources, canModerateTopics, isAdmin } = useUserRole();
   const [searchOpen, setSearchOpen] = useState(false);
 
   const handleSignOut = async () => {
@@ -74,6 +75,12 @@ const Header = ({ user, onSearchActivity }: HeaderProps) => {
                 Модерация
               </Link>
             )}
+            {isAdmin && (
+              <Link to="/admin" className="text-sm font-medium hover:text-primary transition-colors flex items-center gap-1">
+                <Settings className="h-4 w-4" />
+                Админ
+              </Link>
+            )}
             <RSSFeed />
           </nav>
 
@@ -91,6 +98,7 @@ const Header = ({ user, onSearchActivity }: HeaderProps) => {
             
             {user ? (
               <>
+                <NotificationCenter userId={user.id} />
                 <Button
                   variant="ghost"
                   size="icon"
@@ -118,6 +126,12 @@ const Header = ({ user, onSearchActivity }: HeaderProps) => {
                       <MessageCircle className="mr-2 h-4 w-4" />
                       Сообщения
                     </DropdownMenuItem>
+                    {isAdmin && (
+                      <DropdownMenuItem onClick={() => navigate("/admin")}>
+                        <Settings className="mr-2 h-4 w-4" />
+                        Админ-панель
+                      </DropdownMenuItem>
+                    )}
                     <DropdownMenuItem onClick={handleSignOut}>
                       <LogOut className="mr-2 h-4 w-4" />
                       Выйти
