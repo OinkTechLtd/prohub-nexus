@@ -11,6 +11,7 @@ import { ThemeToggle } from "./ThemeToggle";
 import { MobileNav } from "./MobileNav";
 import GlobalSearch from "./GlobalSearch";
 import NotificationCenter from "./NotificationCenter";
+import GitHubButton from "./GitHubButton";
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -82,6 +83,7 @@ const Header = ({ user, onSearchActivity }: HeaderProps) => {
               </Link>
             )}
             <RSSFeed />
+            <GitHubButton />
           </nav>
 
           <div className="flex items-center gap-1 md:gap-2">
