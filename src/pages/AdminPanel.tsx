@@ -5,6 +5,7 @@ import Header from "@/components/Header";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
+import { Textarea } from "@/components/ui/textarea";
 import { Badge } from "@/components/ui/badge";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
@@ -49,13 +50,26 @@ interface ContentItem {
   profiles?: { username: string };
 }
 
+interface VerificationRequest {
+  id: string;
+  user_id: string;
+  reason: string;
+  status: string;
+  reject_reason: string | null;
+  created_at: string;
+  profiles?: { username: string; avatar_url: string | null };
+}
+
 const AdminPanel = () => {
   const [currentUser, setCurrentUser] = useState<any>(null);
   const [users, setUsers] = useState<User[]>([]);
   const [topics, setTopics] = useState<ContentItem[]>([]);
   const [resources, setResources] = useState<ContentItem[]>([]);
   const [videos, setVideos] = useState<ContentItem[]>([]);
+  const [verificationRequests, setVerificationRequests] = useState<VerificationRequest[]>([]);
   const [searchTerm, setSearchTerm] = useState("");
+  const [rejectReason, setRejectReason] = useState("");
+  const [selectedRequest, setSelectedRequest] = useState<string | null>(null);
   const [loading, setLoading] = useState(true);
   const navigate = useNavigate();
   const { toast } = useToast();
@@ -137,6 +151,14 @@ const AdminPanel = () => {
         .order("created_at", { ascending: false })
         .limit(50);
       setVideos(videosData || []);
+
+      // Load verification requests
+      const { data: requestsData } = await supabase
+        .from("verification_requests" as any)
+        .select("*, profiles:user_id(username, avatar_url)")
+        .eq("status", "pending")
+        .order("created_at", { ascending: false });
+      setVerificationRequests((requestsData as unknown as VerificationRequest[]) || []);
     } catch (error: any) {
       toast({
         title: "Ошибка загрузки",
@@ -252,6 +274,55 @@ const AdminPanel = () => {
     return colors[role] || "bg-gray-500";
   };
 
+  const handleApproveRequest = async (requestId: string, userId: string) => {
+    try {
+      // Update request status
+      await supabase
+        .from("verification_requests" as any)
+        .update({ status: "approved", processed_at: new Date().toISOString(), admin_id: currentUser?.id })
+        .eq("id", requestId);
+
+      // Set user as verified
+      await supabase
+        .from("profiles")
+        .update({ is_verified: true })
+        .eq("id", userId);
+
+      setVerificationRequests(prev => prev.filter(r => r.id !== requestId));
+      setUsers(prev => prev.map(u => u.id === userId ? { ...u, is_verified: true } : u));
+      
+      toast({ title: "Заявка одобрена", description: "Пользователь получил галочку верификации" });
+    } catch (error: any) {
+      toast({ title: "Ошибка", description: error.message, variant: "destructive" });
+    }
+  };
+
+  const handleRejectRequest = async (requestId: string) => {
+    if (!rejectReason.trim()) {
+      toast({ title: "Укажите причину отказа", variant: "destructive" });
+      return;
+    }
+    try {
+      await supabase
+        .from("verification_requests" as any)
+        .update({ 
+          status: "rejected", 
+          reject_reason: rejectReason.trim(),
+          processed_at: new Date().toISOString(),
+          admin_id: currentUser?.id 
+        })
+        .eq("id", requestId);
+
+      setVerificationRequests(prev => prev.filter(r => r.id !== requestId));
+      setRejectReason("");
+      setSelectedRequest(null);
+      
+      toast({ title: "Заявка отклонена" });
+    } catch (error: any) {
+      toast({ title: "Ошибка", description: error.message, variant: "destructive" });
+    }
+  };
+
   const filteredUsers = users.filter(u =>
     u.username.toLowerCase().includes(searchTerm.toLowerCase())
   );
@@ -278,10 +349,19 @@ const AdminPanel = () => {
         </div>
 
         <Tabs defaultValue="users" className="space-y-6">
-          <TabsList className="grid w-full grid-cols-4">
+          <TabsList className="grid w-full grid-cols-5">
             <TabsTrigger value="users" className="gap-2">
               <Users className="h-4 w-4" />
               <span className="hidden sm:inline">Пользователи</span>
+            </TabsTrigger>
+            <TabsTrigger value="verification" className="gap-2">
+              <BadgeCheck className="h-4 w-4" />
+              <span className="hidden sm:inline">Заявки</span>
+              {verificationRequests.length > 0 && (
+                <Badge variant="destructive" className="ml-1 h-5 w-5 p-0 flex items-center justify-center text-xs">
+                  {verificationRequests.length}
+                </Badge>
+              )}
             </TabsTrigger>
             <TabsTrigger value="topics" className="gap-2">
               <FileText className="h-4 w-4" />
@@ -372,6 +452,94 @@ const AdminPanel = () => {
                     </div>
                   ))}
                 </div>
+              </CardContent>
+            </Card>
+          </TabsContent>
+
+          {/* Verification Requests Tab */}
+          <TabsContent value="verification" className="space-y-4">
+            <Card>
+              <CardHeader>
+                <CardTitle className="flex items-center gap-2">
+                  <BadgeCheck className="h-5 w-5" />
+                  Заявки на верификацию
+                </CardTitle>
+              </CardHeader>
+              <CardContent>
+                {verificationRequests.length === 0 ? (
+                  <p className="text-muted-foreground text-center py-8">Нет заявок на рассмотрение</p>
+                ) : (
+                  <div className="space-y-4">
+                    {verificationRequests.map((request) => (
+                      <div
+                        key={request.id}
+                        className="p-4 border rounded-lg space-y-3"
+                      >
+                        <div className="flex items-center gap-3">
+                          <Avatar>
+                            <AvatarImage src={request.profiles?.avatar_url || undefined} />
+                            <AvatarFallback>
+                              {request.profiles?.username?.[0]?.toUpperCase() || "?"}
+                            </AvatarFallback>
+                          </Avatar>
+                          <div>
+                            <div className="font-medium">{request.profiles?.username}</div>
+                            <div className="text-xs text-muted-foreground">
+                              {new Date(request.created_at).toLocaleDateString("ru-RU")}
+                            </div>
+                          </div>
+                        </div>
+                        
+                        <div className="bg-muted p-3 rounded text-sm">
+                          <p className="font-medium mb-1">Причина заявки:</p>
+                          <p>{request.reason}</p>
+                        </div>
+
+                        {selectedRequest === request.id ? (
+                          <div className="space-y-2">
+                            <Textarea
+                              placeholder="Причина отказа..."
+                              value={rejectReason}
+                              onChange={(e) => setRejectReason(e.target.value)}
+                            />
+                            <div className="flex gap-2">
+                              <Button
+                                size="sm"
+                                variant="destructive"
+                                onClick={() => handleRejectRequest(request.id)}
+                              >
+                                Подтвердить отказ
+                              </Button>
+                              <Button
+                                size="sm"
+                                variant="outline"
+                                onClick={() => { setSelectedRequest(null); setRejectReason(""); }}
+                              >
+                                Отмена
+                              </Button>
+                            </div>
+                          </div>
+                        ) : (
+                          <div className="flex gap-2">
+                            <Button
+                              size="sm"
+                              onClick={() => handleApproveRequest(request.id, request.user_id)}
+                            >
+                              Одобрить
+                            </Button>
+                            <Button
+                              size="sm"
+                              variant="outline"
+                              onClick={() => setSelectedRequest(request.id)}
+                            >
+                              Отклонить
+                            </Button>
+                          </div>
+                        )}
+                      </div>
+                    ))}
+                  </div>
+                )}
               </CardContent>
             </Card>
           </TabsContent>

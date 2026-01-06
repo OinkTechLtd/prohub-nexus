@@ -70,7 +70,10 @@ export async function hideContent(
     .update({ is_hidden: true })
     .eq('id', contentId);
 
-  if (updateError) throw updateError;
+  if (updateError) {
+    console.error('Hide content error:', updateError);
+    throw updateError;
+  }
 
   // Добавить запись в moderated_content
   const { error: moderationError } = await supabase
@@ -82,7 +85,10 @@ export async function hideContent(
       moderator_id: user.id,
     });
 
-  if (moderationError) throw moderationError;
+  if (moderationError) {
+    console.error('Moderation record error:', moderationError);
+    // Don't throw - content was already hidden, this is just logging
+  }
 }
 
 export async function unhideContent(
@@ -103,7 +109,10 @@ export async function unhideContent(
     .update({ is_hidden: false })
     .eq('id', contentId);
 
-  if (updateError) throw updateError;
+  if (updateError) {
+    console.error('Unhide content error:', updateError);
+    throw updateError;
+  }
 
   // Опционально добавить запись о восстановлении
   if (reason) {

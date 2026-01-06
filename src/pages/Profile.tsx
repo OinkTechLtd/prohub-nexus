@@ -12,8 +12,10 @@ import { Badge } from "@/components/ui/badge";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { useToast } from "@/hooks/use-toast";
 import { profileSchema } from "@/lib/schemas";
-import { Upload, Camera, Edit, MessageCircle, Trophy } from "lucide-react";
+import { Upload, Camera, Edit, MessageCircle, Trophy, BadgeCheck } from "lucide-react";
 import VerifiedBadge from "@/components/VerifiedBadge";
+import VerificationRequestForm from "@/components/VerificationRequestForm";
+import UsernameHistory from "@/components/UsernameHistory";
 import { formatDistanceToNow } from "date-fns";
 import { ru } from "date-fns/locale";
 import { useAchievements } from "@/hooks/useAchievements";
@@ -57,6 +59,7 @@ const Profile = () => {
   const [posts, setPosts] = useState<Post[]>([]);
   const [resources, setResources] = useState<Resource[]>([]);
   const [stats, setStats] = useState({ topics: 0, posts: 0, resources: 0 });
+  const [showVerificationForm, setShowVerificationForm] = useState(false);
   const navigate = useNavigate();
   const { toast } = useToast();
   
@@ -449,6 +452,12 @@ const Profile = () => {
                       Редактировать
                     </Button>
                   )}
+                  {isOwnProfile && !profile?.is_verified && (
+                    <Button variant="outline" size="sm" onClick={() => setShowVerificationForm(true)}>
+                      <BadgeCheck className="h-4 w-4 mr-2" />
+                      Получить галочку
+                    </Button>
+                  )}
                   {!isOwnProfile && (
                     <Button variant="default" size="sm" onClick={handleStartChat}>
                       <MessageCircle className="h-4 w-4 mr-2" />
@@ -456,6 +465,14 @@ const Profile = () => {
                     </Button>
                   )}
                 </div>
+                
+                {/* Username History Button */}
+                {profile && (
+                  <div className="mb-2">
+                    <UsernameHistory userId={profile.id} currentUsername={username} />
+                  </div>
+                )}
+                
                 {!editMode ? (
                   <p className="text-muted-foreground mb-4">{bio || "Нет описания"}</p>
                 ) : (
@@ -692,6 +709,15 @@ const Profile = () => {
             )}
           </TabsContent>
         </Tabs>
+        
+        {/* Verification Request Form */}
+        {isOwnProfile && currentUser && (
+          <VerificationRequestForm
+            open={showVerificationForm}
+            onOpenChange={setShowVerificationForm}
+            userId={currentUser.id}
+          />
+        )}
       </main>
     </div>
   );
