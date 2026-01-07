@@ -50,44 +50,23 @@ export function moderateContent(text: string): { isClean: boolean; reason?: stri
   return { isClean: true };
 }
 
-// Новые функции для модерации
+// Новые функции для модерации (через RPC)
 
 export async function hideContent(
   contentType: 'topic' | 'post' | 'resource' | 'video',
   contentId: string,
   reason: string
 ) {
-  const { data: { user } } = await supabase.auth.getUser();
-  if (!user) throw new Error('Not authenticated');
+  const { error } = await supabase.rpc('set_content_hidden', {
+    _content_type: contentType,
+    _content_id: contentId,
+    _hidden: true,
+    _reason: reason,
+  });
 
-  // Скрыть контент
-  const tableName = contentType === 'post' ? 'posts' : 
-                   contentType === 'topic' ? 'topics' : 
-                   contentType === 'resource' ? 'resources' : 'videos';
-
-  const { error: updateError } = await supabase
-    .from(tableName)
-    .update({ is_hidden: true })
-    .eq('id', contentId);
-
-  if (updateError) {
-    console.error('Hide content error:', updateError);
-    throw updateError;
-  }
-
-  // Добавить запись в moderated_content
-  const { error: moderationError } = await supabase
-    .from('moderated_content')
-    .insert({
-      content_type: contentType,
-      content_id: contentId,
-      reason,
-      moderator_id: user.id,
-    });
-
-  if (moderationError) {
-    console.error('Moderation record error:', moderationError);
-    // Don't throw - content was already hidden, this is just logging
+  if (error) {
+    console.error('Hide content error:', error);
+    throw error;
   }
 }
 
@@ -96,34 +75,16 @@ export async function unhideContent(
   contentId: string,
   reason?: string
 ) {
-  const { data: { user } } = await supabase.auth.getUser();
-  if (!user) throw new Error('Not authenticated');
+  const { error } = await supabase.rpc('set_content_hidden', {
+    _content_type: contentType,
+    _content_id: contentId,
+    _hidden: false,
+    _reason: reason || null,
+  });
 
-  // Восстановить контент
-  const tableName = contentType === 'post' ? 'posts' : 
-                   contentType === 'topic' ? 'topics' : 
-                   contentType === 'resource' ? 'resources' : 'videos';
-
-  const { error: updateError } = await supabase
-    .from(tableName)
-    .update({ is_hidden: false })
-    .eq('id', contentId);
-
-  if (updateError) {
-    console.error('Unhide content error:', updateError);
-    throw updateError;
-  }
-
-  // Опционально добавить запись о восстановлении
-  if (reason) {
-    await supabase
-      .from('moderated_content')
-      .insert({
-        content_type: contentType,
-        content_id: contentId,
-        reason: `Восстановлено: ${reason}`,
-        moderator_id: user.id,
-      });
+  if (error) {
+    console.error('Unhide content error:', error);
+    throw error;
   }
 }
 

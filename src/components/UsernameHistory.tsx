@@ -33,13 +33,13 @@ const UsernameHistory = ({ userId, currentUsername }: UsernameHistoryProps) => {
     setLoading(true);
     try {
       const { data, error } = await supabase
-        .from("username_history" as any)
+        .from("username_history")
         .select("*")
         .eq("user_id", userId)
         .order("changed_at", { ascending: false });
 
       if (error) throw error;
-      setHistory((data as unknown as HistoryItem[]) || []);
+      setHistory((data as HistoryItem[]) || []);
     } catch (error) {
       console.error("Error loading username history:", error);
     } finally {
