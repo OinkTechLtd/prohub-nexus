@@ -1,5 +1,5 @@
 import { useState, useEffect } from "react";
-import { useNavigate } from "react-router-dom";
+import { useNavigate, useSearchParams } from "react-router-dom";
 import { supabase } from "@/integrations/supabase/client";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -8,13 +8,19 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/com
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { useToast } from "@/hooks/use-toast";
 import { signUpSchema, signInSchema } from "@/lib/authSchemas";
+import { Separator } from "@/components/ui/separator";
+
+const SLTV_CLIENT_ID = "aa0b8e6fea64873f8355043e6b3a42ff";
+const SLTV_API = "https://sltvid.lovable.app";
 
 const Auth = () => {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [username, setUsername] = useState("");
   const [loading, setLoading] = useState(false);
+  const [sltvLoading, setSltvLoading] = useState(false);
   const navigate = useNavigate();
+  const [searchParams] = useSearchParams();
   const { toast } = useToast();
 
   useEffect(() => {
@@ -24,6 +30,62 @@ const Auth = () => {
       }
     });
   }, [navigate]);
+
+  // Handle SLTV callback
+  useEffect(() => {
+    const code = searchParams.get("code");
+    if (code) {
+      handleSltvCallback(code);
+    }
+  }, [searchParams]);
+
+  const handleSltvCallback = async (code: string) => {
+    setSltvLoading(true);
+    try {
+      const response = await fetch(
+        `${import.meta.env.VITE_SUPABASE_URL}/functions/v1/sltv-callback?code=${code}&redirect_uri=${encodeURIComponent(window.location.origin + "/auth")}`,
+        { method: "GET" }
+      );
+
+      const data = await response.json();
+
+      if (!response.ok) {
+        throw new Error(data.error || "SLTV login failed");
+      }
+
+      if (data.token_hash) {
+        // Verify the magic link token
+        const { error } = await supabase.auth.verifyOtp({
+          token_hash: data.token_hash,
+          type: "magiclink",
+        });
+
+        if (error) throw error;
+
+        toast({
+          title: "Вход выполнен",
+          description: "Добро пожаловать через SLTV ID!",
+        });
+        navigate("/");
+      }
+    } catch (error: any) {
+      toast({
+        title: "Ошибка SLTV",
+        description: error.message,
+        variant: "destructive",
+      });
+    } finally {
+      setSltvLoading(false);
+      // Clean URL
+      window.history.replaceState({}, document.title, "/auth");
+    }
+  };
+
+  const handleSltvLogin = () => {
+    const redirectUri = encodeURIComponent(window.location.origin + "/auth");
+    const authUrl = `${SLTV_API}/oauth/authorize?client_id=${SLTV_CLIENT_ID}&redirect_uri=${redirectUri}&response_type=code&scope=openid profile email`;
+    window.location.href = authUrl;
+  };
 
   const handleSignUp = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -161,8 +223,27 @@ const Auth = () => {
                     required
                   />
                 </div>
-                <Button type="submit" className="w-full" disabled={loading}>
+                <Button type="submit" className="w-full" disabled={loading || sltvLoading}>
                   {loading ? "Загрузка..." : "Войти"}
+                </Button>
+
+                <div className="relative my-4">
+                  <div className="absolute inset-0 flex items-center">
+                    <Separator className="w-full" />
+                  </div>
+                  <div className="relative flex justify-center text-xs uppercase">
+                    <span className="bg-card px-2 text-muted-foreground">или</span>
+                  </div>
+                </div>
+
+                <Button
+                  type="button"
+                  variant="outline"
+                  className="w-full"
+                  onClick={handleSltvLogin}
+                  disabled={loading || sltvLoading}
+                >
+                  {sltvLoading ? "Загрузка..." : "Войти с помощью SLTV ID"}
                 </Button>
               </form>
             </TabsContent>
@@ -201,8 +282,27 @@ const Auth = () => {
                     minLength={6}
                   />
                 </div>
-                <Button type="submit" className="w-full" disabled={loading}>
+                <Button type="submit" className="w-full" disabled={loading || sltvLoading}>
                   {loading ? "Загрузка..." : "Зарегистрироваться"}
+                </Button>
+
+                <div className="relative my-4">
+                  <div className="absolute inset-0 flex items-center">
+                    <Separator className="w-full" />
+                  </div>
+                  <div className="relative flex justify-center text-xs uppercase">
+                    <span className="bg-card px-2 text-muted-foreground">или</span>
+                  </div>
+                </div>
+
+                <Button
+                  type="button"
+                  variant="outline"
+                  className="w-full"
+                  onClick={handleSltvLogin}
+                  disabled={loading || sltvLoading}
+                >
+                  {sltvLoading ? "Загрузка..." : "Войти с помощью SLTV ID"}
                 </Button>
               </form>
             </TabsContent>
