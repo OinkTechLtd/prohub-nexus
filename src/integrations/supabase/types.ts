@@ -876,6 +876,38 @@ export type Database = {
           },
         ]
       }
+      username_history: {
+        Row: {
+          changed_at: string
+          id: string
+          new_username: string
+          old_username: string
+          user_id: string
+        }
+        Insert: {
+          changed_at?: string
+          id?: string
+          new_username: string
+          old_username: string
+          user_id: string
+        }
+        Update: {
+          changed_at?: string
+          id?: string
+          new_username?: string
+          old_username?: string
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "username_history_user_id_fkey"
+            columns: ["user_id"]
+            isOneToOne: false
+            referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       videos: {
         Row: {
           created_at: string | null
@@ -967,6 +999,10 @@ export type Database = {
       [_ in never]: never
     }
     Functions: {
+      can_moderate_content: {
+        Args: { _content_type: string; _user_id: string }
+        Returns: boolean
+      }
       check_and_award_achievements: {
         Args: { _user_id: string }
         Returns: undefined
@@ -993,6 +1029,15 @@ export type Database = {
         Returns: boolean
       }
       randomly_assign_editor_role: { Args: never; Returns: undefined }
+      set_content_hidden: {
+        Args: {
+          _content_id: string
+          _content_type: string
+          _hidden: boolean
+          _reason: string
+        }
+        Returns: undefined
+      }
       update_reputation_on_like: {
         Args: { _author_id: string; _liker_id: string }
         Returns: undefined
