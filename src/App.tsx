@@ -3,7 +3,8 @@ import { Toaster as Sonner } from "@/components/ui/sonner";
 import { TooltipProvider } from "@/components/ui/tooltip";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { BrowserRouter, Routes, Route } from "react-router-dom";
-import Forum from "./pages/Forum";
+import Landing from "./pages/Landing";
+import ForumPanel from "./pages/ForumPanel";
 import Auth from "./pages/Auth";
 import CategoryView from "./pages/CategoryView";
 import TopicView from "./pages/TopicView";
@@ -39,7 +40,8 @@ const App = () => (
       <BrowserRouter>
         <RecruitmentBanner />
         <Routes>
-          <Route path="/" element={<Forum />} />
+          <Route path="/" element={<Landing />} />
+          <Route path="/forum" element={<ForumPanel />} />
           <Route path="/auth" element={<Auth />} />
           <Route path="/category/:slug" element={<CategoryView />} />
           <Route path="/topic/:id" element={<TopicView />} />
