@@ -11,6 +11,7 @@ import TopicView from "./pages/TopicView";
 import CreateTopic from "./pages/CreateTopic";
 import Resources from "./pages/Resources";
 import CreateResource from "./pages/CreateResource";
+import ResourceView from "./pages/ResourceView";
 import Profile from "./pages/Profile";
 import Videos from "./pages/Videos";
 import UploadVideo from "./pages/UploadVideo";
@@ -47,6 +48,7 @@ const App = () => (
           <Route path="/topic/:id" element={<TopicView />} />
           <Route path="/create-topic" element={<CreateTopic />} />
           <Route path="/resources" element={<Resources />} />
+          <Route path="/resource/:id" element={<ResourceView />} />
           <Route path="/create-resource" element={<CreateResource />} />
           <Route path="/videos" element={<Videos />} />
           <Route path="/videos/swipe" element={<VideoSwiper />} />

@@ -17,6 +17,9 @@ serve(async (req) => {
     const supabaseKey = Deno.env.get('SUPABASE_ANON_KEY')!;
     const supabase = createClient(supabaseUrl, supabaseKey);
 
+    // Get the forum base URL from environment or use default
+    const forumBaseUrl = Deno.env.get('FORUM_BASE_URL') || 'https://prohub-nexsus.lovable.app';
+
     // Fetch latest topics with user profiles and category info
     const { data: topics, error: topicsError } = await supabase
       .from('topics')
@@ -81,10 +84,6 @@ serve(async (req) => {
       console.error('Error fetching videos:', videosError);
     }
 
-    // Get base URL from request
-    const url = new URL(req.url);
-    const baseUrl = `${url.protocol}//${url.host}`;
-
     // Combine all content items with type
     const allItems = [
       ...(topics || []).map(item => ({ ...item, type: 'topic' as const })),
@@ -111,7 +110,7 @@ serve(async (req) => {
         const categories = (item as any).categories as any;
         const categoryName = (Array.isArray(categories) ? categories[0]?.name : categories?.name) || 'Общее';
         
-        itemUrl = `${baseUrl}/topic/${item.id}`;
+        itemUrl = `${forumBaseUrl}/topic/${item.id}`;
         title = (item as any).title;
         description = ((item as any).content || '')
           .replace(/<[^>]*>/g, '')
@@ -119,7 +118,7 @@ serve(async (req) => {
         category = `Тема - ${categoryName}`;
       } else if (item.type === 'resource') {
         const resource = item as any;
-        itemUrl = `${baseUrl}/resources`;
+        itemUrl = `${forumBaseUrl}/resource/${item.id}`;
         title = resource.title;
         description = (resource.description || '')
           .replace(/<[^>]*>/g, '')
@@ -127,7 +126,7 @@ serve(async (req) => {
         category = `Ресурс - ${resource.resource_type}`;
       } else if (item.type === 'video') {
         const video = item as any;
-        itemUrl = `${baseUrl}/video/${item.id}`;
+        itemUrl = `${forumBaseUrl}/video/${item.id}`;
         title = video.title;
         description = (video.description || 'Видео')
           .replace(/<[^>]*>/g, '')
@@ -150,12 +149,12 @@ serve(async (req) => {
     const rssFeed = `<?xml version="1.0" encoding="UTF-8"?>
 <rss version="2.0" xmlns:atom="http://www.w3.org/2005/Atom">
   <channel>
-    <title>ProHub - Форум разработчиков</title>
-    <link>${baseUrl}</link>
+    <title>ProHub Nexsus - Форум разработчиков</title>
+    <link>${forumBaseUrl}/forum</link>
     <description>Сообщество разработчиков и профессионалов - последние темы, ресурсы и видео</description>
     <language>ru</language>
     <lastBuildDate>${new Date().toUTCString()}</lastBuildDate>
-    <atom:link href="${baseUrl}/rss" rel="self" type="application/rss+xml" />
+    <atom:link href="${forumBaseUrl}/rss" rel="self" type="application/rss+xml" />
     ${rssItems}
   </channel>
 </rss>`;

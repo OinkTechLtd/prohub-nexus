@@ -24,13 +24,15 @@ const ForumStats = () => {
     }
     
     // Parse page path for more descriptive names
-    if (path === "/" || path === "") return "Главная страница";
+    if (path === "/" || path === "") return "Лендинг";
+    if (path === "/forum") return "Форум";
     if (path.startsWith("/category/")) {
       const slug = path.split("/category/")[1];
       return `Категория: ${slug}`;
     }
     if (path.startsWith("/topic/")) return "Просматривает тему";
     if (path === "/resources") return "Ресурсы";
+    if (path.startsWith("/resource/")) return "Просматривает ресурс";
     if (path.startsWith("/create-resource")) return "Создаёт ресурс";
     if (path === "/videos") return "Видео";
     if (path.startsWith("/videos/swipe")) return "Смотрит видео";
