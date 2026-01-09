@@ -1,4 +1,4 @@
-import { useEffect, useState } from "react";
+import { useEffect, useState, useMemo } from "react";
 import { useNavigate } from "react-router-dom";
 import { supabase } from "@/integrations/supabase/client";
 import Header from "@/components/Header";
@@ -6,10 +6,11 @@ import UserLink from "@/components/UserLink";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
-import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert";
-import { Download, Star, Plus, ExternalLink, AlertCircle } from "lucide-react";
+import { Download, Plus, ExternalLink } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
 import { useInterestTracking } from "@/hooks/useInterestTracking";
+import { ResourceFilters } from "@/components/ResourceFilters";
+import { StarRating } from "@/components/StarRating";
 
 interface Resource {
   id: string;
@@ -31,6 +32,8 @@ const Resources = () => {
   const [user, setUser] = useState<any>(null);
   const [resources, setResources] = useState<Resource[]>([]);
   const [loading, setLoading] = useState(true);
+  const [typeFilter, setTypeFilter] = useState("all");
+  const [sortBy, setSortBy] = useState("newest");
   const navigate = useNavigate();
   const { toast } = useToast();
   const { trackInterest } = useInterestTracking(user?.id);
@@ -108,6 +111,33 @@ const Resources = () => {
     loadResources();
   };
 
+  // Filter and sort resources
+  const filteredResources = useMemo(() => {
+    let result = [...resources];
+    
+    // Filter by type
+    if (typeFilter !== "all") {
+      result = result.filter(r => r.resource_type === typeFilter);
+    }
+    
+    // Sort
+    switch (sortBy) {
+      case "oldest":
+        result.sort((a, b) => new Date(a.created_at).getTime() - new Date(b.created_at).getTime());
+        break;
+      case "rating":
+        result.sort((a, b) => (b.rating || 0) - (a.rating || 0));
+        break;
+      case "downloads":
+        result.sort((a, b) => b.downloads - a.downloads);
+        break;
+      default: // newest
+        result.sort((a, b) => new Date(b.created_at).getTime() - new Date(a.created_at).getTime());
+    }
+    
+    return result;
+  }, [resources, typeFilter, sortBy]);
+
   return (
     <div className="min-h-screen bg-background">
       <Header user={user} />
@@ -128,27 +158,35 @@ const Resources = () => {
           )}
         </div>
 
+        <ResourceFilters
+          typeFilter={typeFilter}
+          sortBy={sortBy}
+          onTypeChange={setTypeFilter}
+          onSortChange={setSortBy}
+        />
+
         {loading ? (
           <div className="text-center py-12">Загрузка...</div>
-        ) : resources.length === 0 ? (
+        ) : filteredResources.length === 0 ? (
           <Card>
             <CardContent className="py-12 text-center text-muted-foreground">
-              Пока нет ресурсов. Добавьте первый!
+              {typeFilter !== "all" ? "Нет ресурсов выбранного типа" : "Пока нет ресурсов. Добавьте первый!"}
             </CardContent>
           </Card>
         ) : (
           <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-3">
-            {resources.map((resource) => (
-              <Card key={resource.id} className="hover:shadow-lg transition-shadow">
+            {filteredResources.map((resource) => (
+              <Card 
+                key={resource.id} 
+                className="hover:shadow-lg transition-shadow cursor-pointer"
+                onClick={() => navigate(`/resource/${resource.id}`)}
+              >
                 <CardHeader>
                   <div className="flex items-start justify-between mb-2">
                     <Badge className={getTypeColor(resource.resource_type)}>
                       {resource.resource_type}
                     </Badge>
-                    <div className="flex items-center text-sm text-muted-foreground">
-                      <Star className="h-4 w-4 fill-yellow-400 text-yellow-400 mr-1" />
-                      {resource.rating.toFixed(1)}
-                    </div>
+                    <StarRating rating={resource.rating || 0} readonly size="sm" />
                   </div>
                   <CardTitle className="text-xl">{resource.title}</CardTitle>
                   <CardDescription className="flex items-center gap-2">
@@ -156,40 +194,32 @@ const Resources = () => {
                   </CardDescription>
                 </CardHeader>
                 <CardContent>
-                  <p className="text-sm mb-4">{resource.description}</p>
-                  <div className="flex items-center justify-between mb-4">
+                  <p className="text-sm mb-4 line-clamp-2">{resource.description}</p>
+                  <div className="flex items-center justify-between">
                     <div className="flex items-center text-sm text-muted-foreground">
                       <Download className="mr-1 h-4 w-4" />
                       {resource.downloads} загрузок
                     </div>
-                  </div>
-                  
-                  {resource.is_hidden ? (
-                    <Alert variant="destructive">
-                      <AlertCircle className="h-4 w-4" />
-                      <AlertTitle>Ресурс удалён</AlertTitle>
-                      <AlertDescription>
-                        Данный ресурс был удалён модератором и больше недоступен.
-                      </AlertDescription>
-                    </Alert>
-                  ) : (
                     <Button
-                      className="w-full"
-                      onClick={() => handleOpenResource(resource)}
+                      size="sm"
+                      onClick={(e) => {
+                        e.stopPropagation();
+                        handleOpenResource(resource);
+                      }}
                     >
                       {resource.file_url ? (
                         <>
-                          <Download className="mr-2 h-4 w-4" />
+                          <Download className="mr-1 h-4 w-4" />
                           Скачать
                         </>
                       ) : (
                         <>
-                          <ExternalLink className="mr-2 h-4 w-4" />
+                          <ExternalLink className="mr-1 h-4 w-4" />
                           Открыть
                         </>
                       )}
                     </Button>
-                  )}
+                  </div>
                 </CardContent>
               </Card>
             ))}
