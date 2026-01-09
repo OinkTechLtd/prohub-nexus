@@ -233,6 +233,36 @@ export type Database = {
         }
         Relationships: []
       }
+      bot_messages: {
+        Row: {
+          content: string
+          id: string
+          message_type: string
+          related_content_id: string | null
+          related_content_type: string | null
+          sent_at: string
+          target_user_id: string
+        }
+        Insert: {
+          content: string
+          id?: string
+          message_type: string
+          related_content_id?: string | null
+          related_content_type?: string | null
+          sent_at?: string
+          target_user_id: string
+        }
+        Update: {
+          content?: string
+          id?: string
+          message_type?: string
+          related_content_id?: string | null
+          related_content_type?: string | null
+          sent_at?: string
+          target_user_id?: string
+        }
+        Relationships: []
+      }
       categories: {
         Row: {
           created_at: string | null
@@ -476,6 +506,69 @@ export type Database = {
         }
         Relationships: []
       }
+      moderator_applications: {
+        Row: {
+          ai_analyzed_at: string | null
+          ai_recommendation: string | null
+          applied_role: string
+          contribution: string | null
+          created_at: string
+          experience: string | null
+          id: string
+          online_time: string | null
+          post_id: string | null
+          status: string
+          topic_id: string | null
+          updated_at: string
+          user_id: string
+        }
+        Insert: {
+          ai_analyzed_at?: string | null
+          ai_recommendation?: string | null
+          applied_role?: string
+          contribution?: string | null
+          created_at?: string
+          experience?: string | null
+          id?: string
+          online_time?: string | null
+          post_id?: string | null
+          status?: string
+          topic_id?: string | null
+          updated_at?: string
+          user_id: string
+        }
+        Update: {
+          ai_analyzed_at?: string | null
+          ai_recommendation?: string | null
+          applied_role?: string
+          contribution?: string | null
+          created_at?: string
+          experience?: string | null
+          id?: string
+          online_time?: string | null
+          post_id?: string | null
+          status?: string
+          topic_id?: string | null
+          updated_at?: string
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "moderator_applications_post_id_fkey"
+            columns: ["post_id"]
+            isOneToOne: false
+            referencedRelation: "posts"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "moderator_applications_topic_id_fkey"
+            columns: ["topic_id"]
+            isOneToOne: false
+            referencedRelation: "topics"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       online_presence: {
         Row: {
           current_page: string | null
@@ -590,6 +683,30 @@ export type Database = {
         }
         Relationships: []
       }
+      protected_users: {
+        Row: {
+          created_at: string
+          id: string
+          protection_type: string
+          reason: string | null
+          user_id: string
+        }
+        Insert: {
+          created_at?: string
+          id?: string
+          protection_type?: string
+          reason?: string | null
+          user_id: string
+        }
+        Update: {
+          created_at?: string
+          id?: string
+          protection_type?: string
+          reason?: string | null
+          user_id?: string
+        }
+        Relationships: []
+      }
       resource_comments: {
         Row: {
           content: string
@@ -631,6 +748,38 @@ export type Database = {
             columns: ["user_id"]
             isOneToOne: false
             referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      resource_ratings: {
+        Row: {
+          created_at: string
+          id: string
+          rating: number
+          resource_id: string
+          user_id: string
+        }
+        Insert: {
+          created_at?: string
+          id?: string
+          rating: number
+          resource_id: string
+          user_id: string
+        }
+        Update: {
+          created_at?: string
+          id?: string
+          rating?: number
+          resource_id?: string
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "resource_ratings_resource_id_fkey"
+            columns: ["resource_id"]
+            isOneToOne: false
+            referencedRelation: "resources"
             referencedColumns: ["id"]
           },
         ]
