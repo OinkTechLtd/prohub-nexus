@@ -12,10 +12,10 @@ import { useToast } from "@/hooks/use-toast";
 import { useInterestTracking } from "@/hooks/useInterestTracking";
 import UserLink from "@/components/UserLink";
 import { LikeButton } from "@/components/LikeButton";
+import { StarRating } from "@/components/StarRating";
 import { 
   Download, 
   ExternalLink, 
-  Star, 
   MessageSquare, 
   ArrowLeft,
   Send,
@@ -63,6 +63,8 @@ const ResourceView = () => {
   const [user, setUser] = useState<any>(null);
   const [loading, setLoading] = useState(true);
   const [submitting, setSubmitting] = useState(false);
+  const [userRating, setUserRating] = useState<number>(0);
+  const [ratingSubmitting, setRatingSubmitting] = useState(false);
   
   const { trackInterest } = useInterestTracking(user?.id);
 
@@ -82,6 +84,7 @@ const ResourceView = () => {
     if (id) {
       loadResource();
       loadComments();
+      loadUserRating();
     }
   }, [id]);
 
@@ -132,6 +135,58 @@ const ResourceView = () => {
       setComments(data || []);
     } catch (error) {
       console.error("Error loading comments:", error);
+    }
+  };
+
+  const loadUserRating = async () => {
+    if (!user || !id) return;
+    try {
+      const { data } = await supabase
+        .from("resource_ratings")
+        .select("rating")
+        .eq("resource_id", id)
+        .eq("user_id", user.id)
+        .single();
+      
+      if (data) {
+        setUserRating(data.rating);
+      }
+    } catch (error) {
+      // No rating yet
+    }
+  };
+
+  const handleRate = async (rating: number) => {
+    if (!user || !id || ratingSubmitting) return;
+    
+    setRatingSubmitting(true);
+    try {
+      const { error } = await supabase
+        .from("resource_ratings")
+        .upsert({
+          resource_id: id,
+          user_id: user.id,
+          rating,
+        }, { onConflict: "resource_id,user_id" });
+
+      if (error) throw error;
+      
+      setUserRating(rating);
+      loadResource(); // Reload to get updated average rating
+      
+      toast({
+        title: "Оценка сохранена",
+        description: `Вы оценили ресурс на ${rating} звёзд`,
+      });
+    } catch (error) {
+      console.error("Error rating resource:", error);
+      toast({
+        title: "Ошибка",
+        description: "Не удалось сохранить оценку",
+        variant: "destructive",
+      });
+    } finally {
+      setRatingSubmitting(false);
     }
   };
 
@@ -284,14 +339,27 @@ const ResourceView = () => {
                   <Badge className={getTypeColor(resource.resource_type)}>
                     {getTypeLabel(resource.resource_type)}
                   </Badge>
-                  <div className="flex items-center text-yellow-500">
-                    <Star className="h-4 w-4 fill-current" />
-                    <span className="ml-1 text-sm">{resource.rating || 0}</span>
-                  </div>
+                  <StarRating rating={resource.rating || 0} readonly size="sm" />
+                  <span className="text-sm text-muted-foreground">
+                    ({(resource.rating || 0).toFixed(1)})
+                  </span>
                 </div>
                 <CardTitle className="text-2xl mb-4">{resource.title}</CardTitle>
               </div>
             </div>
+
+            {/* User rating section */}
+            {user && (
+              <div className="flex items-center gap-3 mb-4 p-3 bg-muted/50 rounded-lg">
+                <span className="text-sm text-muted-foreground">Ваша оценка:</span>
+                <StarRating 
+                  rating={userRating} 
+                  onRate={handleRate}
+                  size="md"
+                />
+                {ratingSubmitting && <span className="text-xs text-muted-foreground">Сохранение...</span>}
+              </div>
+            )}
 
             <div className="flex items-center gap-3">
               <Avatar className="h-10 w-10">

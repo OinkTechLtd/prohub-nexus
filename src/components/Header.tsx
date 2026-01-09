@@ -76,6 +76,11 @@ const Header = ({ user, onSearchActivity }: HeaderProps) => {
                 Модерация
               </Link>
             )}
+            {user && (
+              <Link to="/apply-moderator" className="text-sm font-medium hover:text-primary transition-colors">
+                Стать модератором
+              </Link>
+            )}
             {isAdmin && (
               <Link to="/admin" className="text-sm font-medium hover:text-primary transition-colors flex items-center gap-1">
                 <Settings className="h-4 w-4" />
