@@ -18,6 +18,7 @@ interface ModerationDialogProps {
   contentId: string;
   contentTitle: string;
   isHidden: boolean;
+  authorId?: string;
   onSuccess?: () => void;
 }
 
@@ -28,6 +29,7 @@ const ModerationDialog = ({
   contentId,
   contentTitle,
   isHidden,
+  authorId,
   onSuccess,
 }: ModerationDialogProps) => {
   const [reason, setReason] = useState("");
@@ -66,7 +68,7 @@ const ModerationDialog = ({
 
     setLoading(true);
     try {
-      await hideContent(contentType, contentId, reason);
+      await hideContent(contentType, contentId, reason, authorId);
       toast({
         title: "Контент скрыт",
         description: "Контент успешно скрыт",

@@ -18,6 +18,7 @@ import UploadVideo from "./pages/UploadVideo";
 import VideoView from "./pages/VideoView";
 import VideoSwiper from "./pages/VideoSwiper";
 import ModeratorResources from "./pages/ModeratorResources";
+import ModeratorApplications from "./pages/ModeratorApplications";
 import Messages from "./pages/Messages";
 import Chat from "./pages/Chat";
 import CreateAd from "./pages/CreateAd";
@@ -57,6 +58,7 @@ const App = () => (
           <Route path="/profile" element={<Profile />} />
           <Route path="/profile/:username" element={<Profile />} />
           <Route path="/moderator/resources" element={<ModeratorResources />} />
+          <Route path="/apply-moderator" element={<ModeratorApplications />} />
           <Route path="/messages" element={<Messages />} />
           <Route path="/chat/:id" element={<Chat />} />
           <Route path="/create-ad" element={<CreateAd />} />

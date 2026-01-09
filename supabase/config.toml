@@ -14,3 +14,9 @@ verify_jwt = false
 
 [functions.moderate-video]
 verify_jwt = true
+
+[functions.prohub-bot]
+verify_jwt = false
+
+[functions.auto-moderate-topics]
+verify_jwt = false

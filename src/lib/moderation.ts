@@ -55,7 +55,8 @@ export function moderateContent(text: string): { isClean: boolean; reason?: stri
 export async function hideContent(
   contentType: 'topic' | 'post' | 'resource' | 'video',
   contentId: string,
-  reason: string
+  reason: string,
+  authorId?: string
 ) {
   const { error } = await supabase.rpc('set_content_hidden', {
     _content_type: contentType,
@@ -67,6 +68,28 @@ export async function hideContent(
   if (error) {
     console.error('Hide content error:', error);
     throw error;
+  }
+
+  // Уведомить автора через бота ProHub
+  if (authorId) {
+    try {
+      const { data: { user } } = await supabase.auth.getUser();
+      await supabase.functions.invoke('prohub-bot', {
+        body: {
+          action: 'notify_hidden_content',
+          data: {
+            userId: authorId,
+            contentType,
+            contentId,
+            reason,
+            moderatorId: user?.id,
+          },
+        },
+      });
+    } catch (botError) {
+      console.error('Bot notification error:', botError);
+      // Don't throw - moderation succeeded even if bot fails
+    }
   }
 }
 
