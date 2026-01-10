@@ -34,7 +34,7 @@ const VerificationRequestForm = ({ open, onOpenChange, userId }: VerificationReq
     try {
       // Check if there's already a pending request
       const { data: existing } = await supabase
-        .from("verification_requests" as any)
+        .from("verification_requests")
         .select("id, status")
         .eq("user_id", userId)
         .eq("status", "pending")
@@ -51,7 +51,7 @@ const VerificationRequestForm = ({ open, onOpenChange, userId }: VerificationReq
       }
 
       const { error } = await supabase
-        .from("verification_requests" as any)
+        .from("verification_requests")
         .insert({
           user_id: userId,
           reason: reason.trim(),
