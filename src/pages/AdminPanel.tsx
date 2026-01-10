@@ -154,7 +154,7 @@ const AdminPanel = () => {
 
       // Load verification requests
       const { data: requestsData } = await supabase
-        .from("verification_requests" as any)
+        .from("verification_requests")
         .select("*, profiles:user_id(username, avatar_url)")
         .eq("status", "pending")
         .order("created_at", { ascending: false });
@@ -278,7 +278,7 @@ const AdminPanel = () => {
     try {
       // Update request status
       await supabase
-        .from("verification_requests" as any)
+        .from("verification_requests")
         .update({ status: "approved", processed_at: new Date().toISOString(), admin_id: currentUser?.id })
         .eq("id", requestId);
 
@@ -304,7 +304,7 @@ const AdminPanel = () => {
     }
     try {
       await supabase
-        .from("verification_requests" as any)
+        .from("verification_requests")
         .update({ 
           status: "rejected", 
           reject_reason: rejectReason.trim(),

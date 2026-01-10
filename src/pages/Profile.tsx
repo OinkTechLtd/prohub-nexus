@@ -20,6 +20,7 @@ import { formatDistanceToNow } from "date-fns";
 import { ru } from "date-fns/locale";
 import { useAchievements } from "@/hooks/useAchievements";
 import { AchievementCard } from "@/components/AchievementCard";
+import PushNotificationToggle from "@/components/PushNotificationToggle";
 
 interface Topic {
   id: string;
@@ -463,6 +464,9 @@ const Profile = () => {
                       <MessageCircle className="h-4 w-4 mr-2" />
                       Написать сообщение
                     </Button>
+                  )}
+                  {isOwnProfile && currentUser && (
+                    <PushNotificationToggle userId={currentUser.id} />
                   )}
                 </div>
                 

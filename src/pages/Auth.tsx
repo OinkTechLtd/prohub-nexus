@@ -9,9 +9,13 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { useToast } from "@/hooks/use-toast";
 import { signUpSchema, signInSchema } from "@/lib/authSchemas";
 import { Separator } from "@/components/ui/separator";
+import TwoFactorSetup from "@/components/TwoFactorSetup";
+import TwoFactorVerify from "@/components/TwoFactorVerify";
 
 const SLTV_CLIENT_ID = "aa0b8e6fea64873f8355043e6b3a42ff";
 const SLTV_API = "https://sltvid.lovable.app";
+
+type AuthStep = "login" | "2fa-setup" | "2fa-verify";
 
 const Auth = () => {
   const [email, setEmail] = useState("");
@@ -19,17 +23,48 @@ const Auth = () => {
   const [username, setUsername] = useState("");
   const [loading, setLoading] = useState(false);
   const [sltvLoading, setSltvLoading] = useState(false);
+  const [authStep, setAuthStep] = useState<AuthStep>("login");
   const navigate = useNavigate();
   const [searchParams] = useSearchParams();
   const { toast } = useToast();
 
   useEffect(() => {
-    supabase.auth.getSession().then(({ data: { session } }) => {
-      if (session) {
-        navigate("/");
+    checkSession();
+  }, []);
+
+  const checkSession = async () => {
+    const { data: { session } } = await supabase.auth.getSession();
+    if (session) {
+      await check2FAStatus();
+    }
+  };
+
+  const check2FAStatus = async () => {
+    try {
+      const { data: factorsData } = await supabase.auth.mfa.listFactors();
+      const totpFactors = factorsData?.totp || [];
+      const verifiedFactors = totpFactors.filter((f) => f.status === "verified");
+
+      if (verifiedFactors.length === 0) {
+        // No 2FA set up - require setup
+        setAuthStep("2fa-setup");
+      } else {
+        // 2FA is set up - check current AAL level
+        const { data: aalData } = await supabase.auth.mfa.getAuthenticatorAssuranceLevel();
+        
+        if (aalData?.currentLevel === "aal1" && aalData?.nextLevel === "aal2") {
+          // Need to verify 2FA
+          setAuthStep("2fa-verify");
+        } else {
+          // Fully authenticated
+          navigate("/");
+        }
       }
-    });
-  }, [navigate]);
+    } catch (error) {
+      console.error("2FA check error:", error);
+      navigate("/");
+    }
+  };
 
   // Handle SLTV callback
   useEffect(() => {
@@ -48,9 +83,10 @@ const Auth = () => {
       );
 
       const data = await response.json();
+      console.log("SLTV callback response:", data);
 
       if (!response.ok) {
-        throw new Error(data.error || "SLTV login failed");
+        throw new Error(data.error || data.details || "SLTV login failed");
       }
 
       if (data.token_hash) {
@@ -66,9 +102,11 @@ const Auth = () => {
           title: "Вход выполнен",
           description: "Добро пожаловать через SLTV ID!",
         });
-        navigate("/");
+        
+        await check2FAStatus();
       }
     } catch (error: any) {
+      console.error("SLTV error:", error);
       toast({
         title: "Ошибка SLTV",
         description: error.message,
@@ -92,7 +130,6 @@ const Auth = () => {
     setLoading(true);
 
     try {
-      // Validate input
       const validation = signUpSchema.safeParse({
         email,
         password,
@@ -125,10 +162,10 @@ const Auth = () => {
 
       toast({
         title: "Регистрация успешна!",
-        description: "Добро пожаловать на ProHub",
+        description: "Теперь настройте двухфакторную аутентификацию",
       });
       
-      navigate("/");
+      setAuthStep("2fa-setup");
     } catch (error: any) {
       toast({
         title: "Ошибка регистрации",
@@ -145,7 +182,6 @@ const Auth = () => {
     setLoading(true);
 
     try {
-      // Validate input
       const validation = signInSchema.safeParse({
         email,
         password,
@@ -169,12 +205,7 @@ const Auth = () => {
 
       if (error) throw error;
 
-      toast({
-        title: "Вход выполнен",
-        description: "Добро пожаловать обратно!",
-      });
-      
-      navigate("/");
+      await check2FAStatus();
     } catch (error: any) {
       toast({
         title: "Ошибка входа",
@@ -185,6 +216,36 @@ const Auth = () => {
       setLoading(false);
     }
   };
+
+  const handle2FASetupComplete = () => {
+    toast({ title: "2FA настроен успешно!" });
+    navigate("/");
+  };
+
+  const handle2FAVerifySuccess = () => {
+    navigate("/");
+  };
+
+  const handle2FACancel = () => {
+    setAuthStep("login");
+  };
+
+  // Render 2FA setup/verify screens
+  if (authStep === "2fa-setup") {
+    return (
+      <div className="min-h-screen flex items-center justify-center bg-background p-4">
+        <TwoFactorSetup onComplete={handle2FASetupComplete} />
+      </div>
+    );
+  }
+
+  if (authStep === "2fa-verify") {
+    return (
+      <div className="min-h-screen flex items-center justify-center bg-background p-4">
+        <TwoFactorVerify onSuccess={handle2FAVerifySuccess} onCancel={handle2FACancel} />
+      </div>
+    );
+  }
 
   return (
     <div className="min-h-screen flex items-center justify-center bg-background p-4">
