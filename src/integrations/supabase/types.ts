@@ -367,6 +367,80 @@ export type Database = {
         }
         Relationships: []
       }
+      guild_members: {
+        Row: {
+          guild_id: string
+          id: string
+          joined_at: string | null
+          role: string | null
+          user_id: string
+        }
+        Insert: {
+          guild_id: string
+          id?: string
+          joined_at?: string | null
+          role?: string | null
+          user_id: string
+        }
+        Update: {
+          guild_id?: string
+          id?: string
+          joined_at?: string | null
+          role?: string | null
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "guild_members_guild_id_fkey"
+            columns: ["guild_id"]
+            isOneToOne: false
+            referencedRelation: "guilds"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      guilds: {
+        Row: {
+          banner_url: string | null
+          color: string | null
+          created_at: string | null
+          description: string | null
+          id: string
+          is_official: boolean | null
+          logo_url: string | null
+          member_count: number | null
+          name: string
+          owner_id: string
+          tag: string
+        }
+        Insert: {
+          banner_url?: string | null
+          color?: string | null
+          created_at?: string | null
+          description?: string | null
+          id?: string
+          is_official?: boolean | null
+          logo_url?: string | null
+          member_count?: number | null
+          name: string
+          owner_id: string
+          tag: string
+        }
+        Update: {
+          banner_url?: string | null
+          color?: string | null
+          created_at?: string | null
+          description?: string | null
+          id?: string
+          is_official?: boolean | null
+          logo_url?: string | null
+          member_count?: number | null
+          name?: string
+          owner_id?: string
+          tag?: string
+        }
+        Relationships: []
+      }
       message_reactions: {
         Row: {
           created_at: string | null
@@ -1104,6 +1178,30 @@ export type Database = {
             referencedColumns: ["id"]
           },
         ]
+      }
+      user_totp_secrets: {
+        Row: {
+          created_at: string | null
+          id: string
+          secret: string
+          user_id: string
+          verified: boolean | null
+        }
+        Insert: {
+          created_at?: string | null
+          id?: string
+          secret: string
+          user_id: string
+          verified?: boolean | null
+        }
+        Update: {
+          created_at?: string | null
+          id?: string
+          secret?: string
+          user_id?: string
+          verified?: boolean | null
+        }
+        Relationships: []
       }
       username_history: {
         Row: {
