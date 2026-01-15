@@ -12,15 +12,18 @@ import { Badge } from "@/components/ui/badge";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { useToast } from "@/hooks/use-toast";
 import { profileSchema } from "@/lib/schemas";
-import { Upload, Camera, Edit, MessageCircle, Trophy, BadgeCheck } from "lucide-react";
+import { Upload, Camera, Edit, MessageCircle, Trophy, BadgeCheck, Settings, Users } from "lucide-react";
 import VerifiedBadge from "@/components/VerifiedBadge";
 import VerificationRequestForm from "@/components/VerificationRequestForm";
 import UsernameHistory from "@/components/UsernameHistory";
-import { formatDistanceToNow } from "date-fns";
+import { formatDistanceToNow, differenceInDays } from "date-fns";
 import { ru } from "date-fns/locale";
 import { useAchievements } from "@/hooks/useAchievements";
-import { AchievementCard } from "@/components/AchievementCard";
+import AchievementsShowcase from "@/components/AchievementsShowcase";
 import PushNotificationToggle from "@/components/PushNotificationToggle";
+import TwoFactorSettings from "@/components/TwoFactorSettings";
+import ProfileGuildBadge from "@/components/ProfileGuildBadge";
+import { useGuilds } from "@/hooks/useGuilds";
 
 interface Topic {
   id: string;
@@ -72,6 +75,20 @@ const Profile = () => {
     checkAchievements,
     isLoading: isLoadingAchievements 
   } = useAchievements(profile?.id);
+
+  const { useUserGuilds } = useGuilds();
+  const { data: userGuilds = [] } = useUserGuilds(profile?.id);
+
+  // Calculate user stats for achievements progress
+  const userStats = {
+    posts_count: stats.posts,
+    topics_count: stats.topics,
+    resources_count: stats.resources,
+    videos_count: 0,
+    days_registered: profile?.created_at 
+      ? differenceInDays(new Date(), new Date(profile.created_at))
+      : 0,
+  };
 
   useEffect(() => {
     supabase.auth.getSession().then(({ data: { session } }) => {
@@ -545,7 +562,7 @@ const Profile = () => {
 
         {/* Tabs with Content */}
         <Tabs defaultValue="topics" className="mt-6">
-          <TabsList className="grid w-full grid-cols-4">
+          <TabsList className="grid w-full grid-cols-5">
             <TabsTrigger value="topics">Темы</TabsTrigger>
             <TabsTrigger value="posts">Сообщения</TabsTrigger>
             <TabsTrigger value="resources">Ресурсы</TabsTrigger>
@@ -553,6 +570,12 @@ const Profile = () => {
               <Trophy className="h-4 w-4 mr-2" />
               Достижения
             </TabsTrigger>
+            {isOwnProfile && (
+              <TabsTrigger value="settings">
+                <Settings className="h-4 w-4 mr-2" />
+                Настройки
+              </TabsTrigger>
+            )}
           </TabsList>
 
           <TabsContent value="topics" className="space-y-4 mt-4">
@@ -669,50 +692,73 @@ const Profile = () => {
                 </CardContent>
               </Card>
             ) : (
-              <>
-                <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-3">
-                  {achievementsWithProgress
-                    .filter((a) => a.earned)
-                    .map((achievement) => (
-                      <AchievementCard
-                        key={achievement.id}
-                        name={achievement.name}
-                        description={achievement.description}
-                        icon={achievement.icon}
-                        color={achievement.badge_color}
-                        points={achievement.points}
-                        earned={achievement.earned}
-                        earnedAt={achievement.earnedAt}
-                      />
-                    ))}
-                </div>
-                
-                {achievementsWithProgress.filter((a) => !a.earned).length > 0 && (
-                  <div className="mt-8">
-                    <h3 className="text-lg font-semibold mb-4 text-muted-foreground">
-                      Заблокированные достижения
-                    </h3>
-                    <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-3">
-                      {achievementsWithProgress
-                        .filter((a) => !a.earned)
-                        .map((achievement) => (
-                          <AchievementCard
-                            key={achievement.id}
-                            name={achievement.name}
-                            description={achievement.description}
-                            icon={achievement.icon}
-                            color={achievement.badge_color}
-                            points={achievement.points}
-                            earned={false}
-                          />
-                        ))}
-                    </div>
-                  </div>
-                )}
-              </>
+              <AchievementsShowcase
+                achievements={achievementsWithProgress}
+                totalPoints={totalPoints}
+                earnedCount={earnedCount}
+                totalCount={totalCount}
+                userStats={userStats}
+              />
             )}
           </TabsContent>
+
+          {/* Settings Tab - Only for own profile */}
+          {isOwnProfile && currentUser && (
+            <TabsContent value="settings" className="space-y-6 mt-4">
+              <TwoFactorSettings userId={currentUser.id} />
+              
+              <Card>
+                <CardHeader>
+                  <CardTitle className="flex items-center gap-2">
+                    <Users className="h-5 w-5" />
+                    Гильдии
+                  </CardTitle>
+                </CardHeader>
+                <CardContent>
+                  {userGuilds.length === 0 ? (
+                    <p className="text-muted-foreground">Вы не состоите ни в одной гильдии</p>
+                  ) : (
+                    <div className="flex flex-wrap gap-2">
+                      {userGuilds.map((membership) => membership.guilds && (
+                        <ProfileGuildBadge
+                          key={membership.id}
+                          guild={membership.guilds}
+                          role={membership.role}
+                        />
+                      ))}
+                    </div>
+                  )}
+                </CardContent>
+              </Card>
+
+              <Card>
+                <CardHeader>
+                  <CardTitle>Push-уведомления</CardTitle>
+                </CardHeader>
+                <CardContent>
+                  <PushNotificationToggle userId={currentUser.id} />
+                </CardContent>
+              </Card>
+            </TabsContent>
+          )}
         </Tabs>
+        
+        {/* Guild Badges under profile header */}
+        {userGuilds.length > 0 && !isOwnProfile && (
+          <Card className="mt-4">
+            <CardContent className="py-4">
+              <div className="flex flex-wrap gap-2">
+                {userGuilds.map((membership) => membership.guilds && (
+                  <ProfileGuildBadge
+                    key={membership.id}
+                    guild={membership.guilds}
+                    role={membership.role}
+                  />
+                ))}
+              </div>
+            </CardContent>
+          </Card>
+        )}
         
         {/* Verification Request Form */}
         {isOwnProfile && currentUser && (

@@ -4,7 +4,7 @@ import { Button } from "./ui/button";
 import { Avatar, AvatarFallback } from "./ui/avatar";
 import { supabase } from "@/integrations/supabase/client";
 import { useToast } from "@/hooks/use-toast";
-import { LogOut, User, Shield, MessageCircle, Search, Settings } from "lucide-react";
+import { LogOut, User, Shield, MessageCircle, Search, Settings, Users } from "lucide-react";
 import RSSFeed from "./RSSFeed";
 import { useUserRole } from "@/hooks/useUserRole";
 import { ThemeToggle } from "./ThemeToggle";
@@ -69,6 +69,10 @@ const Header = ({ user, onSearchActivity }: HeaderProps) => {
             </Link>
             <Link to="/videos" className="text-sm font-medium hover:text-primary transition-colors">
               Видео
+            </Link>
+            <Link to="/guilds" className="text-sm font-medium hover:text-primary transition-colors flex items-center gap-1">
+              <Users className="h-4 w-4" />
+              Гильдии
             </Link>
             {showModeratorLink && (
               <Link to="/moderator/resources" className="text-sm font-medium hover:text-primary transition-colors flex items-center gap-1">

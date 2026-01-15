@@ -198,12 +198,33 @@ const Auth = () => {
         return;
       }
 
-      const { error } = await supabase.auth.signInWithPassword({
+      const { data: signInData, error } = await supabase.auth.signInWithPassword({
         email,
         password,
       });
 
       if (error) throw error;
+
+      // Check if user is protected (bot account)
+      if (signInData.user) {
+        const { data: protectedUser } = await supabase
+          .from("protected_users")
+          .select("protection_type")
+          .eq("user_id", signInData.user.id)
+          .eq("protection_type", "system_bot")
+          .maybeSingle();
+
+        if (protectedUser) {
+          await supabase.auth.signOut();
+          toast({
+            title: "Доступ запрещён",
+            description: "Этот аккаунт является системным и недоступен для входа",
+            variant: "destructive",
+          });
+          setLoading(false);
+          return;
+        }
+      }
 
       await check2FAStatus();
     } catch (error: any) {
