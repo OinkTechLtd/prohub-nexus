@@ -62,13 +62,26 @@ export const useGuilds = () => {
 
         if (guildError) throw guildError;
 
-        const { data: members, error: membersError } = await supabase
+        // Fetch members separately and join with profiles
+        const { data: membersRaw, error: membersError } = await supabase
           .from("guild_members")
-          .select("*, profiles(username, avatar_url)")
+          .select("id, guild_id, user_id, role, joined_at")
           .eq("guild_id", guildId)
           .order("role");
 
         if (membersError) throw membersError;
+
+        // Fetch profiles for members
+        const userIds = membersRaw?.map(m => m.user_id) || [];
+        const { data: profiles } = await supabase
+          .from("profiles")
+          .select("id, username, avatar_url")
+          .in("id", userIds);
+
+        const members: GuildMember[] = (membersRaw || []).map(m => ({
+          ...m,
+          profiles: profiles?.find(p => p.id === m.user_id) as any
+        }));
 
         return { ...guild, members } as Guild & { members: GuildMember[] };
       },
@@ -83,13 +96,26 @@ export const useGuilds = () => {
       queryFn: async () => {
         if (!userId) return [];
 
-        const { data, error } = await supabase
+        const { data: memberships, error } = await supabase
           .from("guild_members")
-          .select("*, guilds(*)")
+          .select("id, guild_id, user_id, role, joined_at")
           .eq("user_id", userId);
 
         if (error) throw error;
-        return data as GuildMember[];
+
+        // Fetch guilds data
+        const guildIds = memberships?.map(m => m.guild_id) || [];
+        if (guildIds.length === 0) return [];
+
+        const { data: guildsData } = await supabase
+          .from("guilds")
+          .select("*")
+          .in("id", guildIds);
+
+        return (memberships || []).map(m => ({
+          ...m,
+          guilds: guildsData?.find(g => g.id === m.guild_id) as Guild | undefined
+        })) as GuildMember[];
       },
       enabled: !!userId,
     });

@@ -25,6 +25,8 @@ import CreateAd from "./pages/CreateAd";
 import AdsDashboard from "./pages/AdsDashboard";
 import Withdraw from "./pages/Withdraw";
 import AdminPanel from "./pages/AdminPanel";
+import Guilds from "./pages/Guilds";
+import GuildView from "./pages/GuildView";
 import NotFound from "./pages/NotFound";
 import RecruitmentBanner from "./components/RecruitmentBanner";
 import PWAInstallPrompt from "./components/PWAInstallPrompt";
@@ -65,6 +67,8 @@ const App = () => (
           <Route path="/ads-dashboard" element={<AdsDashboard />} />
           <Route path="/withdraw" element={<Withdraw />} />
           <Route path="/admin" element={<AdminPanel />} />
+          <Route path="/guilds" element={<Guilds />} />
+          <Route path="/guild/:id" element={<GuildView />} />
           {/* ADD ALL CUSTOM ROUTES ABOVE THE CATCH-ALL "*" ROUTE */}
           <Route path="*" element={<NotFound />} />
         </Routes>

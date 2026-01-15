@@ -397,6 +397,13 @@ export type Database = {
             referencedRelation: "guilds"
             referencedColumns: ["id"]
           },
+          {
+            foreignKeyName: "guild_members_user_id_fkey"
+            columns: ["user_id"]
+            isOneToOne: false
+            referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
         ]
       }
       guilds: {
