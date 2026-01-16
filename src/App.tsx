@@ -3,6 +3,7 @@ import { Toaster as Sonner } from "@/components/ui/sonner";
 import { TooltipProvider } from "@/components/ui/tooltip";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { BrowserRouter, Routes, Route } from "react-router-dom";
+import AuthGuard from "./components/AuthGuard";
 import Landing from "./pages/Landing";
 import ForumPanel from "./pages/ForumPanel";
 import Auth from "./pages/Auth";
@@ -27,6 +28,7 @@ import Withdraw from "./pages/Withdraw";
 import AdminPanel from "./pages/AdminPanel";
 import Guilds from "./pages/Guilds";
 import GuildView from "./pages/GuildView";
+import GuildRankings from "./pages/GuildRankings";
 import NotFound from "./pages/NotFound";
 import RecruitmentBanner from "./components/RecruitmentBanner";
 import PWAInstallPrompt from "./components/PWAInstallPrompt";
@@ -42,36 +44,39 @@ const App = () => (
       <PWAInstallPrompt />
       <SeasonalEffects />
       <BrowserRouter>
-        <RecruitmentBanner />
-        <Routes>
-          <Route path="/" element={<Landing />} />
-          <Route path="/forum" element={<ForumPanel />} />
-          <Route path="/auth" element={<Auth />} />
-          <Route path="/category/:slug" element={<CategoryView />} />
-          <Route path="/topic/:id" element={<TopicView />} />
-          <Route path="/create-topic" element={<CreateTopic />} />
-          <Route path="/resources" element={<Resources />} />
-          <Route path="/resource/:id" element={<ResourceView />} />
-          <Route path="/create-resource" element={<CreateResource />} />
-          <Route path="/videos" element={<Videos />} />
-          <Route path="/videos/swipe" element={<VideoSwiper />} />
-          <Route path="/upload-video" element={<UploadVideo />} />
-          <Route path="/video/:id" element={<VideoView />} />
-          <Route path="/profile" element={<Profile />} />
-          <Route path="/profile/:username" element={<Profile />} />
-          <Route path="/moderator/resources" element={<ModeratorResources />} />
-          <Route path="/apply-moderator" element={<ModeratorApplications />} />
-          <Route path="/messages" element={<Messages />} />
-          <Route path="/chat/:id" element={<Chat />} />
-          <Route path="/create-ad" element={<CreateAd />} />
-          <Route path="/ads-dashboard" element={<AdsDashboard />} />
-          <Route path="/withdraw" element={<Withdraw />} />
-          <Route path="/admin" element={<AdminPanel />} />
-          <Route path="/guilds" element={<Guilds />} />
-          <Route path="/guild/:id" element={<GuildView />} />
-          {/* ADD ALL CUSTOM ROUTES ABOVE THE CATCH-ALL "*" ROUTE */}
-          <Route path="*" element={<NotFound />} />
-        </Routes>
+        <AuthGuard>
+          <RecruitmentBanner />
+          <Routes>
+            <Route path="/" element={<Landing />} />
+            <Route path="/forum" element={<ForumPanel />} />
+            <Route path="/auth" element={<Auth />} />
+            <Route path="/category/:slug" element={<CategoryView />} />
+            <Route path="/topic/:id" element={<TopicView />} />
+            <Route path="/create-topic" element={<CreateTopic />} />
+            <Route path="/resources" element={<Resources />} />
+            <Route path="/resource/:id" element={<ResourceView />} />
+            <Route path="/create-resource" element={<CreateResource />} />
+            <Route path="/videos" element={<Videos />} />
+            <Route path="/videos/swipe" element={<VideoSwiper />} />
+            <Route path="/upload-video" element={<UploadVideo />} />
+            <Route path="/video/:id" element={<VideoView />} />
+            <Route path="/profile" element={<Profile />} />
+            <Route path="/profile/:username" element={<Profile />} />
+            <Route path="/moderator/resources" element={<ModeratorResources />} />
+            <Route path="/apply-moderator" element={<ModeratorApplications />} />
+            <Route path="/messages" element={<Messages />} />
+            <Route path="/chat/:id" element={<Chat />} />
+            <Route path="/create-ad" element={<CreateAd />} />
+            <Route path="/ads-dashboard" element={<AdsDashboard />} />
+            <Route path="/withdraw" element={<Withdraw />} />
+            <Route path="/admin" element={<AdminPanel />} />
+            <Route path="/guilds" element={<Guilds />} />
+            <Route path="/guild/:id" element={<GuildView />} />
+            <Route path="/guilds/rankings" element={<GuildRankings />} />
+            {/* ADD ALL CUSTOM ROUTES ABOVE THE CATCH-ALL "*" ROUTE */}
+            <Route path="*" element={<NotFound />} />
+          </Routes>
+        </AuthGuard>
       </BrowserRouter>
     </TooltipProvider>
   </QueryClientProvider>
