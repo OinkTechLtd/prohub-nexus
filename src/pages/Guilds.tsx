@@ -7,7 +7,7 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { useGuilds } from "@/hooks/useGuilds";
-import { Plus, Search, Users, Crown, Shield } from "lucide-react";
+import { Plus, Search, Users, Crown, Shield, Trophy, Loader2 } from "lucide-react";
 import { motion } from "framer-motion";
 import {
   Dialog,
@@ -103,14 +103,19 @@ const Guilds = () => {
             </p>
           </div>
 
-          {currentUser && (
-            <Dialog open={createDialogOpen} onOpenChange={setCreateDialogOpen}>
-              <DialogTrigger asChild>
-                <Button>
-                  <Plus className="h-4 w-4 mr-2" />
-                  Создать гильдию
-                </Button>
-              </DialogTrigger>
+          <div className="flex gap-2">
+            <Button variant="outline" onClick={() => navigate("/guilds/rankings")}>
+              <Trophy className="h-4 w-4 mr-2" />
+              Рейтинг
+            </Button>
+            {currentUser && (
+              <Dialog open={createDialogOpen} onOpenChange={setCreateDialogOpen}>
+                <DialogTrigger asChild>
+                  <Button>
+                    <Plus className="h-4 w-4 mr-2" />
+                    Создать гильдию
+                  </Button>
+                </DialogTrigger>
               <DialogContent>
                 <DialogHeader>
                   <DialogTitle>Создание гильдии</DialogTitle>
@@ -179,7 +184,8 @@ const Guilds = () => {
                 </div>
               </DialogContent>
             </Dialog>
-          )}
+            )}
+          </div>
         </motion.div>
 
         {/* Stats */}
