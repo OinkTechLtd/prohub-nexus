@@ -7,6 +7,7 @@ import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { useGuilds } from "@/hooks/useGuilds";
+import GuildRoleManager from "@/components/GuildRoleManager";
 import { Users, Crown, Shield, Star, Calendar, ArrowLeft, LogOut, UserPlus } from "lucide-react";
 import { motion } from "framer-motion";
 import { formatDistanceToNow } from "date-fns";
@@ -37,6 +38,8 @@ const GuildView = () => {
         return <Shield className="h-4 w-4 text-red-500" />;
       case 'moderator':
         return <Star className="h-4 w-4 text-purple-500" />;
+      case 'officer':
+        return <Shield className="h-4 w-4 text-blue-500" />;
       default:
         return null;
     }
@@ -47,6 +50,7 @@ const GuildView = () => {
       owner: 'Владелец',
       admin: 'Администратор',
       moderator: 'Модератор',
+      officer: 'Офицер',
       member: 'Участник',
     };
     return labels[role] || role;
@@ -174,7 +178,15 @@ const GuildView = () => {
 
                 {/* Actions */}
                 {currentUser && (
-                  <div className="pt-4">
+                  <div className="pt-4 flex flex-wrap gap-2">
+                    {isMember && (isOwner || memberData?.role === 'admin') && guild.members && (
+                      <GuildRoleManager
+                        guildId={guild.id}
+                        members={guild.members}
+                        currentUserId={currentUser.id}
+                        currentUserRole={memberData?.role || 'member'}
+                      />
+                    )}
                     {isMember ? (
                       !isOwner && (
                         <Button 

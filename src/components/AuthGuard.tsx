@@ -49,30 +49,8 @@ export default function AuthGuard({ children }: AuthGuardProps) {
         return;
       }
 
-      // Check MFA status
-      const { data: factorsData } = await supabase.auth.mfa.listFactors();
-      const totpFactors = factorsData?.totp || [];
-      const verifiedFactors = totpFactors.filter((f) => f.status === "verified");
-
-      if (verifiedFactors.length === 0) {
-        // No 2FA set up - redirect to auth for setup (unless already there)
-        if (location.pathname !== "/auth") {
-          navigate("/auth", { replace: true });
-          return;
-        }
-      } else {
-        // 2FA is set up - check current AAL level
-        const { data: aalData } = await supabase.auth.mfa.getAuthenticatorAssuranceLevel();
-        
-        if (aalData?.currentLevel === "aal1" && aalData?.nextLevel === "aal2") {
-          // Need to verify 2FA - redirect to auth (unless already there)
-          if (location.pathname !== "/auth") {
-            navigate("/auth", { replace: true });
-            return;
-          }
-        }
-      }
-
+      // 2FA is OPTIONAL - do not force users to set up or verify 2FA
+      // Users can optionally enable 2FA in their profile settings
       setIsAuthorized(true);
     } catch (error) {
       console.error("Auth guard error:", error);
