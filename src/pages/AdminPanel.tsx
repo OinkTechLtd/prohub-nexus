@@ -277,22 +277,33 @@ const AdminPanel = () => {
   const handleApproveRequest = async (requestId: string, userId: string) => {
     try {
       // Update request status
-      await supabase
+      const { error: requestError } = await supabase
         .from("verification_requests")
         .update({ status: "approved", processed_at: new Date().toISOString(), admin_id: currentUser?.id })
         .eq("id", requestId);
 
+      if (requestError) {
+        console.error("Request update error:", requestError);
+        throw requestError;
+      }
+
       // Set user as verified
-      await supabase
+      const { error: profileError } = await supabase
         .from("profiles")
         .update({ is_verified: true })
         .eq("id", userId);
+
+      if (profileError) {
+        console.error("Profile update error:", profileError);
+        throw profileError;
+      }
 
       setVerificationRequests(prev => prev.filter(r => r.id !== requestId));
       setUsers(prev => prev.map(u => u.id === userId ? { ...u, is_verified: true } : u));
       
       toast({ title: "Заявка одобрена", description: "Пользователь получил галочку верификации" });
     } catch (error: any) {
+      console.error("Approval error:", error);
       toast({ title: "Ошибка", description: error.message, variant: "destructive" });
     }
   };
