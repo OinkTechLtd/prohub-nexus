@@ -12,6 +12,7 @@ import { MobileNav } from "./MobileNav";
 import GlobalSearch from "./GlobalSearch";
 import NotificationCenter from "./NotificationCenter";
 import GitHubButton from "./GitHubButton";
+import GuildInviteNotifications from "./GuildInviteNotifications";
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -109,6 +110,7 @@ const Header = ({ user, onSearchActivity }: HeaderProps) => {
             
             {user ? (
               <>
+                <GuildInviteNotifications />
                 <NotificationCenter userId={user.id} />
                 <Button
                   variant="ghost"

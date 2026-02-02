@@ -8,6 +8,7 @@ import { Badge } from "@/components/ui/badge";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { useGuilds } from "@/hooks/useGuilds";
 import GuildRoleManager from "@/components/GuildRoleManager";
+import GuildInviteDialog from "@/components/GuildInviteDialog";
 import { Users, Crown, Shield, Star, Calendar, ArrowLeft, LogOut, UserPlus } from "lucide-react";
 import { motion } from "framer-motion";
 import { formatDistanceToNow } from "date-fns";
@@ -180,12 +181,19 @@ const GuildView = () => {
                 {currentUser && (
                   <div className="pt-4 flex flex-wrap gap-2">
                     {isMember && (isOwner || memberData?.role === 'admin') && guild.members && (
-                      <GuildRoleManager
-                        guildId={guild.id}
-                        members={guild.members}
-                        currentUserId={currentUser.id}
-                        currentUserRole={memberData?.role || 'member'}
-                      />
+                      <>
+                        <GuildRoleManager
+                          guildId={guild.id}
+                          members={guild.members}
+                          currentUserId={currentUser.id}
+                          currentUserRole={memberData?.role || 'member'}
+                        />
+                        <GuildInviteDialog
+                          guildId={guild.id}
+                          guildName={guild.name}
+                          existingMemberIds={guild.members.map((m) => m.user_id)}
+                        />
+                      </>
                     )}
                     {isMember ? (
                       !isOwner && (
