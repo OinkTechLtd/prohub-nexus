@@ -57,7 +57,7 @@ const GuildView = () => {
   };
 
   const sortedMembers = guild?.members?.sort((a, b) => {
-    const order: Record<string, number> = { owner: 4, admin: 3, moderator: 2, member: 1 };
+    const order: Record<string, number> = { owner: 5, admin: 4, moderator: 3, officer: 2, member: 1 };
     return (order[b.role] || 0) - (order[a.role] || 0);
   });
 

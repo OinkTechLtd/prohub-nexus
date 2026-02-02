@@ -24,33 +24,38 @@ const ForumStats = () => {
     }
     
     // Parse page path for more descriptive names
-    if (path === "/" || path === "") return "Лендинг";
-    if (path === "/forum") return "Форум";
+    if (path === "/" || path === "") return "🏠 Лендинг";
+    if (path === "/forum") return "📋 Форум";
     if (path.startsWith("/category/")) {
       const slug = path.split("/category/")[1];
-      return `Категория: ${slug}`;
+      return `📂 ${decodeURIComponent(slug)}`;
     }
-    if (path.startsWith("/topic/")) return "Просматривает тему";
-    if (path === "/resources") return "Ресурсы";
-    if (path.startsWith("/resource/")) return "Просматривает ресурс";
-    if (path.startsWith("/create-resource")) return "Создаёт ресурс";
-    if (path === "/videos") return "Видео";
-    if (path.startsWith("/videos/swipe")) return "Смотрит видео";
-    if (path.startsWith("/video/")) return "Просматривает видео";
-    if (path === "/profile") return "Свой профиль";
+    if (path.startsWith("/topic/")) return "💬 Читает тему";
+    if (path === "/resources") return "📦 Ресурсы";
+    if (path.startsWith("/resource/")) return "📦 Смотрит ресурс";
+    if (path.startsWith("/create-resource")) return "✏️ Создаёт ресурс";
+    if (path === "/videos") return "🎬 Видео";
+    if (path.startsWith("/videos/swipe")) return "📱 Свайпает видео";
+    if (path.startsWith("/video/")) return "🎬 Смотрит видео";
+    if (path === "/profile") return "👤 Свой профиль";
     if (path.startsWith("/profile/")) {
       const username = path.split("/profile/")[1];
-      return `Профиль: ${username}`;
+      return `👤 @${decodeURIComponent(username)}`;
     }
-    if (path === "/messages") return "Сообщения";
-    if (path.startsWith("/chat/")) return "В чате";
-    if (path === "/auth") return "Авторизация";
-    if (path === "/create-topic") return "Создаёт тему";
-    if (path === "/upload-video") return "Загружает видео";
-    if (path === "/moderator/resources") return "Модерация ресурсов";
-    if (path === "/create-ad") return "Создаёт рекламу";
-    if (path === "/ads-dashboard") return "Панель рекламы";
-    if (path === "/withdraw") return "Вывод средств";
+    if (path === "/messages") return "✉️ Сообщения";
+    if (path.startsWith("/chat/")) return "💬 В чате";
+    if (path === "/auth") return "🔐 Авторизация";
+    if (path === "/create-topic") return "✏️ Создаёт тему";
+    if (path === "/upload-video") return "📤 Загружает видео";
+    if (path === "/moderator/resources") return "🛡️ Модерация";
+    if (path === "/apply-moderator") return "📝 Заявка модератора";
+    if (path === "/create-ad") return "📢 Создаёт рекламу";
+    if (path === "/ads-dashboard") return "📊 Панель рекламы";
+    if (path === "/withdraw") return "💰 Вывод средств";
+    if (path === "/admin") return "⚙️ Админ-панель";
+    if (path === "/guilds") return "🏰 Гильдии";
+    if (path.startsWith("/guild/")) return "🏰 Смотрит гильдию";
+    if (path === "/guilds/rankings") return "🏆 Рейтинг гильдий";
     
     return path;
   };
