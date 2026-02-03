@@ -12,14 +12,15 @@ import { Badge } from "@/components/ui/badge";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { useToast } from "@/hooks/use-toast";
 import { profileSchema } from "@/lib/schemas";
-import { Upload, Camera, Edit, MessageCircle, Trophy, BadgeCheck, Settings, Users } from "lucide-react";
+import { Upload, Camera, Edit, MessageCircle, Trophy, BadgeCheck, Settings, Users, Star } from "lucide-react";
 import VerifiedBadge from "@/components/VerifiedBadge";
 import VerificationRequestForm from "@/components/VerificationRequestForm";
 import UsernameHistory from "@/components/UsernameHistory";
 import { formatDistanceToNow, differenceInDays } from "date-fns";
 import { ru } from "date-fns/locale";
 import { useAchievements } from "@/hooks/useAchievements";
-import AchievementsShowcase from "@/components/AchievementsShowcase";
+import TrophyShowcase from "@/components/TrophyShowcase";
+import ReputationDisplay from "@/components/ReputationDisplay";
 import PushNotificationToggle from "@/components/PushNotificationToggle";
 import TwoFactorSettings from "@/components/TwoFactorSettings";
 import ProfileGuildBadge from "@/components/ProfileGuildBadge";
@@ -533,7 +534,7 @@ const Profile = () => {
                 )}
                 
                 {/* Stats */}
-                <div className="flex gap-6 mt-4">
+                <div className="flex flex-wrap gap-4 md:gap-6 mt-4">
                   <div className="text-center">
                     <div className="text-2xl font-bold">{stats.topics}</div>
                     <div className="text-sm text-muted-foreground">Тем</div>
@@ -547,11 +548,17 @@ const Profile = () => {
                     <div className="text-sm text-muted-foreground">Ресурсов</div>
                   </div>
                   <div className="text-center">
-                    <div className="text-2xl font-bold">{earnedCount}/{totalCount}</div>
-                    <div className="text-sm text-muted-foreground">Достижений</div>
+                    <div className="flex items-center gap-1 justify-center">
+                      <Trophy className="h-4 w-4 text-amber-500" />
+                      <span className="text-2xl font-bold">{earnedCount}</span>
+                    </div>
+                    <div className="text-sm text-muted-foreground">Трофеев</div>
                   </div>
                   <div className="text-center">
-                    <div className="text-2xl font-bold text-amber-600 dark:text-amber-400">{totalPoints}</div>
+                    <div className="flex items-center gap-1 justify-center">
+                      <Star className="h-4 w-4 text-amber-500" />
+                      <span className="text-2xl font-bold text-amber-600 dark:text-amber-400">{totalPoints}</span>
+                    </div>
                     <div className="text-sm text-muted-foreground">Очков</div>
                   </div>
                 </div>
@@ -559,6 +566,22 @@ const Profile = () => {
             </div>
           </CardContent>
         </Card>
+
+        {/* Reputation & Trophies Sidebar */}
+        <div className="grid md:grid-cols-2 gap-4 mt-4">
+          <ReputationDisplay 
+            userId={profile?.id} 
+            isOwnProfile={isOwnProfile} 
+            currentUserId={currentUser?.id}
+          />
+          <TrophyShowcase
+            achievements={achievementsWithProgress}
+            totalPoints={totalPoints}
+            earnedCount={earnedCount}
+            totalCount={totalCount}
+            compact={true}
+          />
+        </div>
 
         {/* Tabs with Content */}
         <Tabs defaultValue="topics" className="mt-6">
@@ -682,22 +705,21 @@ const Profile = () => {
             {isLoadingAchievements ? (
               <Card>
                 <CardContent className="py-12 text-center text-muted-foreground">
-                  Загрузка достижений...
+                  Загрузка трофеев...
                 </CardContent>
               </Card>
             ) : achievementsWithProgress.length === 0 ? (
               <Card>
                 <CardContent className="py-12 text-center text-muted-foreground">
-                  Достижений пока нет
+                  Трофеев пока нет
                 </CardContent>
               </Card>
             ) : (
-              <AchievementsShowcase
+              <TrophyShowcase
                 achievements={achievementsWithProgress}
                 totalPoints={totalPoints}
                 earnedCount={earnedCount}
                 totalCount={totalCount}
-                userStats={userStats}
               />
             )}
           </TabsContent>
