@@ -13,7 +13,7 @@ import { ru } from "date-fns/locale";
 import { Pin, Lock, Send, Eye } from "lucide-react";
 import { useInterestTracking } from "@/hooks/useInterestTracking";
 import { LikeButton } from "@/components/LikeButton";
-
+import TopicWatchButton from "@/components/TopicWatchButton";
 interface Post {
   id: string;
   content: string;
@@ -239,16 +239,19 @@ const TopicView = () => {
                 <div className="prose prose-sm max-w-none">
                   <p className="whitespace-pre-wrap">{topic?.content}</p>
                 </div>
-                <div className="flex items-center gap-4 mt-4 pt-4 border-t">
-                  <LikeButton 
-                    contentType="topic" 
-                    contentId={topic?.id} 
-                    authorId={topic?.user_id} 
-                  />
-                  <span className="text-sm text-muted-foreground flex items-center gap-1">
-                    <Eye className="h-4 w-4" />
-                    {topic?.views} просмотров
-                  </span>
+                <div className="flex items-center justify-between gap-4 mt-4 pt-4 border-t">
+                  <div className="flex items-center gap-4">
+                    <LikeButton 
+                      contentType="topic" 
+                      contentId={topic?.id} 
+                      authorId={topic?.user_id} 
+                    />
+                    <span className="text-sm text-muted-foreground flex items-center gap-1">
+                      <Eye className="h-4 w-4" />
+                      {topic?.views} просмотров
+                    </span>
+                  </div>
+                  <TopicWatchButton topicId={topic?.id} userId={user?.id} />
                 </div>
               </div>
             </div>
