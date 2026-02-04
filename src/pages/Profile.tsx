@@ -12,7 +12,7 @@ import { Badge } from "@/components/ui/badge";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { useToast } from "@/hooks/use-toast";
 import { profileSchema } from "@/lib/schemas";
-import { Upload, Camera, Edit, MessageCircle, Trophy, BadgeCheck, Settings, Users, Star } from "lucide-react";
+import { Upload, Camera, Edit, MessageCircle, Trophy, BadgeCheck, Settings, Users, Star, AlertTriangle } from "lucide-react";
 import VerifiedBadge from "@/components/VerifiedBadge";
 import VerificationRequestForm from "@/components/VerificationRequestForm";
 import UsernameHistory from "@/components/UsernameHistory";
@@ -25,6 +25,8 @@ import PushNotificationToggle from "@/components/PushNotificationToggle";
 import TwoFactorSettings from "@/components/TwoFactorSettings";
 import ProfileGuildBadge from "@/components/ProfileGuildBadge";
 import { useGuilds } from "@/hooks/useGuilds";
+import WarningDialog from "@/components/WarningDialog";
+import WarningsList from "@/components/WarningsList";
 
 interface Topic {
   id: string;
@@ -79,6 +81,21 @@ const Profile = () => {
 
   const { useUserGuilds } = useGuilds();
   const { data: userGuilds = [] } = useUserGuilds(profile?.id);
+  
+  // Check if current user can moderate (moderator or admin)
+  const [canModerate, setCanModerate] = useState(false);
+  
+  useEffect(() => {
+    const checkModeratorStatus = async () => {
+      if (!currentUser?.id) {
+        setCanModerate(false);
+        return;
+      }
+      const { data } = await supabase.rpc("get_user_role", { _user_id: currentUser.id });
+      setCanModerate(data === "moderator" || data === "admin");
+    };
+    checkModeratorStatus();
+  }, [currentUser?.id]);
 
   // Calculate user stats for achievements progress
   const userStats = {
@@ -585,13 +602,17 @@ const Profile = () => {
 
         {/* Tabs with Content */}
         <Tabs defaultValue="topics" className="mt-6">
-          <TabsList className="grid w-full grid-cols-5">
+          <TabsList className="grid w-full grid-cols-6">
             <TabsTrigger value="topics">Темы</TabsTrigger>
             <TabsTrigger value="posts">Сообщения</TabsTrigger>
             <TabsTrigger value="resources">Ресурсы</TabsTrigger>
             <TabsTrigger value="achievements">
               <Trophy className="h-4 w-4 mr-2" />
-              Достижения
+              Трофеи
+            </TabsTrigger>
+            <TabsTrigger value="warnings">
+              <AlertTriangle className="h-4 w-4 mr-2" />
+              Предупреждения
             </TabsTrigger>
             {isOwnProfile && (
               <TabsTrigger value="settings">
@@ -721,6 +742,31 @@ const Profile = () => {
                 earnedCount={earnedCount}
                 totalCount={totalCount}
               />
+            )}
+          </TabsContent>
+
+          {/* Warnings Tab */}
+          <TabsContent value="warnings" className="space-y-4 mt-4">
+            {/* Moderator actions */}
+            {canModerate && !isOwnProfile && profile?.id && currentUser?.id && (
+              <div className="flex justify-end mb-4">
+                <WarningDialog
+                  targetUserId={profile.id}
+                  targetUsername={profile.username}
+                  moderatorId={currentUser.id}
+                />
+              </div>
+            )}
+            
+            {/* Warnings list - visible to own user or moderators */}
+            {(isOwnProfile || canModerate) && profile?.id ? (
+              <WarningsList userId={profile.id} showNotes={canModerate} />
+            ) : (
+              <Card>
+                <CardContent className="py-12 text-center text-muted-foreground">
+                  Предупреждения доступны только владельцу профиля и модераторам
+                </CardContent>
+              </Card>
             )}
           </TabsContent>
 

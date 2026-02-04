@@ -1005,6 +1005,38 @@ export type Database = {
           },
         ]
       }
+      topic_watches: {
+        Row: {
+          created_at: string
+          id: string
+          notify_on_reply: boolean
+          topic_id: string
+          user_id: string
+        }
+        Insert: {
+          created_at?: string
+          id?: string
+          notify_on_reply?: boolean
+          topic_id: string
+          user_id: string
+        }
+        Update: {
+          created_at?: string
+          id?: string
+          notify_on_reply?: boolean
+          topic_id?: string
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "topic_watches_topic_id_fkey"
+            columns: ["topic_id"]
+            isOneToOne: false
+            referencedRelation: "topics"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       topics: {
         Row: {
           category_id: string | null
@@ -1090,6 +1122,39 @@ export type Database = {
             referencedColumns: ["id"]
           },
         ]
+      }
+      user_bans: {
+        Row: {
+          ban_type: string
+          banned_by: string
+          created_at: string
+          expires_at: string | null
+          id: string
+          is_active: boolean
+          reason: string
+          user_id: string
+        }
+        Insert: {
+          ban_type?: string
+          banned_by: string
+          created_at?: string
+          expires_at?: string | null
+          id?: string
+          is_active?: boolean
+          reason: string
+          user_id: string
+        }
+        Update: {
+          ban_type?: string
+          banned_by?: string
+          created_at?: string
+          expires_at?: string | null
+          id?: string
+          is_active?: boolean
+          reason?: string
+          user_id?: string
+        }
+        Relationships: []
       }
       user_earnings: {
         Row: {
@@ -1262,6 +1327,53 @@ export type Database = {
         }
         Relationships: []
       }
+      user_warnings: {
+        Row: {
+          created_at: string
+          expires_at: string | null
+          id: string
+          is_expired: boolean
+          moderator_id: string
+          notes: string | null
+          points: number
+          reason: string
+          user_id: string
+          warning_type_id: string | null
+        }
+        Insert: {
+          created_at?: string
+          expires_at?: string | null
+          id?: string
+          is_expired?: boolean
+          moderator_id: string
+          notes?: string | null
+          points?: number
+          reason: string
+          user_id: string
+          warning_type_id?: string | null
+        }
+        Update: {
+          created_at?: string
+          expires_at?: string | null
+          id?: string
+          is_expired?: boolean
+          moderator_id?: string
+          notes?: string | null
+          points?: number
+          reason?: string
+          user_id?: string
+          warning_type_id?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "user_warnings_warning_type_id_fkey"
+            columns: ["warning_type_id"]
+            isOneToOne: false
+            referencedRelation: "warning_types"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       username_history: {
         Row: {
           changed_at: string
@@ -1392,6 +1504,33 @@ export type Database = {
           },
         ]
       }
+      warning_types: {
+        Row: {
+          created_at: string
+          description: string | null
+          expires_days: number | null
+          id: string
+          name: string
+          points: number
+        }
+        Insert: {
+          created_at?: string
+          description?: string | null
+          expires_days?: number | null
+          id?: string
+          name: string
+          points?: number
+        }
+        Update: {
+          created_at?: string
+          description?: string | null
+          expires_days?: number | null
+          id?: string
+          name?: string
+          points?: number
+        }
+        Relationships: []
+      }
       withdrawal_requests: {
         Row: {
           amount: number
@@ -1437,6 +1576,10 @@ export type Database = {
         Args: { _content_type: string; _user_id: string }
         Returns: boolean
       }
+      check_and_apply_sanctions: {
+        Args: { _moderator_id: string; _user_id: string }
+        Returns: string
+      }
       check_and_award_achievements: {
         Args: { _user_id: string }
         Returns: undefined
@@ -1455,6 +1598,7 @@ export type Database = {
         Args: { _user_id: string }
         Returns: Database["public"]["Enums"]["app_role"]
       }
+      get_user_warning_points: { Args: { _user_id: string }; Returns: number }
       has_role: {
         Args: {
           _role: Database["public"]["Enums"]["app_role"]
