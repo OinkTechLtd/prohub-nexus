@@ -1,7 +1,7 @@
 import { Link } from "react-router-dom";
 import { Sheet, SheetContent, SheetTrigger } from "./ui/sheet";
 import { Button } from "./ui/button";
-import { Menu, Home, Package, Video, Shield, MessageCircle, User, LogOut } from "lucide-react";
+import { Menu, Home, Package, Video, Shield, MessageCircle, User, LogOut, Users, Trophy } from "lucide-react";
 import { useState } from "react";
 
 interface MobileNavProps {
@@ -57,6 +57,24 @@ export const MobileNav = ({ user, showModeratorLink, onSignOut }: MobileNavProps
               <span>Видео</span>
             </Link>
             
+            <Link
+              to="/guilds"
+              onClick={closeNav}
+              className="flex items-center gap-3 px-3 py-2.5 rounded-lg hover:bg-accent transition-colors"
+            >
+              <Users className="h-5 w-5" />
+              <span>Гильдии</span>
+            </Link>
+
+            <Link
+              to="/guilds/rankings"
+              onClick={closeNav}
+              className="flex items-center gap-3 px-3 py-2.5 rounded-lg hover:bg-accent transition-colors"
+            >
+              <Trophy className="h-5 w-5" />
+              <span>Рейтинг гильдий</span>
+            </Link>
+
             {showModeratorLink && (
               <Link
                 to="/moderator/resources"

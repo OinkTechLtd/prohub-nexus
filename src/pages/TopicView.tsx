@@ -14,6 +14,7 @@ import { Pin, Lock, Send, Eye } from "lucide-react";
 import { useInterestTracking } from "@/hooks/useInterestTracking";
 import { LikeButton } from "@/components/LikeButton";
 import TopicWatchButton from "@/components/TopicWatchButton";
+import UserSignature from "@/components/UserSignature";
 interface Post {
   id: string;
   content: string;
@@ -287,6 +288,7 @@ const TopicView = () => {
                         size="sm"
                       />
                     </div>
+                    <UserSignature userId={post.user_id} />
                   </div>
                 </div>
               </CardContent>
