@@ -786,31 +786,40 @@ export type Database = {
       profiles: {
         Row: {
           avatar_url: string | null
+          banner_url: string | null
           bio: string | null
           cover_url: string | null
           created_at: string | null
           id: string
           is_verified: boolean | null
+          signature: string | null
+          signature_enabled: boolean | null
           updated_at: string | null
           username: string
         }
         Insert: {
           avatar_url?: string | null
+          banner_url?: string | null
           bio?: string | null
           cover_url?: string | null
           created_at?: string | null
           id: string
           is_verified?: boolean | null
+          signature?: string | null
+          signature_enabled?: boolean | null
           updated_at?: string | null
           username: string
         }
         Update: {
           avatar_url?: string | null
+          banner_url?: string | null
           bio?: string | null
           cover_url?: string | null
           created_at?: string | null
           id?: string
           is_verified?: boolean | null
+          signature?: string | null
+          signature_enabled?: boolean | null
           updated_at?: string | null
           username?: string
         }

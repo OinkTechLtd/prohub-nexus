@@ -12,7 +12,7 @@ import { Badge } from "@/components/ui/badge";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { useToast } from "@/hooks/use-toast";
 import { profileSchema } from "@/lib/schemas";
-import { Upload, Camera, Edit, MessageCircle, Trophy, BadgeCheck, Settings, Users, Star, AlertTriangle } from "lucide-react";
+import { Upload, Camera, Edit, MessageCircle, Trophy, BadgeCheck, Settings, Users, Star, AlertTriangle, FileSignature, ImageIcon } from "lucide-react";
 import VerifiedBadge from "@/components/VerifiedBadge";
 import VerificationRequestForm from "@/components/VerificationRequestForm";
 import UsernameHistory from "@/components/UsernameHistory";
@@ -27,6 +27,7 @@ import ProfileGuildBadge from "@/components/ProfileGuildBadge";
 import { useGuilds } from "@/hooks/useGuilds";
 import WarningDialog from "@/components/WarningDialog";
 import WarningsList from "@/components/WarningsList";
+import { Switch } from "@/components/ui/switch";
 
 interface Topic {
   id: string;
@@ -59,6 +60,9 @@ const Profile = () => {
   const [isOwnProfile, setIsOwnProfile] = useState(false);
   const [username, setUsername] = useState("");
   const [bio, setBio] = useState("");
+  const [signature, setSignature] = useState("");
+  const [signatureEnabled, setSignatureEnabled] = useState(true);
+  const [bannerUrl, setBannerUrl] = useState("");
   const [loading, setLoading] = useState(false);
   const [editMode, setEditMode] = useState(false);
   const [userRole, setUserRole] = useState<string>("newbie");
@@ -140,6 +144,9 @@ const Profile = () => {
       setProfile(profileData);
       setUsername(profileData.username);
       setBio(profileData.bio || "");
+      setSignature(profileData.signature || "");
+      setSignatureEnabled(profileData.signature_enabled ?? true);
+      setBannerUrl(profileData.banner_url || "");
       setIsOwnProfile(currentUserId === profileData.id);
       
       await loadUserData(profileData.id);
@@ -176,6 +183,9 @@ const Profile = () => {
       setProfile(profileData);
       setUsername(profileData.username);
       setBio(profileData.bio || "");
+      setSignature(profileData.signature || "");
+      setSignatureEnabled(profileData.signature_enabled ?? true);
+      setBannerUrl(profileData.banner_url || "");
       setIsOwnProfile(userId === currentUserId);
       
       await loadUserData(userId);
@@ -322,6 +332,73 @@ const Profile = () => {
     } catch (error: any) {
       toast({
         title: "Ошибка загрузки",
+        description: error.message,
+        variant: "destructive",
+      });
+    }
+  };
+
+  const handleBannerUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
+    if (!currentUser || !isOwnProfile || !e.target.files?.[0]) return;
+
+    const file = e.target.files[0];
+    const fileExt = file.name.split('.').pop();
+    const fileName = `${currentUser.id}/banner-${Date.now()}.${fileExt}`;
+
+    try {
+      const { error: uploadError } = await supabase.storage
+        .from('profile-covers')
+        .upload(fileName, file, { upsert: true });
+
+      if (uploadError) throw uploadError;
+
+      const { data: { publicUrl } } = supabase.storage
+        .from('profile-covers')
+        .getPublicUrl(fileName);
+
+      const { error: updateError } = await supabase
+        .from('profiles')
+        .update({ banner_url: publicUrl })
+        .eq('id', currentUser.id);
+
+      if (updateError) throw updateError;
+
+      setProfile({ ...profile, banner_url: publicUrl });
+      setBannerUrl(publicUrl);
+      toast({ title: "Баннер обновлён" });
+    } catch (error: any) {
+      toast({
+        title: "Ошибка загрузки",
+        description: error.message,
+        variant: "destructive",
+      });
+    }
+  };
+
+  const handleSignatureUpdate = async () => {
+    if (!currentUser || !isOwnProfile) return;
+    
+    // Limit signature length
+    if (signature.length > 200) {
+      toast({
+        title: "Ошибка",
+        description: "Подпись не может быть длиннее 200 символов",
+        variant: "destructive",
+      });
+      return;
+    }
+
+    try {
+      const { error } = await supabase
+        .from("profiles")
+        .update({ signature, signature_enabled: signatureEnabled })
+        .eq("id", currentUser.id);
+
+      if (error) throw error;
+      toast({ title: "Подпись обновлена" });
+    } catch (error: any) {
+      toast({
+        title: "Ошибка обновления",
         description: error.message,
         variant: "destructive",
       });
@@ -805,6 +882,91 @@ const Profile = () => {
                 </CardHeader>
                 <CardContent>
                   <PushNotificationToggle userId={currentUser.id} />
+                </CardContent>
+              </Card>
+
+              {/* Signature Settings */}
+              <Card>
+                <CardHeader>
+                  <CardTitle className="flex items-center gap-2">
+                    <FileSignature className="h-5 w-5" />
+                    Подпись (XenForo-стиль)
+                  </CardTitle>
+                </CardHeader>
+                <CardContent className="space-y-4">
+                  <div className="flex items-center justify-between">
+                    <Label htmlFor="signature-enabled">Показывать подпись под постами</Label>
+                    <Switch
+                      id="signature-enabled"
+                      checked={signatureEnabled}
+                      onCheckedChange={setSignatureEnabled}
+                    />
+                  </div>
+                  <div className="space-y-2">
+                    <Label htmlFor="signature">Текст подписи (до 200 символов)</Label>
+                    <Textarea
+                      id="signature"
+                      value={signature}
+                      onChange={(e) => setSignature(e.target.value)}
+                      placeholder="Ваша подпись под постами..."
+                      rows={3}
+                      maxLength={200}
+                    />
+                    <p className="text-xs text-muted-foreground text-right">
+                      {signature.length}/200
+                    </p>
+                  </div>
+                  <Button onClick={handleSignatureUpdate} size="sm">
+                    Сохранить подпись
+                  </Button>
+                  
+                  {signature && signatureEnabled && (
+                    <div className="mt-4 p-3 bg-muted/50 rounded-lg">
+                      <p className="text-xs text-muted-foreground mb-1">Предпросмотр:</p>
+                      <div className="pt-2 border-t border-dashed text-sm text-muted-foreground italic">
+                        {signature}
+                      </div>
+                    </div>
+                  )}
+                </CardContent>
+              </Card>
+
+              {/* Banner Settings */}
+              <Card>
+                <CardHeader>
+                  <CardTitle className="flex items-center gap-2">
+                    <ImageIcon className="h-5 w-5" />
+                    Баннер профиля
+                  </CardTitle>
+                </CardHeader>
+                <CardContent className="space-y-4">
+                  <p className="text-sm text-muted-foreground">
+                    Баннер отображается в вашем профиле под обложкой
+                  </p>
+                  
+                  {bannerUrl && (
+                    <div className="rounded-lg overflow-hidden border">
+                      <img src={bannerUrl} alt="Profile banner" className="w-full h-24 object-cover" />
+                    </div>
+                  )}
+                  
+                  <label className="cursor-pointer">
+                    <Button variant="outline" size="sm" asChild>
+                      <span>
+                        <Upload className="h-4 w-4 mr-2" />
+                        {bannerUrl ? "Изменить баннер" : "Загрузить баннер"}
+                      </span>
+                    </Button>
+                    <input
+                      type="file"
+                      className="hidden"
+                      accept="image/*"
+                      onChange={handleBannerUpload}
+                    />
+                  </label>
+                  <p className="text-xs text-muted-foreground">
+                    Рекомендуемый размер: 728x90 пикселей (формат баннера)
+                  </p>
                 </CardContent>
               </Card>
             </TabsContent>
