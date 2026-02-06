@@ -5,6 +5,7 @@ import Header from "@/components/Header";
 import { Card, CardContent } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Eye, ThumbsUp, ArrowLeft } from "lucide-react";
+import ReportDialog from "@/components/ReportDialog";
 import { useToast } from "@/hooks/use-toast";
 
 interface Video {
@@ -146,10 +147,10 @@ const VideoView = () => {
               </video>
             </div>
             
-            <div className="p-6 space-y-4">
+            <div className="p-4 sm:p-6 space-y-4">
               <div>
-                <h1 className="text-3xl font-bold mb-2">{video.title}</h1>
-                <div className="flex items-center gap-4 text-sm text-muted-foreground">
+                <h1 className="text-xl sm:text-3xl font-bold mb-2 break-words">{video.title}</h1>
+                <div className="flex items-center gap-4 text-sm text-muted-foreground flex-wrap">
                   <span className="flex items-center gap-1">
                     <Eye className="h-4 w-4" />
                     {video.views} просмотров
@@ -159,7 +160,7 @@ const VideoView = () => {
                 </div>
               </div>
 
-              <div className="flex items-center gap-4">
+              <div className="flex items-center gap-2 flex-wrap">
                 <Button
                   variant={liked ? "default" : "outline"}
                   onClick={handleLike}
@@ -168,6 +169,13 @@ const VideoView = () => {
                   <ThumbsUp className="h-4 w-4" />
                   {video.likes}
                 </Button>
+                {user && (
+                  <ReportDialog
+                    contentType="video"
+                    contentId={video.id}
+                    contentAuthorId={(video as any).user_id}
+                  />
+                )}
               </div>
 
               <div className="pt-4 border-t">

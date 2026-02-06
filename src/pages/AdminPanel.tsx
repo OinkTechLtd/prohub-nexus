@@ -28,9 +28,11 @@ import {
   Search,
   BadgeCheck,
   Crown,
-  UserCog
+  UserCog,
+  Flag
 } from "lucide-react";
 import VerifiedBadge from "@/components/VerifiedBadge";
+import AdminReportsTab from "@/components/AdminReportsTab";
 
 interface User {
   id: string;
@@ -360,12 +362,16 @@ const AdminPanel = () => {
         </div>
 
         <Tabs defaultValue="users" className="space-y-6">
-          <TabsList className="grid w-full grid-cols-5">
-            <TabsTrigger value="users" className="gap-2">
+          <TabsList className="grid w-full grid-cols-3 sm:grid-cols-6">
+            <TabsTrigger value="users" className="gap-1 sm:gap-2">
               <Users className="h-4 w-4" />
               <span className="hidden sm:inline">Пользователи</span>
             </TabsTrigger>
-            <TabsTrigger value="verification" className="gap-2">
+            <TabsTrigger value="reports" className="gap-1 sm:gap-2">
+              <Flag className="h-4 w-4" />
+              <span className="hidden sm:inline">Жалобы</span>
+            </TabsTrigger>
+            <TabsTrigger value="verification" className="gap-1 sm:gap-2">
               <BadgeCheck className="h-4 w-4" />
               <span className="hidden sm:inline">Заявки</span>
               {verificationRequests.length > 0 && (
@@ -374,15 +380,15 @@ const AdminPanel = () => {
                 </Badge>
               )}
             </TabsTrigger>
-            <TabsTrigger value="topics" className="gap-2">
+            <TabsTrigger value="topics" className="gap-1 sm:gap-2">
               <FileText className="h-4 w-4" />
               <span className="hidden sm:inline">Темы</span>
             </TabsTrigger>
-            <TabsTrigger value="resources" className="gap-2">
+            <TabsTrigger value="resources" className="gap-1 sm:gap-2">
               <FileText className="h-4 w-4" />
               <span className="hidden sm:inline">Ресурсы</span>
             </TabsTrigger>
-            <TabsTrigger value="videos" className="gap-2">
+            <TabsTrigger value="videos" className="gap-1 sm:gap-2">
               <Video className="h-4 w-4" />
               <span className="hidden sm:inline">Видео</span>
             </TabsTrigger>
@@ -465,6 +471,11 @@ const AdminPanel = () => {
                 </div>
               </CardContent>
             </Card>
+          </TabsContent>
+
+          {/* Reports Tab */}
+          <TabsContent value="reports" className="space-y-4">
+            <AdminReportsTab currentUserId={currentUser?.id} />
           </TabsContent>
 
           {/* Verification Requests Tab */}

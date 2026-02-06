@@ -10,11 +10,12 @@ import { Avatar, AvatarFallback } from "@/components/ui/avatar";
 import { useToast } from "@/hooks/use-toast";
 import { formatDistanceToNow } from "date-fns";
 import { ru } from "date-fns/locale";
-import { Pin, Lock, Send, Eye } from "lucide-react";
+import { Pin, Lock, Send, Eye, Flag } from "lucide-react";
 import { useInterestTracking } from "@/hooks/useInterestTracking";
 import { LikeButton } from "@/components/LikeButton";
 import TopicWatchButton from "@/components/TopicWatchButton";
 import UserSignature from "@/components/UserSignature";
+import ReportDialog from "@/components/ReportDialog";
 interface Post {
   id: string;
   content: string;
@@ -218,17 +219,17 @@ const TopicView = () => {
 
         <Card className="mb-6">
           <CardContent className="pt-6">
-            <div className="flex items-start space-x-4">
-              <Avatar className="h-12 w-12">
+            <div className="flex items-start gap-3 sm:gap-4">
+              <Avatar className="h-10 w-10 sm:h-12 sm:w-12 flex-shrink-0">
                 <AvatarFallback className="bg-primary text-primary-foreground">
                   {topic?.profiles?.username?.[0]?.toUpperCase()}
                 </AvatarFallback>
               </Avatar>
-              <div className="flex-1">
-                <div className="flex items-center space-x-2 mb-2">
-                  {topic?.is_pinned && <Pin className="h-4 w-4 text-primary" />}
-                  {topic?.is_locked && <Lock className="h-4 w-4 text-muted-foreground" />}
-                  <h1 className="text-3xl font-bold">{topic?.title}</h1>
+              <div className="flex-1 min-w-0">
+                <div className="flex items-center gap-2 mb-2 flex-wrap">
+                  {topic?.is_pinned && <Pin className="h-4 w-4 text-primary flex-shrink-0" />}
+                  {topic?.is_locked && <Lock className="h-4 w-4 text-muted-foreground flex-shrink-0" />}
+                  <h1 className="text-xl sm:text-3xl font-bold break-words">{topic?.title}</h1>
                 </div>
                 <p className="text-sm text-muted-foreground mb-4 flex items-center gap-2">
                   от <UserLink username={topic?.profiles?.username} showAvatar={false} /> •{" "}
@@ -240,7 +241,7 @@ const TopicView = () => {
                 <div className="prose prose-sm max-w-none">
                   <p className="whitespace-pre-wrap">{topic?.content}</p>
                 </div>
-                <div className="flex items-center justify-between gap-4 mt-4 pt-4 border-t">
+                <div className="flex items-center justify-between gap-4 mt-4 pt-4 border-t flex-wrap">
                   <div className="flex items-center gap-4">
                     <LikeButton 
                       contentType="topic" 
@@ -252,7 +253,16 @@ const TopicView = () => {
                       {topic?.views} просмотров
                     </span>
                   </div>
-                  <TopicWatchButton topicId={topic?.id} userId={user?.id} />
+                  <div className="flex items-center gap-2">
+                    {user && topic?.user_id !== user.id && (
+                      <ReportDialog 
+                        contentType="topic" 
+                        contentId={topic?.id} 
+                        contentAuthorId={topic?.user_id}
+                      />
+                    )}
+                    <TopicWatchButton topicId={topic?.id} userId={user?.id} />
+                  </div>
                 </div>
               </div>
             </div>
@@ -262,15 +272,15 @@ const TopicView = () => {
         <div className="space-y-4 mb-6">
           {posts.map((post) => (
             <Card key={post.id}>
-              <CardContent className="pt-6">
-                <div className="flex items-start space-x-4">
-                  <Avatar>
-                    <AvatarFallback className="bg-secondary">
+              <CardContent className="pt-4 sm:pt-6">
+                <div className="flex items-start gap-3">
+                  <Avatar className="h-8 w-8 sm:h-10 sm:w-10 flex-shrink-0">
+                    <AvatarFallback className="bg-secondary text-xs sm:text-sm">
                       {post.profiles?.username?.[0]?.toUpperCase()}
                     </AvatarFallback>
                   </Avatar>
-                  <div className="flex-1">
-                    <div className="flex items-center space-x-2 mb-2">
+                  <div className="flex-1 min-w-0">
+                    <div className="flex items-center gap-2 mb-2 flex-wrap">
                       <UserLink username={post.profiles?.username} avatarUrl={post.profiles?.avatar_url} />
                       <span className="text-xs text-muted-foreground">
                         {formatDistanceToNow(new Date(post.created_at), {
@@ -279,14 +289,21 @@ const TopicView = () => {
                         })}
                       </span>
                     </div>
-                    <p className="whitespace-pre-wrap">{post.content}</p>
-                    <div className="mt-2">
+                    <p className="whitespace-pre-wrap break-words">{post.content}</p>
+                    <div className="mt-2 flex items-center gap-2">
                       <LikeButton 
                         contentType="post" 
                         contentId={post.id} 
                         authorId={post.user_id}
                         size="sm"
                       />
+                      {user && post.user_id !== user.id && (
+                        <ReportDialog 
+                          contentType="post" 
+                          contentId={post.id} 
+                          contentAuthorId={post.user_id}
+                        />
+                      )}
                     </div>
                     <UserSignature userId={post.user_id} />
                   </div>
