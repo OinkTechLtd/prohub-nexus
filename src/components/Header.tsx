@@ -1,7 +1,8 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { Link, useNavigate } from "react-router-dom";
 import { Button } from "./ui/button";
 import { Avatar, AvatarFallback } from "./ui/avatar";
+import { Badge } from "./ui/badge";
 import { supabase } from "@/integrations/supabase/client";
 import { useToast } from "@/hooks/use-toast";
 import { LogOut, User, Shield, MessageCircle, Search, Settings, Users } from "lucide-react";
@@ -13,6 +14,7 @@ import GlobalSearch from "./GlobalSearch";
 import NotificationCenter from "./NotificationCenter";
 import GitHubButton from "./GitHubButton";
 import GuildInviteNotifications from "./GuildInviteNotifications";
+import { useUnreadMessages } from "@/hooks/useUnreadMessages";
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -30,6 +32,7 @@ const Header = ({ user, onSearchActivity }: HeaderProps) => {
   const { toast } = useToast();
   const { canModerateResources, canModerateTopics, isAdmin } = useUserRole();
   const [searchOpen, setSearchOpen] = useState(false);
+  const { totalUnread } = useUnreadMessages(user?.id);
 
   const handleSignOut = async () => {
     await supabase.auth.signOut();
@@ -116,9 +119,17 @@ const Header = ({ user, onSearchActivity }: HeaderProps) => {
                   variant="ghost"
                   size="icon"
                   onClick={() => navigate("/messages")}
-                  className="hidden md:flex h-9 w-9"
+                  className="hidden md:flex h-9 w-9 relative"
                 >
                   <MessageCircle className="h-4 w-4" />
+                  {totalUnread > 0 && (
+                    <Badge
+                      variant="destructive"
+                      className="absolute -top-1 -right-1 h-4 w-4 flex items-center justify-center p-0 text-[10px]"
+                    >
+                      {totalUnread > 9 ? "9+" : totalUnread}
+                    </Badge>
+                  )}
                 </Button>
                 <DropdownMenu>
                   <DropdownMenuTrigger asChild>

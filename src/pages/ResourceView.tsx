@@ -13,6 +13,7 @@ import { useInterestTracking } from "@/hooks/useInterestTracking";
 import UserLink from "@/components/UserLink";
 import { LikeButton } from "@/components/LikeButton";
 import { StarRating } from "@/components/StarRating";
+import ReportDialog from "@/components/ReportDialog";
 import { 
   Download, 
   ExternalLink, 
@@ -396,12 +397,19 @@ const ResourceView = () => {
                 </div>
               </div>
 
-              <div className="flex items-center gap-2">
+              <div className="flex items-center gap-2 flex-wrap">
                 <LikeButton 
                   contentType="resource" 
                   contentId={resource.id}
                   authorId={resource.user_id}
                 />
+                {user && resource.user_id !== user.id && (
+                  <ReportDialog
+                    contentType="resource"
+                    contentId={resource.id}
+                    contentAuthorId={resource.user_id}
+                  />
+                )}
                 <Button onClick={handleOpenResource}>
                   {resource.file_url ? (
                     <>

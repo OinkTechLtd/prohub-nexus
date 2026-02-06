@@ -226,26 +226,26 @@ const Chat = () => {
       <Header user={user} />
 
       {/* Chat Header */}
-      <div className="border-b bg-card sticky top-16 z-40">
-        <div className="container mx-auto px-4 py-3 flex items-center gap-3">
-          <Button variant="ghost" size="sm" onClick={() => navigate("/messages")}>
+      <div className="border-b bg-card sticky top-14 md:top-16 z-40">
+        <div className="container mx-auto px-3 sm:px-4 py-2 sm:py-3 flex items-center gap-2 sm:gap-3">
+          <Button variant="ghost" size="sm" onClick={() => navigate("/messages")} className="h-8 w-8 p-0 sm:h-9 sm:w-auto sm:px-3">
             <ArrowLeft className="h-4 w-4" />
           </Button>
-          <Avatar className="h-10 w-10">
+          <Avatar className="h-8 w-8 sm:h-10 sm:w-10">
             <AvatarImage src={otherUser?.avatar_url || undefined} />
-            <AvatarFallback>
+            <AvatarFallback className="text-sm">
               {otherUser?.username?.[0]?.toUpperCase() || "?"}
             </AvatarFallback>
           </Avatar>
-          <div>
-            <h2 className="font-semibold">{otherUser?.username || "Пользователь"}</h2>
+          <div className="min-w-0">
+            <h2 className="font-semibold text-sm sm:text-base truncate">{otherUser?.username || "Пользователь"}</h2>
           </div>
         </div>
       </div>
 
       {/* Messages */}
       <div className="flex-1 overflow-y-auto">
-        <div className="container mx-auto px-4 py-6 space-y-4">
+        <div className="container mx-auto px-3 sm:px-4 py-4 sm:py-6 space-y-3 sm:space-y-4">
           {messages.map((message) => (
             <MessageBubble
               key={message.id}
@@ -260,8 +260,8 @@ const Chat = () => {
       </div>
 
       {/* Input */}
-      <div className="border-t bg-card sticky bottom-0">
-        <div className="container mx-auto px-4 py-4">
+      <div className="border-t bg-card sticky bottom-0 safe-area-bottom">
+        <div className="container mx-auto px-3 sm:px-4 py-3 sm:py-4">
           <MessageInput
             onSend={handleSendMessage}
             replyTo={replyTo}
