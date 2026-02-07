@@ -78,6 +78,9 @@ const Header = ({ user, onSearchActivity }: HeaderProps) => {
               <Users className="h-4 w-4" />
               Гильдии
             </Link>
+            <Link to="/members" className="text-sm font-medium hover:text-primary transition-colors">
+              Участники
+            </Link>
             {showModeratorLink && (
               <Link to="/moderator/resources" className="text-sm font-medium hover:text-primary transition-colors flex items-center gap-1">
                 <Shield className="h-4 w-4" />

@@ -1,4 +1,4 @@
-import { useEffect, useState, useRef } from "react";
+import { useEffect, useState, useRef, useCallback } from "react";
 import { useParams, useNavigate } from "react-router-dom";
 import { supabase } from "@/integrations/supabase/client";
 import Header from "@/components/Header";
@@ -19,6 +19,7 @@ const Chat = () => {
   const [loading, setLoading] = useState(true);
   const messagesEndRef = useRef<HTMLDivElement>(null);
   const { toast } = useToast();
+  const channelRef = useRef<any>(null);
 
   useEffect(() => {
     supabase.auth.getSession().then(({ data: { session } }) => {
@@ -33,7 +34,8 @@ const Chat = () => {
   useEffect(() => {
     if (user && id) {
       loadChat();
-      subscribeToMessages();
+      const cleanup = subscribeToMessages();
+      return cleanup;
     }
   }, [user, id]);
 
@@ -47,13 +49,18 @@ const Chat = () => {
 
   const loadChat = async () => {
     try {
-      // Получить другого участника чата
-      const { data: participantData } = await supabase
+      // Get other participant
+      const { data: participantData, error: participantError } = await supabase
         .from("chat_participants")
         .select("user_id")
         .eq("chat_id", id)
         .neq("user_id", user.id)
         .single();
+
+      if (participantError) {
+        console.error("Participant error:", participantError);
+        throw participantError;
+      }
 
       if (participantData) {
         const { data: profileData } = await supabase
@@ -65,7 +72,7 @@ const Chat = () => {
         setOtherUser(profileData);
       }
 
-      // Загрузить сообщения
+      // Load messages
       const { data: messagesData, error: messagesError } = await supabase
         .from("messages")
         .select(`
@@ -81,9 +88,12 @@ const Chat = () => {
         .eq("chat_id", id)
         .order("created_at", { ascending: true });
 
-      if (messagesError) throw messagesError;
+      if (messagesError) {
+        console.error("Messages error:", messagesError);
+        throw messagesError;
+      }
 
-      // Для каждого сообщения загрузить реакции
+      // Load reactions for each message
       const messagesWithReactions = await Promise.all(
         (messagesData || []).map(async (msg) => {
           const { data: reactions } = await supabase
@@ -100,7 +110,7 @@ const Chat = () => {
 
       setMessages(messagesWithReactions);
 
-      // Обновить last_read_at
+      // Update last_read_at
       await supabase
         .from("chat_participants")
         .update({ last_read_at: new Date().toISOString() })
@@ -108,7 +118,7 @@ const Chat = () => {
         .eq("user_id", user.id);
     } catch (error: any) {
       toast({
-        title: "Ошибка загрузки",
+        title: "Ошибка загрузки чата",
         description: error.message,
         variant: "destructive",
       });
@@ -118,8 +128,13 @@ const Chat = () => {
   };
 
   const subscribeToMessages = () => {
+    // Clean up previous channel if exists
+    if (channelRef.current) {
+      supabase.removeChannel(channelRef.current);
+    }
+
     const channel = supabase
-      .channel(`chat-${id}`)
+      .channel(`chat-${id}-${Date.now()}`)
       .on(
         "postgres_changes",
         {
@@ -129,6 +144,9 @@ const Chat = () => {
           filter: `chat_id=eq.${id}`,
         },
         async (payload) => {
+
+          const msgId = payload.new.id as string;
+          
           const { data: profileData } = await supabase
             .from("profiles")
             .select("username, avatar_url")
@@ -137,11 +155,24 @@ const Chat = () => {
 
           const newMessage = {
             ...payload.new,
+            id: msgId,
             profiles: profileData,
-            reactions: [],
+            reactions: [] as any[],
           };
 
-          setMessages((prev) => [...prev, newMessage]);
+          setMessages((prev) => {
+            if (prev.some((m) => m.id === msgId)) return prev;
+            return [...prev, newMessage];
+          });
+
+          // Update last_read_at when we receive messages
+          if (user && payload.new.user_id !== user.id) {
+            await supabase
+              .from("chat_participants")
+              .update({ last_read_at: new Date().toISOString() })
+              .eq("chat_id", id)
+              .eq("user_id", user.id);
+          }
         }
       )
       .on(
@@ -166,12 +197,17 @@ const Chat = () => {
       )
       .subscribe();
 
+    channelRef.current = channel;
+
     return () => {
       supabase.removeChannel(channel);
+      channelRef.current = null;
     };
   };
 
   const handleSendMessage = async (content: string) => {
+    if (!user || !id) return;
+    
     try {
       const { error } = await supabase.from("messages").insert({
         chat_id: id,
@@ -180,9 +216,12 @@ const Chat = () => {
         reply_to_id: replyTo?.id || null,
       });
 
-      if (error) throw error;
+      if (error) {
+        console.error("Send message error:", error);
+        throw error;
+      }
 
-      // Обновить updated_at чата
+      // Update chat timestamp
       await supabase
         .from("chats")
         .update({ updated_at: new Date().toISOString() })
@@ -199,6 +238,7 @@ const Chat = () => {
   };
 
   const handleReact = async (messageId: string, emoji: string) => {
+    if (!user) return;
     try {
       const { error } = await supabase.from("message_reactions").insert({
         message_id: messageId,
@@ -206,7 +246,7 @@ const Chat = () => {
         emoji,
       });
 
-      if (error) throw error;
+      if (error) console.error("Error adding reaction:", error);
     } catch (error: any) {
       console.error("Error adding reaction:", error);
     }
@@ -246,11 +286,16 @@ const Chat = () => {
       {/* Messages */}
       <div className="flex-1 overflow-y-auto">
         <div className="container mx-auto px-3 sm:px-4 py-4 sm:py-6 space-y-3 sm:space-y-4">
+          {messages.length === 0 && (
+            <div className="text-center text-muted-foreground py-12">
+              <p>Начните общение! Отправьте первое сообщение.</p>
+            </div>
+          )}
           {messages.map((message) => (
             <MessageBubble
               key={message.id}
               message={message}
-              isOwn={message.user_id === user.id}
+              isOwn={message.user_id === user?.id || false}
               onReply={() => setReplyTo(message)}
               onReact={(emoji) => handleReact(message.id, emoji)}
             />
