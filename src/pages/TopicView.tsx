@@ -1,4 +1,4 @@
-import { useEffect, useState } from "react";
+import { useEffect, useState, useCallback } from "react";
 import { useParams, useNavigate } from "react-router-dom";
 import { supabase } from "@/integrations/supabase/client";
 import Header from "@/components/Header";
@@ -16,6 +16,12 @@ import { LikeButton } from "@/components/LikeButton";
 import TopicWatchButton from "@/components/TopicWatchButton";
 import UserSignature from "@/components/UserSignature";
 import ReportDialog from "@/components/ReportDialog";
+import QuoteButton from "@/components/QuoteButton";
+import BBCodeRenderer from "@/components/BBCodeRenderer";
+import PostBookmarkButton from "@/components/PostBookmarkButton";
+import ShareButton from "@/components/ShareButton";
+import ReadingProgress from "@/components/ReadingProgress";
+
 interface Post {
   id: string;
   content: string;
@@ -61,6 +67,12 @@ const TopicView = () => {
       trackInterest(topic.categories.slug);
     }
   }, [topic]);
+
+  const handleQuote = useCallback((quotedText: string) => {
+    setNewPost((prev) => quotedText + prev);
+    // Scroll to reply area
+    document.getElementById("reply-form")?.scrollIntoView({ behavior: "smooth" });
+  }, []);
 
   const incrementViews = async () => {
     if (!id) return;
@@ -140,7 +152,6 @@ const TopicView = () => {
     setPosting(true);
 
     try {
-      // Server-side moderation check
       const { data: { session } } = await supabase.auth.getSession();
       const { data: moderationResult, error: moderationError } = await supabase.functions.invoke(
         'moderate-content',
@@ -172,7 +183,6 @@ const TopicView = () => {
 
       if (error) throw error;
 
-      // Check achievements
       await supabase.rpc("check_and_award_achievements", {
         _user_id: user.id,
       });
@@ -180,7 +190,6 @@ const TopicView = () => {
       setNewPost("");
       loadTopicAndPosts();
       
-      // Check and upgrade user role
       await supabase.rpc('check_and_upgrade_role', { _user_id: user.id });
       
       toast({
@@ -208,15 +217,17 @@ const TopicView = () => {
 
   return (
     <div className="min-h-screen bg-background">
+      <ReadingProgress />
       <Header user={user} />
 
-      <main className="container mx-auto px-4 py-8">
+      <main className="container mx-auto px-3 sm:px-4 py-6 sm:py-8">
         <div className="mb-4">
           <Button variant="ghost" onClick={() => navigate(`/category/${topic?.categories?.slug}`)}>
             ← Вернуться в {topic?.categories?.name}
           </Button>
         </div>
 
+        {/* Topic Header */}
         <Card className="mb-6">
           <CardContent className="pt-6">
             <div className="flex items-start gap-3 sm:gap-4">
@@ -231,7 +242,7 @@ const TopicView = () => {
                   {topic?.is_locked && <Lock className="h-4 w-4 text-muted-foreground flex-shrink-0" />}
                   <h1 className="text-xl sm:text-3xl font-bold break-words">{topic?.title}</h1>
                 </div>
-                <p className="text-sm text-muted-foreground mb-4 flex items-center gap-2">
+                <p className="text-sm text-muted-foreground mb-4 flex items-center gap-2 flex-wrap">
                   от <UserLink username={topic?.profiles?.username} showAvatar={false} /> •{" "}
                   {formatDistanceToNow(new Date(topic?.created_at), {
                     addSuffix: true,
@@ -239,10 +250,10 @@ const TopicView = () => {
                   })}
                 </p>
                 <div className="prose prose-sm max-w-none">
-                  <p className="whitespace-pre-wrap">{topic?.content}</p>
+                  <BBCodeRenderer content={topic?.content || ""} />
                 </div>
                 <div className="flex items-center justify-between gap-4 mt-4 pt-4 border-t flex-wrap">
-                  <div className="flex items-center gap-4">
+                  <div className="flex items-center gap-2 sm:gap-4 flex-wrap">
                     <LikeButton 
                       contentType="topic" 
                       contentId={topic?.id} 
@@ -250,8 +261,16 @@ const TopicView = () => {
                     />
                     <span className="text-sm text-muted-foreground flex items-center gap-1">
                       <Eye className="h-4 w-4" />
-                      {topic?.views} просмотров
+                      {topic?.views}
                     </span>
+                    <ShareButton title={topic?.title || ""} />
+                    {user && topic?.profiles?.username && (
+                      <QuoteButton
+                        username={topic.profiles.username}
+                        content={topic.content}
+                        onQuote={handleQuote}
+                      />
+                    )}
                   </div>
                   <div className="flex items-center gap-2">
                     {user && topic?.user_id !== user.id && (
@@ -269,6 +288,7 @@ const TopicView = () => {
           </CardContent>
         </Card>
 
+        {/* Posts */}
         <div className="space-y-4 mb-6">
           {posts.map((post) => (
             <Card key={post.id}>
@@ -289,13 +309,26 @@ const TopicView = () => {
                         })}
                       </span>
                     </div>
-                    <p className="whitespace-pre-wrap break-words">{post.content}</p>
-                    <div className="mt-2 flex items-center gap-2">
+                    <BBCodeRenderer content={post.content} />
+                    <div className="mt-2 flex items-center gap-1 sm:gap-2 flex-wrap">
                       <LikeButton 
                         contentType="post" 
                         contentId={post.id} 
                         authorId={post.user_id}
                         size="sm"
+                      />
+                      {user && (
+                        <QuoteButton
+                          username={post.profiles?.username}
+                          content={post.content}
+                          onQuote={handleQuote}
+                        />
+                      )}
+                      <PostBookmarkButton
+                        postId={post.id}
+                        postContent={post.content}
+                        topicTitle={topic?.title}
+                        topicId={topic?.id}
                       />
                       {user && post.user_id !== user.id && (
                         <ReportDialog 
@@ -313,8 +346,9 @@ const TopicView = () => {
           ))}
         </div>
 
+        {/* Reply Form */}
         {user && !topic?.is_locked && (
-          <Card>
+          <Card id="reply-form">
             <CardContent className="pt-6">
               <form onSubmit={handlePostSubmit} className="space-y-4">
                 <Textarea
@@ -322,6 +356,7 @@ const TopicView = () => {
                   value={newPost}
                   onChange={(e) => setNewPost(e.target.value)}
                   rows={4}
+                  className="min-h-[100px]"
                   required
                 />
                 <Button type="submit" disabled={posting}>

@@ -29,6 +29,8 @@ import AdminPanel from "./pages/AdminPanel";
 import Guilds from "./pages/Guilds";
 import GuildView from "./pages/GuildView";
 import GuildRankings from "./pages/GuildRankings";
+import Members from "./pages/Members";
+import Bookmarks from "./pages/Bookmarks";
 import NotFound from "./pages/NotFound";
 import Blocked from "./pages/Blocked";
 import RecruitmentBanner from "./components/RecruitmentBanner";
@@ -94,6 +96,8 @@ const App = () => {
                 <Route path="/guilds" element={<Guilds />} />
                 <Route path="/guild/:id" element={<GuildView />} />
                 <Route path="/guilds/rankings" element={<GuildRankings />} />
+                <Route path="/members" element={<Members />} />
+                <Route path="/bookmarks" element={<Bookmarks />} />
                 {/* ADD ALL CUSTOM ROUTES ABOVE THE CATCH-ALL "*" ROUTE */}
                 <Route path="*" element={<NotFound />} />
               </Routes>
