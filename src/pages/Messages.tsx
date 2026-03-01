@@ -116,6 +116,7 @@ const Messages = () => {
             .from("messages")
             .select("*", { count: "exact", head: true })
             .eq("chat_id", chat.id)
+            .neq("user_id", user.id)
             .gt("created_at", myParticipant?.last_read_at || "1970-01-01");
 
           return {

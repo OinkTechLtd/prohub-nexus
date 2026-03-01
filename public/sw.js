@@ -1,32 +1,27 @@
-// ProHub Nexus Service Worker v1.0
-const CACHE_NAME = "prohub-v1";
-const OFFLINE_URL = "/";
+// ProHub Nexus Service Worker v2.0 - Network First
+const CACHE_NAME = "prohub-v2";
 
-// Install event - cache core assets
-self.addEventListener("install", (event) => {
-  event.waitUntil(
-    caches.open(CACHE_NAME).then((cache) => {
-      return cache.addAll([OFFLINE_URL]);
-    })
-  );
+// Install - skip waiting to activate immediately
+self.addEventListener("install", () => {
   self.skipWaiting();
 });
 
-// Activate event - clean old caches
+// Activate - delete all old caches
 self.addEventListener("activate", (event) => {
   event.waitUntil(
     caches.keys().then((keys) =>
-      Promise.all(keys.filter((k) => k !== CACHE_NAME).map((k) => caches.delete(k)))
+      Promise.all(keys.map((k) => caches.delete(k)))
     )
   );
   self.clients.claim();
 });
 
-// Fetch event - network first, cache fallback
+// Fetch - always network first, no caching for HTML
 self.addEventListener("fetch", (event) => {
+  // Don't cache anything - always go to network
   if (event.request.mode === "navigate") {
     event.respondWith(
-      fetch(event.request).catch(() => caches.match(OFFLINE_URL))
+      fetch(event.request).catch(() => new Response("Offline", { status: 503 }))
     );
   }
 });
