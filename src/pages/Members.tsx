@@ -18,6 +18,7 @@ import { useToast } from "@/hooks/use-toast";
 import { Link } from "react-router-dom";
 import VerifiedBadge from "@/components/VerifiedBadge";
 import ReputationDisplay from "@/components/ReputationDisplay";
+import UserLevelBadge from "@/components/UserLevelBadge";
 
 interface MemberInfo {
   id: string;
@@ -238,6 +239,9 @@ const Members = () => {
                             {member.reputation_points}
                           </span>
                           <span>{member.posts_count + member.topics_count} постов</span>
+                        </div>
+                        <div className="mt-1.5">
+                          <UserLevelBadge postCount={member.posts_count + member.topics_count} reputation={member.reputation_points} compact />
                         </div>
                       </div>
                     </div>

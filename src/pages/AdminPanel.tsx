@@ -595,13 +595,6 @@ const AdminPanel = () => {
                         >
                           {topic.is_hidden ? "Показать" : "Скрыть"}
                         </Button>
-                        <Button
-                          size="sm"
-                          variant="destructive"
-                          onClick={() => deleteContent("topics", topic.id)}
-                        >
-                          Удалить
-                        </Button>
                       </div>
                     </div>
                   ))}
@@ -638,13 +631,6 @@ const AdminPanel = () => {
                           onClick={() => toggleContentHidden("resources", resource.id, resource.is_hidden)}
                         >
                           {resource.is_hidden ? "Показать" : "Скрыть"}
-                        </Button>
-                        <Button
-                          size="sm"
-                          variant="destructive"
-                          onClick={() => deleteContent("resources", resource.id)}
-                        >
-                          Удалить
                         </Button>
                       </div>
                     </div>
@@ -685,13 +671,6 @@ const AdminPanel = () => {
                             onClick={() => toggleContentHidden("videos", video.id, video.is_hidden)}
                           >
                             {video.is_hidden ? "Показать" : "Скрыть"}
-                          </Button>
-                          <Button
-                            size="sm"
-                            variant="destructive"
-                            onClick={() => deleteContent("videos", video.id)}
-                          >
-                            Удалить
                           </Button>
                         </div>
                       </div>

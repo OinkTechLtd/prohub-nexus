@@ -25,8 +25,8 @@ export default function AuthGuard({ children }: AuthGuardProps) {
 
   const checkAuth = async () => {
     try {
-      // Allow /blocked page without checks
-      if (location.pathname === "/blocked") {
+      // Allow /blocked and /auth pages without checks
+      if (location.pathname === "/blocked" || location.pathname === "/auth") {
         setIsAuthorized(true);
         setIsChecking(false);
         return;
@@ -35,13 +35,12 @@ export default function AuthGuard({ children }: AuthGuardProps) {
       const { data: { session } } = await supabase.auth.getSession();
       
       if (!session) {
-        // Not logged in - allow access (public pages)
         setIsAuthorized(true);
         setIsChecking(false);
         return;
       }
 
-      // Check if user is protected (should not be logged in at all)
+      // Check if user is protected
       const { data: protectedUser } = await supabase
         .from("protected_users")
         .select("protection_type")
@@ -49,7 +48,6 @@ export default function AuthGuard({ children }: AuthGuardProps) {
         .maybeSingle();
 
       if (protectedUser) {
-        // Force logout for protected accounts
         await supabase.auth.signOut();
         setIsAuthorized(true);
         setIsChecking(false);
@@ -67,15 +65,12 @@ export default function AuthGuard({ children }: AuthGuardProps) {
         .maybeSingle();
 
       if (activeBan) {
-        // Check if temporary ban has expired
         if (activeBan.expires_at && new Date(activeBan.expires_at) < new Date()) {
-          // Ban expired, deactivate it
           await supabase
             .from("user_bans")
             .update({ is_active: false })
             .eq("id", activeBan.id);
         } else {
-          // Ban is active, redirect to blocked page
           navigate("/blocked");
           setIsAuthorized(false);
           setIsChecking(false);
@@ -83,8 +78,26 @@ export default function AuthGuard({ children }: AuthGuardProps) {
         }
       }
 
-      // 2FA is OPTIONAL - do not force users to set up or verify 2FA
-      // Users can optionally enable 2FA in their profile settings
+      // Check 2FA: if user has verified TOTP factors, ensure AAL2
+      try {
+        const { data: factorsData } = await supabase.auth.mfa.listFactors();
+        const verifiedFactors = factorsData?.totp?.filter((f) => f.status === "verified") || [];
+
+        if (verifiedFactors.length > 0) {
+          const { data: aalData } = await supabase.auth.mfa.getAuthenticatorAssuranceLevel();
+          
+          if (aalData?.currentLevel === "aal1" && aalData?.nextLevel === "aal2") {
+            // User has 2FA but hasn't verified yet - redirect to auth
+            navigate("/auth");
+            setIsAuthorized(false);
+            setIsChecking(false);
+            return;
+          }
+        }
+      } catch (e) {
+        console.error("2FA check error:", e);
+      }
+
       setIsAuthorized(true);
     } catch (error) {
       console.error("Auth guard error:", error);

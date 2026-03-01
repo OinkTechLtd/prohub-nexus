@@ -13,6 +13,7 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { useToast } from "@/hooks/use-toast";
 import { profileSchema } from "@/lib/schemas";
 import { Upload, Camera, Edit, MessageCircle, Trophy, BadgeCheck, Settings, Users, Star, AlertTriangle, FileSignature, ImageIcon } from "lucide-react";
+import UserLevelBadge from "@/components/UserLevelBadge";
 import VerifiedBadge from "@/components/VerifiedBadge";
 import VerificationRequestForm from "@/components/VerificationRequestForm";
 import UsernameHistory from "@/components/UsernameHistory";
@@ -655,6 +656,11 @@ const Profile = () => {
                     </div>
                     <div className="text-sm text-muted-foreground">Очков</div>
                   </div>
+                </div>
+                
+                {/* User Level */}
+                <div className="mt-3 max-w-xs">
+                  <UserLevelBadge postCount={stats.posts + stats.topics} reputation={totalPoints} />
                 </div>
               </div>
             </div>
