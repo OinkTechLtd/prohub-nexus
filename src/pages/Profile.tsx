@@ -29,6 +29,7 @@ import { useGuilds } from "@/hooks/useGuilds";
 import WarningDialog from "@/components/WarningDialog";
 import WarningsList from "@/components/WarningsList";
 import { Switch } from "@/components/ui/switch";
+import DailyQuestsWidget from "@/components/DailyQuestsWidget";
 
 interface Topic {
   id: string;
@@ -685,13 +686,16 @@ const Profile = () => {
 
         {/* Tabs with Content */}
         <Tabs defaultValue="topics" className="mt-6">
-          <TabsList className="grid w-full grid-cols-6">
+          <TabsList className="grid w-full grid-cols-7">
             <TabsTrigger value="topics">Темы</TabsTrigger>
             <TabsTrigger value="posts">Сообщения</TabsTrigger>
             <TabsTrigger value="resources">Ресурсы</TabsTrigger>
             <TabsTrigger value="achievements">
               <Trophy className="h-4 w-4 mr-2" />
               Трофеи
+            </TabsTrigger>
+            <TabsTrigger value="quests">
+              🎯 Задания
             </TabsTrigger>
             <TabsTrigger value="warnings">
               <AlertTriangle className="h-4 w-4 mr-2" />
@@ -826,6 +830,11 @@ const Profile = () => {
                 totalCount={totalCount}
               />
             )}
+          </TabsContent>
+
+          {/* Quests Tab */}
+          <TabsContent value="quests" className="mt-4">
+            <DailyQuestsWidget userId={profile?.id} />
           </TabsContent>
 
           {/* Warnings Tab */}
