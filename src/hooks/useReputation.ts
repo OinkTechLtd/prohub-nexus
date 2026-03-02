@@ -79,6 +79,12 @@ export const useReputation = (userId?: string) => {
             content_id: contentId,
           });
 
+        // Auto-update quest progress for likes
+        await supabase.rpc("increment_quest_progress", {
+          _user_id: session.user.id,
+          _action_type: "likes_given",
+        });
+
         return true;
       }
     } catch (error) {

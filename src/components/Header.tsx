@@ -15,6 +15,8 @@ import NotificationCenter from "./NotificationCenter";
 import GitHubButton from "./GitHubButton";
 import GuildInviteNotifications from "./GuildInviteNotifications";
 import { useUnreadMessages } from "@/hooks/useUnreadMessages";
+import { useStreak } from "@/hooks/useStreak";
+import StreakBadge from "./StreakBadge";
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -33,6 +35,7 @@ const Header = ({ user, onSearchActivity }: HeaderProps) => {
   const { canModerateResources, canModerateTopics, isAdmin } = useUserRole();
   const [searchOpen, setSearchOpen] = useState(false);
   const { totalUnread } = useUnreadMessages(user?.id);
+  const { streak } = useStreak(user?.id);
 
   const handleSignOut = async () => {
     await supabase.auth.signOut();
@@ -103,6 +106,15 @@ const Header = ({ user, onSearchActivity }: HeaderProps) => {
           </nav>
 
           <div className="flex items-center gap-1 md:gap-2">
+            {user && streak && streak.current_streak > 0 && (
+              <div className="hidden md:block">
+                <StreakBadge
+                  currentStreak={streak.current_streak}
+                  longestStreak={streak.longest_streak}
+                />
+              </div>
+            )}
+            
             <Button
               variant="ghost"
               size="icon"
