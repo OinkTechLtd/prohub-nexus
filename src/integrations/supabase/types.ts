@@ -412,6 +412,45 @@ export type Database = {
         }
         Relationships: []
       }
+      daily_quests: {
+        Row: {
+          action_type: string
+          created_at: string | null
+          description: string
+          icon: string
+          id: string
+          is_active: boolean
+          name: string
+          quest_type: string
+          reward_points: number
+          target_value: number
+        }
+        Insert: {
+          action_type: string
+          created_at?: string | null
+          description: string
+          icon?: string
+          id?: string
+          is_active?: boolean
+          name: string
+          quest_type?: string
+          reward_points?: number
+          target_value?: number
+        }
+        Update: {
+          action_type?: string
+          created_at?: string | null
+          description?: string
+          icon?: string
+          id?: string
+          is_active?: boolean
+          name?: string
+          quest_type?: string
+          reward_points?: number
+          target_value?: number
+        }
+        Relationships: []
+      }
       guild_invites: {
         Row: {
           created_at: string
@@ -1274,6 +1313,47 @@ export type Database = {
           user_id?: string
         }
         Relationships: []
+      }
+      user_quest_progress: {
+        Row: {
+          completed_at: string | null
+          created_at: string | null
+          current_value: number
+          id: string
+          is_completed: boolean
+          period_start: string
+          quest_id: string
+          user_id: string
+        }
+        Insert: {
+          completed_at?: string | null
+          created_at?: string | null
+          current_value?: number
+          id?: string
+          is_completed?: boolean
+          period_start?: string
+          quest_id: string
+          user_id: string
+        }
+        Update: {
+          completed_at?: string | null
+          created_at?: string | null
+          current_value?: number
+          id?: string
+          is_completed?: boolean
+          period_start?: string
+          quest_id?: string
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "user_quest_progress_quest_id_fkey"
+            columns: ["quest_id"]
+            isOneToOne: false
+            referencedRelation: "daily_quests"
+            referencedColumns: ["id"]
+          },
+        ]
       }
       user_reputation: {
         Row: {
