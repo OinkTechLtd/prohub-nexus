@@ -1437,6 +1437,36 @@ export type Database = {
           },
         ]
       }
+      user_streaks: {
+        Row: {
+          current_streak: number
+          id: string
+          last_visit_date: string | null
+          longest_streak: number
+          streak_bonus_claimed: boolean
+          updated_at: string | null
+          user_id: string
+        }
+        Insert: {
+          current_streak?: number
+          id?: string
+          last_visit_date?: string | null
+          longest_streak?: number
+          streak_bonus_claimed?: boolean
+          updated_at?: string | null
+          user_id: string
+        }
+        Update: {
+          current_streak?: number
+          id?: string
+          last_visit_date?: string | null
+          longest_streak?: number
+          streak_bonus_claimed?: boolean
+          updated_at?: string | null
+          user_id?: string
+        }
+        Relationships: []
+      }
       user_totp_secrets: {
         Row: {
           created_at: string | null
@@ -1740,6 +1770,10 @@ export type Database = {
         }
         Returns: boolean
       }
+      increment_quest_progress: {
+        Args: { _action_type: string; _user_id: string }
+        Returns: undefined
+      }
       randomly_assign_editor_role: { Args: never; Returns: undefined }
       set_content_hidden: {
         Args: {
@@ -1750,6 +1784,7 @@ export type Database = {
         }
         Returns: undefined
       }
+      update_daily_streak: { Args: { _user_id: string }; Returns: Json }
       update_reputation_on_like: {
         Args: { _author_id: string; _liker_id: string }
         Returns: undefined

@@ -183,6 +183,12 @@ const TopicView = () => {
 
       if (error) throw error;
 
+      // Auto-update quest progress for posts
+      await supabase.rpc("increment_quest_progress", {
+        _user_id: user.id,
+        _action_type: "posts",
+      });
+
       await supabase.rpc("check_and_award_achievements", {
         _user_id: user.id,
       });

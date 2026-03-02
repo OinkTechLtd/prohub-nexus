@@ -1,29 +1,53 @@
-// ProHub Nexus Service Worker v2.0 - Network First
-const CACHE_NAME = "prohub-v2";
+// ProHub Nexus Service Worker v3.0 - Force Update
+const SW_VERSION = "v3.0";
+const CACHE_NAME = "prohub-" + SW_VERSION;
 
-// Install - skip waiting to activate immediately
+// Install - skip waiting to activate immediately  
 self.addEventListener("install", () => {
   self.skipWaiting();
 });
 
-// Activate - delete all old caches
+// Activate - delete ALL old caches and claim all clients immediately
 self.addEventListener("activate", (event) => {
   event.waitUntil(
     caches.keys().then((keys) =>
-      Promise.all(keys.map((k) => caches.delete(k)))
-    )
+      Promise.all(keys.filter((k) => k !== CACHE_NAME).map((k) => caches.delete(k)))
+    ).then(() => self.clients.claim()).then(() => {
+      // Force reload all open tabs to get the latest version
+      self.clients.matchAll({ type: "window" }).then((clients) => {
+        clients.forEach((client) => {
+          client.postMessage({ type: "SW_UPDATED", version: SW_VERSION });
+        });
+      });
+    })
   );
-  self.clients.claim();
 });
 
-// Fetch - always network first, no caching for HTML
+// Fetch - network first, never serve stale HTML
 self.addEventListener("fetch", (event) => {
-  // Don't cache anything - always go to network
+  // Always go to network for navigation (HTML pages)
   if (event.request.mode === "navigate") {
     event.respondWith(
       fetch(event.request).catch(() => new Response("Offline", { status: 503 }))
     );
+    return;
   }
+
+  // For other requests, try network first, fall back to cache
+  event.respondWith(
+    fetch(event.request)
+      .then((response) => {
+        // Cache successful responses for offline use
+        if (response.ok && event.request.method === "GET") {
+          const clone = response.clone();
+          caches.open(CACHE_NAME).then((cache) => {
+            cache.put(event.request, clone);
+          });
+        }
+        return response;
+      })
+      .catch(() => caches.match(event.request).then((r) => r || new Response("Offline", { status: 503 })))
+  );
 });
 
 // Push notification event
