@@ -1,6 +1,7 @@
 import { Flame } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { motion } from "framer-motion";
+import { useNavigate } from "react-router-dom";
 
 interface StreakBadgeProps {
   currentStreak: number;
@@ -9,6 +10,8 @@ interface StreakBadgeProps {
 }
 
 const StreakBadge = ({ currentStreak, longestStreak, className }: StreakBadgeProps) => {
+  const navigate = useNavigate();
+
   if (currentStreak === 0) return null;
 
   const getStreakColor = (streak: number) => {
@@ -23,8 +26,9 @@ const StreakBadge = ({ currentStreak, longestStreak, className }: StreakBadgePro
     <motion.div
       initial={{ scale: 0 }}
       animate={{ scale: 1 }}
+      onClick={() => navigate("/streaks")}
       className={cn(
-        "inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-card border text-sm font-medium",
+        "inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-card border text-sm font-medium cursor-pointer hover:bg-accent/50 transition-colors",
         className
       )}
     >

@@ -62,7 +62,7 @@ const Header = ({ user, onSearchActivity }: HeaderProps) => {
             <Link to="/" className="flex items-center">
               <span className="text-xl md:text-2xl font-bold text-primary">ProHub</span>
               <span className="ml-1 text-[10px] md:text-xs bg-primary/10 text-primary px-1 md:px-1.5 py-0.5 rounded font-medium">
-                Beta
+                Release
               </span>
             </Link>
           </div>

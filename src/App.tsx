@@ -31,6 +31,7 @@ import GuildView from "./pages/GuildView";
 import GuildRankings from "./pages/GuildRankings";
 import Members from "./pages/Members";
 import Bookmarks from "./pages/Bookmarks";
+import StreakLeaderboard from "./pages/StreakLeaderboard";
 import NotFound from "./pages/NotFound";
 import Blocked from "./pages/Blocked";
 import RecruitmentBanner from "./components/RecruitmentBanner";
@@ -98,6 +99,7 @@ const App = () => {
                 <Route path="/guilds/rankings" element={<GuildRankings />} />
                 <Route path="/members" element={<Members />} />
                 <Route path="/bookmarks" element={<Bookmarks />} />
+                <Route path="/streaks" element={<StreakLeaderboard />} />
                 {/* ADD ALL CUSTOM ROUTES ABOVE THE CATCH-ALL "*" ROUTE */}
                 <Route path="*" element={<NotFound />} />
               </Routes>
