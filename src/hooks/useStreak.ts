@@ -7,6 +7,7 @@ export interface StreakData {
   longest_streak: number;
   is_new_day: boolean;
   streak_broken?: boolean;
+  milestone_bonus?: number;
 }
 
 export const useStreak = (userId?: string) => {
@@ -31,7 +32,12 @@ export const useStreak = (userId?: string) => {
       const result = data as unknown as StreakData;
       setStreak(result);
 
-      if (result.is_new_day && result.current_streak > 1) {
+      if (result.milestone_bonus && result.milestone_bonus > 0) {
+        toast({
+          title: `🏆 Награда за серию ${result.current_streak} дней!`,
+          description: `Вы получили +${result.milestone_bonus} очков репутации!`,
+        });
+      } else if (result.is_new_day && result.current_streak > 1) {
         toast({
           title: `🔥 Серия ${result.current_streak} дней!`,
           description: `Вы заходите на форум ${result.current_streak} дней подряд!`,
