@@ -50,17 +50,12 @@ const Chat = () => {
   const loadChat = async () => {
     try {
       // Get other participant
-      const { data: participantData, error: participantError } = await supabase
+      const { data: participantData } = await supabase
         .from("chat_participants")
         .select("user_id")
         .eq("chat_id", id)
         .neq("user_id", user.id)
-        .single();
-
-      if (participantError) {
-        console.error("Participant error:", participantError);
-        throw participantError;
-      }
+        .maybeSingle();
 
       if (participantData) {
         const { data: profileData } = await supabase
@@ -75,16 +70,7 @@ const Chat = () => {
       // Load messages
       const { data: messagesData, error: messagesError } = await supabase
         .from("messages")
-        .select(`
-          *,
-          profiles:user_id (
-            username,
-            avatar_url
-          ),
-          reply_to:reply_to_id (
-            content
-          )
-        `)
+        .select("*, reply_to:reply_to_id (content)")
         .eq("chat_id", id)
         .order("created_at", { ascending: true });
 
@@ -93,22 +79,36 @@ const Chat = () => {
         throw messagesError;
       }
 
-      // Load reactions for each message
-      const messagesWithReactions = await Promise.all(
-        (messagesData || []).map(async (msg) => {
-          const { data: reactions } = await supabase
+      // Get unique user IDs from messages and batch-load profiles
+      const userIds = [...new Set((messagesData || []).map((m: any) => m.user_id))];
+      const { data: msgProfiles } = await supabase
+        .from("profiles")
+        .select("id, username, avatar_url")
+        .in("id", userIds);
+      const profileMap = new Map((msgProfiles || []).map((p: any) => [p.id, p]));
+
+      // Load all reactions in one query
+      const messageIds = (messagesData || []).map((m: any) => m.id);
+      const { data: allReactions } = messageIds.length > 0
+        ? await supabase
             .from("message_reactions")
-            .select("emoji, user_id")
-            .eq("message_id", msg.id);
+            .select("message_id, emoji, user_id")
+            .in("message_id", messageIds)
+        : { data: [] };
 
-          return {
-            ...msg,
-            reactions: reactions || [],
-          };
-        })
-      );
+      const reactionsMap = new Map<string, any[]>();
+      (allReactions || []).forEach((r: any) => {
+        if (!reactionsMap.has(r.message_id)) reactionsMap.set(r.message_id, []);
+        reactionsMap.get(r.message_id)!.push(r);
+      });
 
-      setMessages(messagesWithReactions);
+      const messagesWithDetails = (messagesData || []).map((msg: any) => ({
+        ...msg,
+        profiles: profileMap.get(msg.user_id) || null,
+        reactions: reactionsMap.get(msg.id) || [],
+      }));
+
+      setMessages(messagesWithDetails);
 
       // Update last_read_at
       await supabase

@@ -26,7 +26,7 @@ export const MobileNav = ({ user, showModeratorLink, onSignOut }: MobileNavProps
         <div className="flex flex-col h-full">
           <div className="p-4 border-b">
             <span className="text-xl font-bold text-primary">ProHub</span>
-            <span className="ml-1 text-xs bg-primary/10 text-primary px-1.5 py-0.5 rounded">Beta</span>
+            <span className="ml-1 text-xs bg-primary/10 text-primary px-1.5 py-0.5 rounded">Release</span>
           </div>
           
           <nav className="flex-1 p-4 space-y-2">
