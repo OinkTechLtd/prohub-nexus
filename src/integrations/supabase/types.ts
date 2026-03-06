@@ -874,6 +874,8 @@ export type Database = {
           bio: string | null
           cover_url: string | null
           created_at: string | null
+          custom_title: string | null
+          custom_title_color: string | null
           id: string
           is_verified: boolean | null
           signature: string | null
@@ -887,6 +889,8 @@ export type Database = {
           bio?: string | null
           cover_url?: string | null
           created_at?: string | null
+          custom_title?: string | null
+          custom_title_color?: string | null
           id: string
           is_verified?: boolean | null
           signature?: string | null
@@ -900,6 +904,8 @@ export type Database = {
           bio?: string | null
           cover_url?: string | null
           created_at?: string | null
+          custom_title?: string | null
+          custom_title_color?: string | null
           id?: string
           is_verified?: boolean | null
           signature?: string | null

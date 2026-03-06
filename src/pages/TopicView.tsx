@@ -21,6 +21,7 @@ import BBCodeRenderer from "@/components/BBCodeRenderer";
 import PostBookmarkButton from "@/components/PostBookmarkButton";
 import ShareButton from "@/components/ShareButton";
 import ReadingProgress from "@/components/ReadingProgress";
+import { use2FAGuard } from "@/hooks/use2FAGuard";
 
 interface Post {
   id: string;
@@ -44,6 +45,7 @@ const TopicView = () => {
   const [posting, setPosting] = useState(false);
   const { toast } = useToast();
   const { trackInterest } = useInterestTracking(user?.id);
+  const { check2FA } = use2FAGuard();
 
   useEffect(() => {
     supabase.auth.getSession().then(({ data: { session } }) => {
@@ -148,6 +150,10 @@ const TopicView = () => {
       });
       return;
     }
+
+    // Check 2FA before allowing post
+    const has2FA = await check2FA();
+    if (!has2FA) return;
 
     setPosting(true);
 
