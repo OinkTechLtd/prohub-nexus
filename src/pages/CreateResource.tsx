@@ -18,6 +18,7 @@ import {
 import { useToast } from "@/hooks/use-toast";
 import { resourceSchema } from "@/lib/schemas";
 import { Upload, Link2 } from "lucide-react";
+import { use2FAGuard } from "@/hooks/use2FAGuard";
 
 const CreateResource = () => {
   const [user, setUser] = useState<any>(null);
@@ -30,6 +31,7 @@ const CreateResource = () => {
   const [loading, setLoading] = useState(false);
   const navigate = useNavigate();
   const { toast } = useToast();
+  const { check2FA } = use2FAGuard();
 
   useEffect(() => {
     supabase.auth.getSession().then(({ data: { session } }) => {
@@ -53,6 +55,9 @@ const CreateResource = () => {
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     if (!user) return;
+
+    const has2FA = await check2FA();
+    if (!has2FA) return;
 
     // Validate with Zod
     const validation = resourceSchema.safeParse({

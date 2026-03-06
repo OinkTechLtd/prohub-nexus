@@ -9,6 +9,7 @@ import { Textarea } from "@/components/ui/textarea";
 import { Label } from "@/components/ui/label";
 import { useToast } from "@/hooks/use-toast";
 import { Upload, Loader2 } from "lucide-react";
+import { use2FAGuard } from "@/hooks/use2FAGuard";
 
 const UploadVideo = () => {
   const [user, setUser] = useState<any>(null);
@@ -18,6 +19,7 @@ const UploadVideo = () => {
   const [uploading, setUploading] = useState(false);
   const navigate = useNavigate();
   const { toast } = useToast();
+  const { check2FA } = use2FAGuard();
 
   useEffect(() => {
     supabase.auth.getSession().then(({ data: { session } }) => {
@@ -58,6 +60,9 @@ const UploadVideo = () => {
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
+    
+    const has2FA = await check2FA();
+    if (!has2FA) return;
     
     if (!user || !videoFile || !title.trim()) {
       toast({
