@@ -65,6 +65,8 @@ const Profile = () => {
   const [signature, setSignature] = useState("");
   const [signatureEnabled, setSignatureEnabled] = useState(true);
   const [bannerUrl, setBannerUrl] = useState("");
+  const [customTitle, setCustomTitle] = useState("");
+  const [customTitleColor, setCustomTitleColor] = useState("#ef4444");
   const [loading, setLoading] = useState(false);
   const [editMode, setEditMode] = useState(false);
   const [userRole, setUserRole] = useState<string>("newbie");
@@ -149,6 +151,8 @@ const Profile = () => {
       setSignature(profileData.signature || "");
       setSignatureEnabled(profileData.signature_enabled ?? true);
       setBannerUrl(profileData.banner_url || "");
+      setCustomTitle(profileData.custom_title || "");
+      setCustomTitleColor(profileData.custom_title_color || "#ef4444");
       setIsOwnProfile(currentUserId === profileData.id);
       
       await loadUserData(profileData.id);
@@ -188,6 +192,8 @@ const Profile = () => {
       setSignature(profileData.signature || "");
       setSignatureEnabled(profileData.signature_enabled ?? true);
       setBannerUrl(profileData.banner_url || "");
+      setCustomTitle(profileData.custom_title || "");
+      setCustomTitleColor(profileData.custom_title_color || "#ef4444");
       setIsOwnProfile(userId === currentUserId);
       
       await loadUserData(userId);
@@ -558,9 +564,15 @@ const Profile = () => {
                     <h1 className="text-3xl font-bold">{username}</h1>
                     {profile?.is_verified && <VerifiedBadge className="h-6 w-6" />}
                   </div>
-                  <Badge className={getRoleBadgeColor(userRole)}>
-                    {getRoleLabel(userRole)}
-                  </Badge>
+                  {profile?.custom_title ? (
+                    <Badge style={{ backgroundColor: profile.custom_title_color || undefined }} className="text-white">
+                      {profile.custom_title}
+                    </Badge>
+                  ) : (
+                    <Badge className={getRoleBadgeColor(userRole)}>
+                      {getRoleLabel(userRole)}
+                    </Badge>
+                  )}
                   {isOwnProfile && !editMode && (
                     <Button variant="outline" size="sm" onClick={() => setEditMode(true)}>
                       <Edit className="h-4 w-4 mr-2" />
@@ -834,7 +846,15 @@ const Profile = () => {
 
           {/* Quests Tab */}
           <TabsContent value="quests" className="mt-4">
-            <DailyQuestsWidget userId={profile?.id} />
+            {isOwnProfile ? (
+              <DailyQuestsWidget userId={currentUser?.id} />
+            ) : (
+              <Card>
+                <CardContent className="py-12 text-center text-muted-foreground">
+                  Задания доступны только на вашем собственном профиле
+                </CardContent>
+              </Card>
+            )}
           </TabsContent>
 
           {/* Warnings Tab */}
@@ -866,6 +886,98 @@ const Profile = () => {
           {isOwnProfile && currentUser && (
             <TabsContent value="settings" className="space-y-6 mt-4">
               <TwoFactorSettings userId={currentUser.id} />
+              
+              {/* Custom Title Settings */}
+              <Card>
+                <CardHeader>
+                  <CardTitle className="flex items-center gap-2">
+                    <Star className="h-5 w-5" />
+                    Кастомный префикс роли
+                  </CardTitle>
+                </CardHeader>
+                <CardContent className="space-y-4">
+                  <p className="text-sm text-muted-foreground">
+                    Вы можете задать свой собственный префикс вместо стандартного названия роли.
+                  </p>
+                  <div className="space-y-2">
+                    <Label htmlFor="custom-title">Текст префикса</Label>
+                    <Input
+                      id="custom-title"
+                      value={customTitle}
+                      onChange={(e) => setCustomTitle(e.target.value)}
+                      placeholder="Например: Основатель, Эксперт..."
+                      maxLength={30}
+                    />
+                  </div>
+                  <div className="space-y-2">
+                    <Label htmlFor="custom-title-color">Цвет префикса</Label>
+                    <div className="flex items-center gap-3">
+                      <input
+                        type="color"
+                        id="custom-title-color"
+                        value={customTitleColor}
+                        onChange={(e) => setCustomTitleColor(e.target.value)}
+                        className="w-10 h-10 rounded cursor-pointer border"
+                      />
+                      <Input
+                        value={customTitleColor}
+                        onChange={(e) => setCustomTitleColor(e.target.value)}
+                        className="w-32"
+                      />
+                      {customTitle && (
+                        <Badge style={{ backgroundColor: customTitleColor }} className="text-white">
+                          {customTitle}
+                        </Badge>
+                      )}
+                    </div>
+                  </div>
+                  <div className="flex gap-2">
+                    <Button
+                      size="sm"
+                      onClick={async () => {
+                        try {
+                          const { error } = await supabase
+                            .from("profiles")
+                            .update({
+                              custom_title: customTitle || null,
+                              custom_title_color: customTitleColor || null,
+                            })
+                            .eq("id", currentUser.id);
+                          if (error) throw error;
+                          setProfile({ ...profile, custom_title: customTitle || null, custom_title_color: customTitleColor || null });
+                          toast({ title: "Префикс обновлён" });
+                        } catch (error: any) {
+                          toast({ title: "Ошибка", description: error.message, variant: "destructive" });
+                        }
+                      }}
+                    >
+                      Сохранить
+                    </Button>
+                    {customTitle && (
+                      <Button
+                        size="sm"
+                        variant="outline"
+                        onClick={async () => {
+                          try {
+                            const { error } = await supabase
+                              .from("profiles")
+                              .update({ custom_title: null, custom_title_color: null })
+                              .eq("id", currentUser.id);
+                            if (error) throw error;
+                            setCustomTitle("");
+                            setProfile({ ...profile, custom_title: null, custom_title_color: null });
+                            toast({ title: "Префикс сброшен" });
+                          } catch (error: any) {
+                            toast({ title: "Ошибка", description: error.message, variant: "destructive" });
+                          }
+                        }}
+                      >
+                        Сбросить
+                      </Button>
+                    )}
+                  </div>
+                </CardContent>
+              </Card>
               
               <Card>
                 <CardHeader>

@@ -172,8 +172,36 @@ const AdminPanel = () => {
     }
   };
 
+  const PROHUB_BOT_ID = "b7a8e202-40a2-467d-a4de-c416eff4a488";
+
   const updateUserRole = async (userId: string, newRole: string) => {
+    // Protect ProHub bot from role changes
+    if (userId === PROHUB_BOT_ID) {
+      toast({
+        title: "Запрещено",
+        description: "Нельзя изменить роль системного бота ProHub",
+        variant: "destructive",
+      });
+      return;
+    }
+
     try {
+      // Check if user is protected
+      const { data: protectedUser } = await supabase
+        .from("protected_users")
+        .select("protection_type")
+        .eq("user_id", userId)
+        .maybeSingle();
+
+      if (protectedUser?.protection_type === "system_bot") {
+        toast({
+          title: "Запрещено",
+          description: "Этот пользователь защищён от изменений роли",
+          variant: "destructive",
+        });
+        return;
+      }
+
       // Remove existing role
       await supabase.from("user_roles").delete().eq("user_id", userId);
 

@@ -16,6 +16,7 @@ import {
 } from "@/components/ui/select";
 import { useToast } from "@/hooks/use-toast";
 import { topicSchema } from "@/lib/schemas";
+import { use2FAGuard } from "@/hooks/use2FAGuard";
 
 const CreateTopic = () => {
   const [user, setUser] = useState<any>(null);
@@ -27,6 +28,7 @@ const CreateTopic = () => {
   const navigate = useNavigate();
   const { toast } = useToast();
   const [searchParams] = useSearchParams();
+  const { check2FA } = use2FAGuard();
 
   useEffect(() => {
     supabase.auth.getSession().then(({ data: { session } }) => {
@@ -66,6 +68,10 @@ const CreateTopic = () => {
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     if (!user) return;
+
+    // Check 2FA before allowing topic creation
+    const has2FA = await check2FA();
+    if (!has2FA) return;
 
     // Validate with Zod
     const validation = topicSchema.safeParse({
