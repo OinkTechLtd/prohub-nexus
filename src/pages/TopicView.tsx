@@ -18,6 +18,7 @@ import UserSignature from "@/components/UserSignature";
 import ReportDialog from "@/components/ReportDialog";
 import QuoteButton from "@/components/QuoteButton";
 import BBCodeRenderer from "@/components/BBCodeRenderer";
+import BBCodeToolbar from "@/components/BBCodeToolbar";
 import PostBookmarkButton from "@/components/PostBookmarkButton";
 import ShareButton from "@/components/ShareButton";
 import ReadingProgress from "@/components/ReadingProgress";
