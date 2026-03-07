@@ -173,27 +173,32 @@ const AdminPanel = () => {
   };
 
   const PROHUB_BOT_ID = "b7a8e202-40a2-467d-a4de-c416eff4a488";
+  const PROTECTED_IDS = [
+    PROHUB_BOT_ID,
+    "aa75a652-5aaa-4673-a7ca-e693a76eba89", // TwixCore
+    "b136038b-10ce-48b5-a278-1d2df8ceddcc", // Kasper
+  ];
 
   const updateUserRole = async (userId: string, newRole: string) => {
-    // Protect ProHub bot from role changes
-    if (userId === PROHUB_BOT_ID) {
+    // Protect all protected accounts
+    if (PROTECTED_IDS.includes(userId)) {
       toast({
         title: "Запрещено",
-        description: "Нельзя изменить роль системного бота ProHub",
+        description: "Этот аккаунт защищён от изменения роли",
         variant: "destructive",
       });
       return;
     }
 
     try {
-      // Check if user is protected
+      // Check if user is protected in DB
       const { data: protectedUser } = await supabase
         .from("protected_users")
         .select("protection_type")
         .eq("user_id", userId)
         .maybeSingle();
 
-      if (protectedUser?.protection_type === "system_bot") {
+      if (protectedUser) {
         toast({
           title: "Запрещено",
           description: "Этот пользователь защищён от изменений роли",
