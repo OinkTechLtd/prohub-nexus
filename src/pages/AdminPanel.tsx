@@ -737,6 +737,22 @@ const AdminPanel = () => {
               </CardContent>
             </Card>
           </TabsContent>
+
+          <TabsContent value="sections" className="space-y-4">
+            <AdminSectionsTab />
+          </TabsContent>
+
+          <TabsContent value="plugins" className="space-y-4">
+            <AdminPluginsTab />
+          </TabsContent>
+
+          <TabsContent value="templates" className="space-y-4">
+            <AdminTemplatesTab />
+          </TabsContent>
+
+          <TabsContent value="settings" className="space-y-4">
+            <AdminSettingsTab />
+          </TabsContent>
         </Tabs>
       </main>
     </div>
