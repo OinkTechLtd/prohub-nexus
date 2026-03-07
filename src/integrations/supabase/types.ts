@@ -451,6 +451,120 @@ export type Database = {
         }
         Relationships: []
       }
+      forum_plugins: {
+        Row: {
+          author: string | null
+          code: string | null
+          config: Json | null
+          created_at: string | null
+          created_by: string | null
+          description: string | null
+          hook_points: string[] | null
+          id: string
+          is_active: boolean | null
+          name: string
+          updated_at: string | null
+          version: string | null
+        }
+        Insert: {
+          author?: string | null
+          code?: string | null
+          config?: Json | null
+          created_at?: string | null
+          created_by?: string | null
+          description?: string | null
+          hook_points?: string[] | null
+          id?: string
+          is_active?: boolean | null
+          name: string
+          updated_at?: string | null
+          version?: string | null
+        }
+        Update: {
+          author?: string | null
+          code?: string | null
+          config?: Json | null
+          created_at?: string | null
+          created_by?: string | null
+          description?: string | null
+          hook_points?: string[] | null
+          id?: string
+          is_active?: boolean | null
+          name?: string
+          updated_at?: string | null
+          version?: string | null
+        }
+        Relationships: []
+      }
+      forum_settings: {
+        Row: {
+          description: string | null
+          id: string
+          key: string
+          updated_at: string | null
+          updated_by: string | null
+          value: string | null
+        }
+        Insert: {
+          description?: string | null
+          id?: string
+          key: string
+          updated_at?: string | null
+          updated_by?: string | null
+          value?: string | null
+        }
+        Update: {
+          description?: string | null
+          id?: string
+          key?: string
+          updated_at?: string | null
+          updated_by?: string | null
+          value?: string | null
+        }
+        Relationships: []
+      }
+      forum_templates: {
+        Row: {
+          created_at: string | null
+          created_by: string | null
+          css_content: string | null
+          description: string | null
+          html_content: string | null
+          id: string
+          is_active: boolean | null
+          name: string
+          slug: string
+          template_type: string | null
+          updated_at: string | null
+        }
+        Insert: {
+          created_at?: string | null
+          created_by?: string | null
+          css_content?: string | null
+          description?: string | null
+          html_content?: string | null
+          id?: string
+          is_active?: boolean | null
+          name: string
+          slug: string
+          template_type?: string | null
+          updated_at?: string | null
+        }
+        Update: {
+          created_at?: string | null
+          created_by?: string | null
+          css_content?: string | null
+          description?: string | null
+          html_content?: string | null
+          id?: string
+          is_active?: boolean | null
+          name?: string
+          slug?: string
+          template_type?: string | null
+          updated_at?: string | null
+        }
+        Relationships: []
+      }
       guild_invites: {
         Row: {
           created_at: string
