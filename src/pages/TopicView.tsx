@@ -151,10 +151,6 @@ const TopicView = () => {
       return;
     }
 
-    // Check 2FA before allowing post
-    const has2FA = await check2FA();
-    if (!has2FA) return;
-
     setPosting(true);
 
     try {

@@ -2,6 +2,11 @@ import { useEffect, useState } from "react";
 import { useNavigate, useLocation } from "react-router-dom";
 import { supabase } from "@/integrations/supabase/client";
 import { Loader2 } from "lucide-react";
+import TwoFactorSetup from "./TwoFactorSetup";
+import TwoFactorVerify from "./TwoFactorVerify";
+
+const APP_VERSION = "1.0.0";
+const MIN_CLIENT_VERSION = "1.0.0";
 
 interface AuthGuardProps {
   children: React.ReactNode;
@@ -10,6 +15,8 @@ interface AuthGuardProps {
 export default function AuthGuard({ children }: AuthGuardProps) {
   const [isChecking, setIsChecking] = useState(true);
   const [isAuthorized, setIsAuthorized] = useState(false);
+  const [needs2FASetup, setNeeds2FASetup] = useState(false);
+  const [needs2FAVerify, setNeeds2FAVerify] = useState(false);
   const navigate = useNavigate();
   const location = useLocation();
 
@@ -28,6 +35,8 @@ export default function AuthGuard({ children }: AuthGuardProps) {
       // Allow /blocked and /auth pages without checks
       if (location.pathname === "/blocked" || location.pathname === "/auth") {
         setIsAuthorized(true);
+        setNeeds2FASetup(false);
+        setNeeds2FAVerify(false);
         setIsChecking(false);
         return;
       }
@@ -36,18 +45,20 @@ export default function AuthGuard({ children }: AuthGuardProps) {
       
       if (!session) {
         setIsAuthorized(true);
+        setNeeds2FASetup(false);
+        setNeeds2FAVerify(false);
         setIsChecking(false);
         return;
       }
 
-      // Check if user is protected
+      // Check if user is protected (system bot/founder)
       const { data: protectedUser } = await supabase
         .from("protected_users")
         .select("protection_type")
         .eq("user_id", session.user.id)
         .maybeSingle();
 
-      if (protectedUser) {
+      if (protectedUser?.protection_type === "system_bot") {
         await supabase.auth.signOut();
         setIsAuthorized(true);
         setIsChecking(false);
@@ -78,26 +89,37 @@ export default function AuthGuard({ children }: AuthGuardProps) {
         }
       }
 
-      // Check 2FA: if user has verified TOTP factors, ensure AAL2
+      // Check 2FA status
       try {
         const { data: factorsData } = await supabase.auth.mfa.listFactors();
         const verifiedFactors = factorsData?.totp?.filter((f) => f.status === "verified") || [];
 
-        if (verifiedFactors.length > 0) {
-          const { data: aalData } = await supabase.auth.mfa.getAuthenticatorAssuranceLevel();
-          
-          if (aalData?.currentLevel === "aal1" && aalData?.nextLevel === "aal2") {
-            // User has 2FA but hasn't verified yet - redirect to auth
-            navigate("/auth");
-            setIsAuthorized(false);
-            setIsChecking(false);
-            return;
-          }
+        if (verifiedFactors.length === 0) {
+          // User has NO 2FA set up - force setup
+          setNeeds2FASetup(true);
+          setNeeds2FAVerify(false);
+          setIsAuthorized(false);
+          setIsChecking(false);
+          return;
+        }
+
+        // User has 2FA, check if they need to verify
+        const { data: aalData } = await supabase.auth.mfa.getAuthenticatorAssuranceLevel();
+        
+        if (aalData?.currentLevel === "aal1" && aalData?.nextLevel === "aal2") {
+          // User has 2FA but hasn't verified this session
+          setNeeds2FAVerify(true);
+          setNeeds2FASetup(false);
+          setIsAuthorized(false);
+          setIsChecking(false);
+          return;
         }
       } catch (e) {
         console.error("2FA check error:", e);
       }
 
+      setNeeds2FASetup(false);
+      setNeeds2FAVerify(false);
       setIsAuthorized(true);
     } catch (error) {
       console.error("Auth guard error:", error);
@@ -111,6 +133,36 @@ export default function AuthGuard({ children }: AuthGuardProps) {
     return (
       <div className="min-h-screen flex items-center justify-center bg-background">
         <Loader2 className="h-8 w-8 animate-spin text-primary" />
+      </div>
+    );
+  }
+
+  if (needs2FASetup) {
+    return (
+      <div className="min-h-screen flex items-center justify-center bg-background p-4">
+        <div className="w-full max-w-md space-y-4">
+          <div className="text-center mb-4">
+            <h2 className="text-xl font-bold text-foreground">Обязательная настройка 2FA</h2>
+            <p className="text-sm text-muted-foreground mt-1">
+              Для безопасности вашего аккаунта необходимо включить двухфакторную аутентификацию
+            </p>
+          </div>
+          <TwoFactorSetup onComplete={() => checkAuth()} />
+        </div>
+      </div>
+    );
+  }
+
+  if (needs2FAVerify) {
+    return (
+      <div className="min-h-screen flex items-center justify-center bg-background p-4">
+        <TwoFactorVerify
+          onSuccess={() => checkAuth()}
+          onCancel={() => {
+            setNeeds2FAVerify(false);
+            setIsAuthorized(false);
+          }}
+        />
       </div>
     );
   }
