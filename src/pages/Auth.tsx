@@ -205,7 +205,7 @@ const Auth = () => {
 
       if (error) throw error;
 
-      // Check if user is protected (bot account or founder)
+      // Check if user is a system bot (block login)
       if (signInData.user) {
         const { data: protectedUser } = await supabase
           .from("protected_users")
@@ -213,11 +213,11 @@ const Auth = () => {
           .eq("user_id", signInData.user.id)
           .maybeSingle();
 
-        if (protectedUser) {
+        if (protectedUser?.protection_type === "system_bot") {
           await supabase.auth.signOut();
           toast({
             title: "Доступ запрещён",
-            description: "Этот аккаунт защищён и недоступен для входа",
+            description: "Этот аккаунт является системным ботом",
             variant: "destructive",
           });
           setLoading(false);

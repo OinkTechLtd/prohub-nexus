@@ -29,10 +29,18 @@ import {
   BadgeCheck,
   Crown,
   UserCog,
-  Flag
+  Flag,
+  Puzzle,
+  Layout,
+  FolderOpen,
+  Settings
 } from "lucide-react";
 import VerifiedBadge from "@/components/VerifiedBadge";
 import AdminReportsTab from "@/components/AdminReportsTab";
+import AdminPluginsTab from "@/components/admin/AdminPluginsTab";
+import AdminTemplatesTab from "@/components/admin/AdminTemplatesTab";
+import AdminSectionsTab from "@/components/admin/AdminSectionsTab";
+import AdminSettingsTab from "@/components/admin/AdminSettingsTab";
 
 interface User {
   id: string;
@@ -395,16 +403,16 @@ const AdminPanel = () => {
         </div>
 
         <Tabs defaultValue="users" className="space-y-6">
-          <TabsList className="grid w-full grid-cols-3 sm:grid-cols-6">
-            <TabsTrigger value="users" className="gap-1 sm:gap-2">
+          <TabsList className="flex flex-wrap gap-1 h-auto">
+            <TabsTrigger value="users" className="gap-1">
               <Users className="h-4 w-4" />
               <span className="hidden sm:inline">Пользователи</span>
             </TabsTrigger>
-            <TabsTrigger value="reports" className="gap-1 sm:gap-2">
+            <TabsTrigger value="reports" className="gap-1">
               <Flag className="h-4 w-4" />
               <span className="hidden sm:inline">Жалобы</span>
             </TabsTrigger>
-            <TabsTrigger value="verification" className="gap-1 sm:gap-2">
+            <TabsTrigger value="verification" className="gap-1">
               <BadgeCheck className="h-4 w-4" />
               <span className="hidden sm:inline">Заявки</span>
               {verificationRequests.length > 0 && (
@@ -413,17 +421,33 @@ const AdminPanel = () => {
                 </Badge>
               )}
             </TabsTrigger>
-            <TabsTrigger value="topics" className="gap-1 sm:gap-2">
+            <TabsTrigger value="sections" className="gap-1">
+              <FolderOpen className="h-4 w-4" />
+              <span className="hidden sm:inline">Разделы</span>
+            </TabsTrigger>
+            <TabsTrigger value="plugins" className="gap-1">
+              <Puzzle className="h-4 w-4" />
+              <span className="hidden sm:inline">Плагины</span>
+            </TabsTrigger>
+            <TabsTrigger value="templates" className="gap-1">
+              <Layout className="h-4 w-4" />
+              <span className="hidden sm:inline">Шаблоны</span>
+            </TabsTrigger>
+            <TabsTrigger value="topics" className="gap-1">
               <FileText className="h-4 w-4" />
               <span className="hidden sm:inline">Темы</span>
             </TabsTrigger>
-            <TabsTrigger value="resources" className="gap-1 sm:gap-2">
+            <TabsTrigger value="resources" className="gap-1">
               <FileText className="h-4 w-4" />
               <span className="hidden sm:inline">Ресурсы</span>
             </TabsTrigger>
-            <TabsTrigger value="videos" className="gap-1 sm:gap-2">
+            <TabsTrigger value="videos" className="gap-1">
               <Video className="h-4 w-4" />
               <span className="hidden sm:inline">Видео</span>
+            </TabsTrigger>
+            <TabsTrigger value="settings" className="gap-1">
+              <Settings className="h-4 w-4" />
+              <span className="hidden sm:inline">Настройки</span>
             </TabsTrigger>
           </TabsList>
 
@@ -712,6 +736,22 @@ const AdminPanel = () => {
                 </div>
               </CardContent>
             </Card>
+          </TabsContent>
+
+          <TabsContent value="sections" className="space-y-4">
+            <AdminSectionsTab />
+          </TabsContent>
+
+          <TabsContent value="plugins" className="space-y-4">
+            <AdminPluginsTab />
+          </TabsContent>
+
+          <TabsContent value="templates" className="space-y-4">
+            <AdminTemplatesTab />
+          </TabsContent>
+
+          <TabsContent value="settings" className="space-y-4">
+            <AdminSettingsTab />
           </TabsContent>
         </Tabs>
       </main>
