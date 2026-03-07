@@ -360,14 +360,32 @@ const TopicView = () => {
           <Card id="reply-form">
             <CardContent className="pt-6">
               <form onSubmit={handlePostSubmit} className="space-y-4">
-                <Textarea
-                  placeholder="Написать ответ..."
-                  value={newPost}
-                  onChange={(e) => setNewPost(e.target.value)}
-                  rows={4}
-                  className="min-h-[100px]"
-                  required
-                />
+                <div className="space-y-0">
+                  <BBCodeToolbar
+                    onInsert={(before, after) => {
+                      const textarea = document.getElementById("reply-textarea") as HTMLTextAreaElement;
+                      if (!textarea) return;
+                      const start = textarea.selectionStart;
+                      const end = textarea.selectionEnd;
+                      const selected = newPost.substring(start, end);
+                      const newContent = newPost.substring(0, start) + before + selected + after + newPost.substring(end);
+                      setNewPost(newContent);
+                      setTimeout(() => {
+                        textarea.focus();
+                        textarea.setSelectionRange(start + before.length, start + before.length + selected.length);
+                      }, 0);
+                    }}
+                  />
+                  <Textarea
+                    id="reply-textarea"
+                    placeholder="Написать ответ... Используйте BBCode для форматирования"
+                    value={newPost}
+                    onChange={(e) => setNewPost(e.target.value)}
+                    rows={4}
+                    className="min-h-[100px] rounded-t-none"
+                    required
+                  />
+                </div>
                 <Button type="submit" disabled={posting}>
                   <Send className="mr-2 h-4 w-4" />
                   {posting ? "Отправка..." : "Ответить"}
