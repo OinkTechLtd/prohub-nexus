@@ -29,10 +29,18 @@ import {
   BadgeCheck,
   Crown,
   UserCog,
-  Flag
+  Flag,
+  Puzzle,
+  Layout,
+  FolderOpen,
+  Settings
 } from "lucide-react";
 import VerifiedBadge from "@/components/VerifiedBadge";
 import AdminReportsTab from "@/components/AdminReportsTab";
+import AdminPluginsTab from "@/components/admin/AdminPluginsTab";
+import AdminTemplatesTab from "@/components/admin/AdminTemplatesTab";
+import AdminSectionsTab from "@/components/admin/AdminSectionsTab";
+import AdminSettingsTab from "@/components/admin/AdminSettingsTab";
 
 interface User {
   id: string;
