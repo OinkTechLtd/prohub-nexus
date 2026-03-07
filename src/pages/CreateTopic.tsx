@@ -198,15 +198,31 @@ const CreateTopic = () => {
                 />
               </div>
 
-              <div className="space-y-2">
+              <div className="space-y-0">
                 <Label htmlFor="content">Содержание</Label>
+                <BBCodeToolbar
+                  onInsert={(before, after) => {
+                    const textarea = document.getElementById("content") as HTMLTextAreaElement;
+                    if (!textarea) return;
+                    const start = textarea.selectionStart;
+                    const end = textarea.selectionEnd;
+                    const selected = content.substring(start, end);
+                    const newContent = content.substring(0, start) + before + selected + after + content.substring(end);
+                    setContent(newContent);
+                    setTimeout(() => {
+                      textarea.focus();
+                      textarea.setSelectionRange(start + before.length, start + before.length + selected.length);
+                    }, 0);
+                  }}
+                />
                 <Textarea
                   id="content"
                   value={content}
                   onChange={(e) => setContent(e.target.value)}
-                  placeholder="Расскажите подробнее..."
+                  placeholder="Расскажите подробнее... Используйте BBCode для форматирования"
                   rows={10}
                   required
+                  className="rounded-t-none"
                 />
               </div>
 
