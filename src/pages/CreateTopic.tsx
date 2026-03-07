@@ -1,4 +1,4 @@
-import { useEffect, useState } from "react";
+import { useEffect, useState, useRef } from "react";
 import { useNavigate, useSearchParams } from "react-router-dom";
 import { supabase } from "@/integrations/supabase/client";
 import Header from "@/components/Header";
@@ -17,6 +17,7 @@ import {
 import { useToast } from "@/hooks/use-toast";
 import { topicSchema } from "@/lib/schemas";
 import { use2FAGuard } from "@/hooks/use2FAGuard";
+import BBCodeToolbar from "@/components/BBCodeToolbar";
 
 const CreateTopic = () => {
   const [user, setUser] = useState<any>(null);
