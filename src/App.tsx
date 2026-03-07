@@ -108,7 +108,6 @@ const App = () => {
             <Footer />
             <MobileBottomNav user={user} />
           </AuthGuard>
-          </AuthGuard>
         </BrowserRouter>
       </TooltipProvider>
     </QueryClientProvider>
