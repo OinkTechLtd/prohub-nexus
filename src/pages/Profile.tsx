@@ -12,7 +12,7 @@ import { Badge } from "@/components/ui/badge";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { useToast } from "@/hooks/use-toast";
 import { profileSchema } from "@/lib/schemas";
-import { Upload, Camera, Edit, MessageCircle, Trophy, BadgeCheck, Settings, Users, Star, AlertTriangle, FileSignature, ImageIcon } from "lucide-react";
+import { Upload, Camera, Edit, MessageCircle, Trophy, BadgeCheck, Settings, Users, Star, AlertTriangle, FileSignature, ImageIcon, Paintbrush } from "lucide-react";
 import UserLevelBadge from "@/components/UserLevelBadge";
 import VerifiedBadge from "@/components/VerifiedBadge";
 import VerificationRequestForm from "@/components/VerificationRequestForm";
@@ -67,6 +67,7 @@ const Profile = () => {
   const [bannerUrl, setBannerUrl] = useState("");
   const [customTitle, setCustomTitle] = useState("");
   const [customTitleColor, setCustomTitleColor] = useState("#ef4444");
+  const [usernameCss, setUsernameCss] = useState("");
   const [loading, setLoading] = useState(false);
   const [editMode, setEditMode] = useState(false);
   const [userRole, setUserRole] = useState<string>("newbie");
@@ -153,6 +154,7 @@ const Profile = () => {
       setBannerUrl(profileData.banner_url || "");
       setCustomTitle(profileData.custom_title || "");
       setCustomTitleColor(profileData.custom_title_color || "#ef4444");
+      setUsernameCss((profileData as any).username_css || "");
       setIsOwnProfile(currentUserId === profileData.id);
       
       await loadUserData(profileData.id);
@@ -194,6 +196,7 @@ const Profile = () => {
       setBannerUrl(profileData.banner_url || "");
       setCustomTitle(profileData.custom_title || "");
       setCustomTitleColor(profileData.custom_title_color || "#ef4444");
+      setUsernameCss((profileData as any).username_css || "");
       setIsOwnProfile(userId === currentUserId);
       
       await loadUserData(userId);
@@ -561,7 +564,28 @@ const Profile = () => {
               <div className="flex-1 text-center md:text-left">
                 <div className="flex flex-col md:flex-row items-center gap-3 mb-2">
                   <div className="flex items-center gap-2">
-                    <h1 className="text-3xl font-bold">{username}</h1>
+                    <h1 className="text-3xl font-bold" style={(() => {
+                      if (!(profile as any)?.username_css) return {};
+                      try {
+                        const style: any = {};
+                        const decls = ((profile as any).username_css as string).split(';').map((d: string) => d.trim()).filter(Boolean);
+                        const allowed: Record<string, string> = {
+                          'color': 'color', 'background': 'background', 'background-image': 'backgroundImage',
+                          '-webkit-background-clip': 'WebkitBackgroundClip', 'background-clip': 'backgroundClip',
+                          '-webkit-text-fill-color': 'WebkitTextFillColor', 'text-shadow': 'textShadow',
+                          'font-weight': 'fontWeight', 'font-style': 'fontStyle', 'letter-spacing': 'letterSpacing',
+                          'text-transform': 'textTransform', 'filter': 'filter',
+                        };
+                        for (const d of decls) {
+                          const i = d.indexOf(':');
+                          if (i === -1) continue;
+                          const p = d.substring(0, i).trim().toLowerCase();
+                          const v = d.substring(i + 1).trim();
+                          if (allowed[p]) style[allowed[p]] = v;
+                        }
+                        return style;
+                      } catch { return {}; }
+                    })()}>{username}</h1>
                     {profile?.is_verified && <VerifiedBadge className="h-6 w-6" />}
                   </div>
                   {profile?.custom_title ? (
@@ -978,7 +1002,116 @@ const Profile = () => {
                   </div>
                 </CardContent>
               </Card>
-              
+
+              {/* Username CSS Decoration (XenForo-style) */}
+              <Card>
+                <CardHeader>
+                  <CardTitle className="flex items-center gap-2">
+                    <Paintbrush className="h-5 w-5" />
+                    Украшение никнейма (CSS)
+                  </CardTitle>
+                </CardHeader>
+                <CardContent className="space-y-4">
+                  <p className="text-sm text-muted-foreground">
+                    Украсьте свой никнейм с помощью CSS! Ваш стилизованный ник будет отображаться везде на форуме: в темах, постах, ресурсах и профиле.
+                  </p>
+                  <div className="space-y-2">
+                    <Label htmlFor="username-css">CSS код для никнейма</Label>
+                    <Textarea
+                      id="username-css"
+                      value={usernameCss}
+                      onChange={(e) => setUsernameCss(e.target.value)}
+                      placeholder={`Примеры:\ncolor: #ff6b6b;\ntext-shadow: 0 0 10px #ff0000;\n\nГрадиент:\nbackground: linear-gradient(90deg, #ff6b6b, #ffd93d);\n-webkit-background-clip: text;\n-webkit-text-fill-color: transparent;`}
+                      rows={6}
+                      className="font-mono text-sm"
+                    />
+                  </div>
+                  
+                  {usernameCss && (
+                    <div className="p-4 bg-muted/50 rounded-lg">
+                      <p className="text-xs text-muted-foreground mb-2">Предпросмотр:</p>
+                      <span 
+                        className="text-lg font-bold"
+                        style={(() => {
+                          try {
+                            const style: any = {};
+                            const decls = usernameCss.split(';').map(d => d.trim()).filter(Boolean);
+                            const allowed: Record<string, string> = {
+                              'color': 'color', 'background': 'background', 'background-color': 'backgroundColor',
+                              'background-image': 'backgroundImage', '-webkit-background-clip': 'WebkitBackgroundClip',
+                              'background-clip': 'backgroundClip', '-webkit-text-fill-color': 'WebkitTextFillColor',
+                              'text-shadow': 'textShadow', 'text-decoration': 'textDecoration',
+                              'font-weight': 'fontWeight', 'font-style': 'fontStyle', 'letter-spacing': 'letterSpacing',
+                              'text-transform': 'textTransform', 'filter': 'filter', 'opacity': 'opacity',
+                            };
+                            for (const d of decls) {
+                              const i = d.indexOf(':');
+                              if (i === -1) continue;
+                              const p = d.substring(0, i).trim().toLowerCase();
+                              const v = d.substring(i + 1).trim();
+                              if (allowed[p]) style[allowed[p]] = v;
+                            }
+                            return style;
+                          } catch { return {}; }
+                        })()}
+                      >
+                        {username}
+                      </span>
+                    </div>
+                  )}
+                  
+                  <div className="flex gap-2">
+                    <Button
+                      size="sm"
+                      onClick={async () => {
+                        try {
+                          const { error } = await supabase
+                            .from("profiles")
+                            .update({ username_css: usernameCss || null } as any)
+                            .eq("id", currentUser.id);
+                          if (error) throw error;
+                          setProfile({ ...profile, username_css: usernameCss || null });
+                          toast({ title: "Стиль никнейма сохранён!" });
+                        } catch (error: any) {
+                          toast({ title: "Ошибка", description: error.message, variant: "destructive" });
+                        }
+                      }}
+                    >
+                      Сохранить стиль
+                    </Button>
+                    {usernameCss && (
+                      <Button
+                        size="sm"
+                        variant="outline"
+                        onClick={async () => {
+                          try {
+                            const { error } = await supabase
+                              .from("profiles")
+                              .update({ username_css: null } as any)
+                              .eq("id", currentUser.id);
+                            if (error) throw error;
+                            setUsernameCss("");
+                            setProfile({ ...profile, username_css: null });
+                            toast({ title: "Стиль никнейма сброшен" });
+                          } catch (error: any) {
+                            toast({ title: "Ошибка", description: error.message, variant: "destructive" });
+                          }
+                        }}
+                      >
+                        Сбросить
+                      </Button>
+                    )}
+                  </div>
+                  
+                  <div className="mt-3 p-3 bg-muted/30 rounded-lg text-xs text-muted-foreground space-y-1">
+                    <p className="font-medium">💡 Примеры популярных стилей:</p>
+                    <p><code>color: #e74c3c; text-shadow: 0 0 5px rgba(231,76,60,0.5);</code> — красное свечение</p>
+                    <p><code>background: linear-gradient(90deg, #667eea, #764ba2); -webkit-background-clip: text; -webkit-text-fill-color: transparent;</code> — градиент</p>
+                    <p><code>color: gold; text-shadow: 1px 1px 2px rgba(0,0,0,0.5);</code> — золотой</p>
+                  </div>
+                </CardContent>
+              </Card>
+
               <Card>
                 <CardHeader>
                   <CardTitle className="flex items-center gap-2">

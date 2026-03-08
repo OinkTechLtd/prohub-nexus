@@ -4,6 +4,9 @@ import { supabase } from "@/integrations/supabase/client";
 import Header from "@/components/Header";
 import AdDisplay from "@/components/AdDisplay";
 import ForumStats from "@/components/ForumStats";
+import BackupDomainsBanner from "@/components/BackupDomainsBanner";
+import TemplateRenderer from "@/components/TemplateRenderer";
+import PluginRunner from "@/components/PluginRunner";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { MessageSquare, Eye, Plus } from "lucide-react";
@@ -84,6 +87,9 @@ const Forum = () => {
   return (
     <div className="min-h-screen bg-background">
       <Header user={user} />
+      <BackupDomainsBanner />
+      <PluginRunner hookPoint="forum_top" />
+      <TemplateRenderer templateType="widget" />
 
       <main className="container mx-auto px-4 py-8">
         <div className="mb-6 md:mb-8 flex flex-col md:flex-row md:items-center justify-between gap-4">
@@ -162,6 +168,7 @@ const Forum = () => {
         <div className="mt-8">
           <ForumStats />
         </div>
+        <PluginRunner hookPoint="forum_bottom" />
       </main>
     </div>
   );
