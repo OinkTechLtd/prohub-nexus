@@ -12,7 +12,7 @@ import { Badge } from "@/components/ui/badge";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { useToast } from "@/hooks/use-toast";
 import { profileSchema } from "@/lib/schemas";
-import { Upload, Camera, Edit, MessageCircle, Trophy, BadgeCheck, Settings, Users, Star, AlertTriangle, FileSignature, ImageIcon } from "lucide-react";
+import { Upload, Camera, Edit, MessageCircle, Trophy, BadgeCheck, Settings, Users, Star, AlertTriangle, FileSignature, ImageIcon, Paintbrush } from "lucide-react";
 import UserLevelBadge from "@/components/UserLevelBadge";
 import VerifiedBadge from "@/components/VerifiedBadge";
 import VerificationRequestForm from "@/components/VerificationRequestForm";
