@@ -67,6 +67,7 @@ const Profile = () => {
   const [bannerUrl, setBannerUrl] = useState("");
   const [customTitle, setCustomTitle] = useState("");
   const [customTitleColor, setCustomTitleColor] = useState("#ef4444");
+  const [usernameCss, setUsernameCss] = useState("");
   const [loading, setLoading] = useState(false);
   const [editMode, setEditMode] = useState(false);
   const [userRole, setUserRole] = useState<string>("newbie");
