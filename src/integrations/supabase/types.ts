@@ -996,6 +996,7 @@ export type Database = {
           signature_enabled: boolean | null
           updated_at: string | null
           username: string
+          username_css: string | null
         }
         Insert: {
           avatar_url?: string | null
@@ -1011,6 +1012,7 @@ export type Database = {
           signature_enabled?: boolean | null
           updated_at?: string | null
           username: string
+          username_css?: string | null
         }
         Update: {
           avatar_url?: string | null
@@ -1026,6 +1028,7 @@ export type Database = {
           signature_enabled?: boolean | null
           updated_at?: string | null
           username?: string
+          username_css?: string | null
         }
         Relationships: []
       }
