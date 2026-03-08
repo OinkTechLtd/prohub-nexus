@@ -154,6 +154,7 @@ const Profile = () => {
       setBannerUrl(profileData.banner_url || "");
       setCustomTitle(profileData.custom_title || "");
       setCustomTitleColor(profileData.custom_title_color || "#ef4444");
+      setUsernameCss((profileData as any).username_css || "");
       setIsOwnProfile(currentUserId === profileData.id);
       
       await loadUserData(profileData.id);
