@@ -168,6 +168,7 @@ const Forum = () => {
         <div className="mt-8">
           <ForumStats />
         </div>
+        <PluginRunner hookPoint="forum_bottom" />
       </main>
     </div>
   );
