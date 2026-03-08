@@ -87,6 +87,9 @@ const Forum = () => {
   return (
     <div className="min-h-screen bg-background">
       <Header user={user} />
+      <BackupDomainsBanner />
+      <PluginRunner hookPoint="forum_top" />
+      <TemplateRenderer templateType="widget" />
 
       <main className="container mx-auto px-4 py-8">
         <div className="mb-6 md:mb-8 flex flex-col md:flex-row md:items-center justify-between gap-4">
