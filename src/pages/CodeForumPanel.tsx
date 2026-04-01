@@ -36,10 +36,10 @@ const CodeForumPanel = () => {
 
   const loadCategories = async () => {
     try {
-      const { data: categoriesData, error } = await supabase
+      const { data: categoriesData, error } = await (supabase
         .from("categories")
-        .select("*")
-        .eq("forum_id" as any, "codeforum")
+        .select("*") as any)
+        .eq("forum_id", "codeforum")
         .order("order_position");
 
       if (error) throw error;
