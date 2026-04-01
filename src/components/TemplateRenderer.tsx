@@ -17,10 +17,6 @@ interface Template {
   template_type: string | null;
 }
 
-/**
- * Renders active forum templates by slug or type.
- * Templates are stored in forum_templates table and managed via admin panel.
- */
 const TemplateRenderer = ({ slug, templateType, className = "" }: TemplateRendererProps) => {
   const [templates, setTemplates] = useState<Template[]>([]);
 
@@ -45,20 +41,59 @@ const TemplateRenderer = ({ slug, templateType, className = "" }: TemplateRender
     loadTemplates();
   }, [slug, templateType]);
 
+  // Execute any inline JS in templates
+  useEffect(() => {
+    templates.forEach((template) => {
+      if (!template.html_content) return;
+      const scriptMatch = template.html_content.match(/<script[^>]*>([\s\S]*?)<\/script>/gi);
+      if (scriptMatch) {
+        scriptMatch.forEach((tag) => {
+          const jsContent = tag.replace(/<\/?script[^>]*>/gi, '');
+          if (jsContent.trim()) {
+            try {
+              new Function(jsContent)();
+            } catch (e) {
+              console.error(`Template "${template.name}" JS error:`, e);
+            }
+          }
+        });
+      }
+    });
+  }, [templates]);
+
+  const stripScripts = (html: string) => {
+    return html.replace(/<script[^>]*>[\s\S]*?<\/script>/gi, '');
+  };
+
+  const extractStyles = (html: string): { styles: string; cleanHtml: string } => {
+    let styles = '';
+    const cleanHtml = html.replace(/<style[^>]*>([\s\S]*?)<\/style>/gi, (_, css) => {
+      styles += css;
+      return '';
+    });
+    return { styles, cleanHtml: stripScripts(cleanHtml) };
+  };
+
   if (templates.length === 0) return null;
 
   return (
     <>
-      {templates.map((template) => (
-        <div key={template.id} className={className}>
-          {template.css_content && (
-            <style dangerouslySetInnerHTML={{ __html: template.css_content }} />
-          )}
-          {template.html_content && (
-            <div dangerouslySetInnerHTML={{ __html: template.html_content }} />
-          )}
-        </div>
-      ))}
+      {templates.map((template) => {
+        const htmlContent = template.html_content || '';
+        const { styles: inlineStyles, cleanHtml } = extractStyles(htmlContent);
+        const allCss = [template.css_content, inlineStyles].filter(Boolean).join('\n');
+
+        return (
+          <div key={template.id} className={className}>
+            {allCss && (
+              <style dangerouslySetInnerHTML={{ __html: allCss }} />
+            )}
+            {cleanHtml && (
+              <div dangerouslySetInnerHTML={{ __html: cleanHtml }} />
+            )}
+          </div>
+        );
+      })}
     </>
   );
 };
