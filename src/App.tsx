@@ -34,6 +34,11 @@ import Bookmarks from "./pages/Bookmarks";
 import StreakLeaderboard from "./pages/StreakLeaderboard";
 import NotFound from "./pages/NotFound";
 import Blocked from "./pages/Blocked";
+import PrivacyPolicy from "./pages/PrivacyPolicy";
+import FAQ from "./pages/FAQ";
+import Rules from "./pages/Rules";
+import CodeForumLanding from "./pages/CodeForumLanding";
+import CodeForumPanel from "./pages/CodeForumPanel";
 import RecruitmentBanner from "./components/RecruitmentBanner";
 import PWAInstallPrompt from "./components/PWAInstallPrompt";
 import SeasonalEffects from "./components/SeasonalEffects";
@@ -101,6 +106,11 @@ const App = () => {
                 <Route path="/members" element={<Members />} />
                 <Route path="/bookmarks" element={<Bookmarks />} />
                 <Route path="/streaks" element={<StreakLeaderboard />} />
+                <Route path="/privacy" element={<PrivacyPolicy />} />
+                <Route path="/faq" element={<FAQ />} />
+                <Route path="/rules" element={<Rules />} />
+                <Route path="/codeforum" element={<CodeForumLanding />} />
+                <Route path="/codeforum/forum" element={<CodeForumPanel />} />
                 {/* ADD ALL CUSTOM ROUTES ABOVE THE CATCH-ALL "*" ROUTE */}
                 <Route path="*" element={<NotFound />} />
               </Routes>
