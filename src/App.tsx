@@ -115,6 +115,10 @@ const App = () => {
                 <Route path="/rules" element={<Rules />} />
                 <Route path="/codeforum" element={<CodeForumLanding />} />
                 <Route path="/codeforum/forum" element={<CodeForumPanel />} />
+                <Route path="/codeforum/category/:slug" element={<CodeForumCategoryView />} />
+                <Route path="/codeforum/topic/:id" element={<CodeForumTopicView />} />
+                <Route path="/codeforum/members" element={<CodeForumMembers />} />
+                <Route path="/codeforum/create-topic" element={<CodeForumCreateTopic />} />
                 {/* ADD ALL CUSTOM ROUTES ABOVE THE CATCH-ALL "*" ROUTE */}
                 <Route path="*" element={<NotFound />} />
               </Routes>
