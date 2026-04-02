@@ -131,7 +131,7 @@ const StyledUsername = ({
       if (data) {
         setVerified(data.is_verified || false);
         if (usernameCss === undefined) {
-          setCssData((data as any).username_css || null);
+          setCssData(data.username_css || null);
         }
       }
     };
