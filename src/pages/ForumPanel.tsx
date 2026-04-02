@@ -53,6 +53,7 @@ const Forum = () => {
       const { data: categoriesData, error: categoriesError } = await supabase
         .from("categories")
         .select("*")
+        .eq("forum_id", "prohub")
         .order("order_position");
 
       if (categoriesError) throw categoriesError;
