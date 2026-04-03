@@ -66,6 +66,12 @@ const CategoryView = () => {
         .single();
 
       if (categoryError) throw categoryError;
+
+      if (categoryData.forum_id === "codeforum") {
+        navigate(`/codeforum/category/${categoryData.slug}`, { replace: true });
+        return;
+      }
+
       setCategory(categoryData);
 
       const { data: topicsData, error: topicsError } = await supabase

@@ -30,6 +30,7 @@ import WarningDialog from "@/components/WarningDialog";
 import WarningsList from "@/components/WarningsList";
 import { Switch } from "@/components/ui/switch";
 import DailyQuestsWidget from "@/components/DailyQuestsWidget";
+import { sanitizeUsernameCss } from "@/lib/usernameCss";
 
 interface Topic {
   id: string;
@@ -1028,36 +1029,18 @@ const Profile = () => {
                   </div>
                   
                   {usernameCss && (
-                    <div className="p-4 bg-muted/50 rounded-lg">
-                      <p className="text-xs text-muted-foreground mb-2">Предпросмотр:</p>
-                      <span 
-                        className="text-lg font-bold"
-                        style={(() => {
-                          try {
-                            const style: any = {};
-                            const decls = usernameCss.split(';').map(d => d.trim()).filter(Boolean);
-                            const allowed: Record<string, string> = {
-                              'color': 'color', 'background': 'background', 'background-color': 'backgroundColor',
-                              'background-image': 'backgroundImage', '-webkit-background-clip': 'WebkitBackgroundClip',
-                              'background-clip': 'backgroundClip', '-webkit-text-fill-color': 'WebkitTextFillColor',
-                              'text-shadow': 'textShadow', 'text-decoration': 'textDecoration',
-                              'font-weight': 'fontWeight', 'font-style': 'fontStyle', 'letter-spacing': 'letterSpacing',
-                              'text-transform': 'textTransform', 'filter': 'filter', 'opacity': 'opacity',
-                            };
-                            for (const d of decls) {
-                              const i = d.indexOf(':');
-                              if (i === -1) continue;
-                              const p = d.substring(0, i).trim().toLowerCase();
-                              const v = d.substring(i + 1).trim();
-                              if (allowed[p]) style[allowed[p]] = v;
-                            }
-                            return style;
-                          } catch { return {}; }
-                        })()}
-                      >
-                        {username}
-                      </span>
-                    </div>
+                    (() => {
+                      const preview = sanitizeUsernameCss(usernameCss, "profile-preview");
+                      return (
+                        <div className="p-4 bg-muted/50 rounded-lg">
+                          <p className="text-xs text-muted-foreground mb-2">Предпросмотр:</p>
+                          {preview.keyframes && <style dangerouslySetInnerHTML={{ __html: preview.keyframes }} />}
+                          <span className="text-lg font-bold inline-block" style={preview.style}>
+                            {username}
+                          </span>
+                        </div>
+                      );
+                    })()
                   )}
                   
                   <div className="flex gap-2">

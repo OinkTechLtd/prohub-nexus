@@ -11,6 +11,7 @@ interface UserLinkProps {
   isVerified?: boolean;
   userId?: string;
   className?: string;
+  profilePath?: string;
 }
 
 const UserLink = ({ 
@@ -19,13 +20,14 @@ const UserLink = ({
   showAvatar = true, 
   isVerified = false,
   userId,
-  className = "" 
+  className = "",
+  profilePath,
 }: UserLinkProps) => {
   const navigate = useNavigate();
 
   const handleClick = (e: React.MouseEvent) => {
     e.stopPropagation();
-    navigate(`/profile/${username}`);
+    navigate(profilePath || `/profile/${encodeURIComponent(username)}`);
   };
 
   return (
@@ -41,7 +43,9 @@ const UserLink = ({
       )}
       <StyledUsername 
         username={username} 
+        userId={userId}
         isVerified={isVerified}
+        profilePath={profilePath}
         onClick={handleClick}
       />
     </div>

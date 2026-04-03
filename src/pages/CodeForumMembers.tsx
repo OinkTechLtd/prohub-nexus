@@ -49,16 +49,48 @@ const CodeForumMembers = () => {
 
   const loadMembers = async () => {
     try {
-      const { data: profiles } = await supabase
-        .from("profiles")
-        .select("id, username, avatar_url, username_css, created_at")
-        .order("created_at", { ascending: true });
+      const { data: categories } = await supabase.from("categories").select("id").eq("forum_id", "codeforum");
+      const categoryIds = (categories || []).map((item) => item.id);
 
-      if (!profiles) { setLoading(false); return; }
+      if (categoryIds.length === 0) {
+        setMembers([]);
+        setLoading(false);
+        return;
+      }
+
+      const { data: cfTopics } = await supabase
+        .from("topics")
+        .select("id, user_id")
+        .in("category_id", categoryIds);
+
+      const topicIds = (cfTopics || []).map((item) => item.id);
+
+      const { data: cfPosts } = topicIds.length > 0
+        ? await supabase.from("posts").select("user_id").in("topic_id", topicIds)
+        : { data: [] as { user_id: string | null }[] };
 
       // Get all codeforum roles
       const { data: cfRoles } = await supabase.from("codeforum_roles").select("user_id, role");
       const cfRolesMap = new Map((cfRoles || []).map((r) => [r.user_id, r.role]));
+
+      const memberIds = new Set<string>();
+      for (const topic of cfTopics || []) if (topic.user_id) memberIds.add(topic.user_id);
+      for (const post of (cfPosts as { user_id: string | null }[]) || []) if (post.user_id) memberIds.add(post.user_id);
+      for (const role of cfRoles || []) if (role.user_id) memberIds.add(role.user_id);
+
+      if (memberIds.size === 0) {
+        setMembers([]);
+        setLoading(false);
+        return;
+      }
+
+      const { data: profiles } = await supabase
+        .from("profiles")
+        .select("id, username, avatar_url, username_css, created_at")
+        .in("id", Array.from(memberIds))
+        .order("created_at", { ascending: true });
+
+      if (!profiles) { setLoading(false); return; }
 
       // Get all prohub roles
       const { data: phRoles } = await supabase.from("user_roles").select("user_id, role");
@@ -117,7 +149,7 @@ const CodeForumMembers = () => {
                 className={`grid grid-cols-12 gap-2 px-4 py-3 items-center hover:bg-[#16213e]/30 cursor-pointer transition-colors ${
                   idx < members.length - 1 ? "border-b border-[#1a1a3e]/50" : ""
                 }`}
-                onClick={() => navigate(`/profile/${member.username}`)}
+                onClick={() => navigate(`/codeforum/profile/${encodeURIComponent(member.username)}`)}
               >
                 <div className="col-span-5 flex items-center gap-3">
                   <Avatar className="h-8 w-8">
@@ -127,6 +159,7 @@ const CodeForumMembers = () => {
                   <StyledUsername
                     username={member.username}
                     usernameCss={member.username_css}
+                    profilePath={`/codeforum/profile/${encodeURIComponent(member.username)}`}
                     className="text-sm"
                   />
                 </div>

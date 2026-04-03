@@ -1,7 +1,8 @@
 import { useNavigate, useLocation } from "react-router-dom";
-import { Code, Search, Menu } from "lucide-react";
+import { Code, Menu, Shield } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { useState } from "react";
+import { useCodeForumRole } from "@/hooks/useCodeForumRole";
 
 interface CodeForumHeaderProps {
   user: any;
@@ -11,24 +12,30 @@ const CodeForumHeader = ({ user }: CodeForumHeaderProps) => {
   const navigate = useNavigate();
   const location = useLocation();
   const [menuOpen, setMenuOpen] = useState(false);
+  const { canModerate } = useCodeForumRole(user?.id);
 
   const navItems = [
     { label: "Форум", path: "/codeforum/forum" },
-    { label: "Что нового?", path: "/codeforum/new" },
     { label: "Участники", path: "/codeforum/members" },
-    { label: "ProHub", path: "/forum" },
+    { label: "Профиль", path: "/codeforum/profile" },
+    ...(canModerate ? [{ label: "Модерация", path: "/codeforum/moderator" }] : []),
   ];
 
-  const isActive = (path: string) => location.pathname === path;
+  const isActive = (path: string) => location.pathname === path || location.pathname.startsWith(`${path}/`);
 
   return (
     <header className="border-b border-[#16213e] bg-[#0f0f23]/95 backdrop-blur-sm sticky top-0 z-50">
       <div className="container mx-auto px-4">
         <div className="h-14 flex items-center justify-between">
           <div className="flex items-center gap-6">
-            <div className="flex items-center gap-2 cursor-pointer" onClick={() => navigate("/codeforum")}>
-              <Code className="h-6 w-6 text-emerald-400" />
-              <span className="text-lg font-bold text-white">CF</span>
+            <div className="flex items-center gap-2 cursor-pointer" onClick={() => navigate("/codeforum/forum")}>
+              <div className="flex h-8 w-8 items-center justify-center rounded-md bg-emerald-600/20 text-emerald-400">
+                <Code className="h-5 w-5" />
+              </div>
+              <div className="leading-tight">
+                <span className="block text-sm font-semibold uppercase tracking-[0.22em] text-emerald-400">Code Forum</span>
+                <span className="block text-[11px] text-gray-500">XenForo-style community</span>
+              </div>
             </div>
             <nav className="hidden md:flex items-center gap-1">
               {navItems.map((item) => (
@@ -52,7 +59,7 @@ const CodeForumHeader = ({ user }: CodeForumHeaderProps) => {
                 variant="ghost"
                 size="sm"
                 className="text-gray-300 hover:text-white"
-                onClick={() => navigate("/profile")}
+                onClick={() => navigate("/codeforum/profile")}
               >
                 {user.user_metadata?.username || user.email?.split("@")[0]}
               </Button>
@@ -84,6 +91,14 @@ const CodeForumHeader = ({ user }: CodeForumHeaderProps) => {
                 {item.label}
               </button>
             ))}
+            {canModerate && !navItems.some((item) => item.path === "/codeforum/moderator") && (
+              <button
+                onClick={() => { navigate("/codeforum/moderator"); setMenuOpen(false); }}
+                className="block w-full text-left px-3 py-2 text-sm rounded text-gray-300"
+              >
+                <span className="inline-flex items-center gap-2"><Shield className="h-4 w-4" />Модерация</span>
+              </button>
+            )}
           </div>
         )}
       </div>

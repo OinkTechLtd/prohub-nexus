@@ -105,13 +105,20 @@ const TopicView = () => {
           ),
           categories (
             name,
-            slug
+            slug,
+            forum_id
           )
         `)
         .eq("id", id)
         .single();
 
       if (topicError) throw topicError;
+
+      if (topicData.categories?.forum_id === "codeforum") {
+        navigate(`/codeforum/topic/${id}`, { replace: true });
+        return;
+      }
+
       setTopic(topicData);
 
       const { data: postsData, error: postsError } = await supabase
