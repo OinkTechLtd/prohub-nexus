@@ -158,6 +158,7 @@ const CodeForumCategoryView = () => {
                     <StyledUsername
                       username={topic.profiles?.username}
                       usernameCss={topic.profiles?.username_css}
+                      profilePath={`/codeforum/profile/${encodeURIComponent(topic.profiles?.username || "")}`}
                       className="text-xs justify-end"
                     />
                   </div>

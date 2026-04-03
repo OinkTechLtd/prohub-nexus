@@ -185,16 +185,13 @@ const CodeForumPanel = () => {
           </div>
         )}
 
-        {/* Online stats */}
-        <div className="mt-6 bg-[#16213e] border border-[#1a1a3e] rounded-lg p-4 text-xs text-gray-400">
-          <p>Code Forum — подфорум платформы <span className="text-emerald-400 cursor-pointer" onClick={() => navigate("/")}>ProHub Nexus</span></p>
+        <div className="mt-6 rounded-lg border border-[#1a1a3e] bg-[#16213e] p-4 text-xs text-gray-400">
+          <p>Code Forum — самостоятельная оболочка форума для разработчиков, адаптированная под мобильные устройства.</p>
         </div>
       </main>
 
-      <footer className="border-t border-[#16213e] py-4 px-4 text-center text-xs text-gray-500 mt-8">
-        Code Forum — подфорум{" "}
-        <span className="text-emerald-400 cursor-pointer" onClick={() => navigate("/")}>ProHub Nexus</span>
-        {" "}| ❤️ Made by Oink Platforms
+      <footer className="mt-8 border-t border-[#16213e] px-4 py-4 text-center text-xs text-gray-500">
+        Code Forum • developer community shell • mobile ready
       </footer>
     </div>
   );

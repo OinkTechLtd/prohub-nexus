@@ -95,14 +95,44 @@ const CodeForumTopicView = () => {
   const handleHidePost = async (postId: string, hidden: boolean) => {
     try {
       const { data: { session } } = await supabase.auth.getSession();
-      await supabase.rpc("set_content_hidden", {
-        _content_type: "post",
-        _content_id: postId,
-        _hidden: hidden,
-        _reason: hidden ? "Скрыто модератором Code Forum" : "Восстановлено",
+      const { data, error } = await supabase.functions.invoke("codeforum-moderate", {
+        body: {
+          action: hidden ? "hide" : "show",
+          contentType: "post",
+          contentId: postId,
+          reason: hidden ? "Скрыто модератором Code Forum" : "Восстановлено модератором Code Forum",
+        },
+        headers: { Authorization: `Bearer ${session?.access_token}` },
       });
+
+      if (error) throw error;
+      if (data?.error) throw new Error(data.error);
+
       loadData();
       toast({ title: hidden ? "Пост скрыт" : "Пост восстановлен" });
+    } catch (error: any) {
+      toast({ title: "Ошибка", description: error.message, variant: "destructive" });
+    }
+  };
+
+  const handleHideTopic = async (hidden: boolean) => {
+    try {
+      const { data: { session } } = await supabase.auth.getSession();
+      const { data, error } = await supabase.functions.invoke("codeforum-moderate", {
+        body: {
+          action: hidden ? "hide" : "show",
+          contentType: "topic",
+          contentId: topic.id,
+          reason: hidden ? "Тема скрыта модератором Code Forum" : "Тема восстановлена модератором Code Forum",
+        },
+        headers: { Authorization: `Bearer ${session?.access_token}` },
+      });
+
+      if (error) throw error;
+      if (data?.error) throw new Error(data.error);
+
+      loadData();
+      toast({ title: hidden ? "Тема скрыта" : "Тема восстановлена" });
     } catch (error: any) {
       toast({ title: "Ошибка", description: error.message, variant: "destructive" });
     }
@@ -183,6 +213,7 @@ const CodeForumTopicView = () => {
             <StyledUsername
               username={topic?.profiles?.username}
               usernameCss={topic?.profiles?.username_css}
+              profilePath={`/codeforum/profile/${encodeURIComponent(topic?.profiles?.username || "")}`}
             />
             <span>•</span>
             <span>
@@ -206,6 +237,15 @@ const CodeForumTopicView = () => {
             {user && topic?.user_id !== user.id && (
               <ReportDialog contentType="topic" contentId={topic?.id} contentAuthorId={topic?.user_id} />
             )}
+            {canModerate && topic?.id && (
+              <button
+                onClick={() => handleHideTopic(!topic.is_hidden)}
+                className="text-xs text-gray-400 hover:text-red-400 flex items-center gap-1"
+              >
+                {topic.is_hidden ? <Eye className="h-3 w-3" /> : <EyeOff className="h-3 w-3" />}
+                {topic.is_hidden ? "Показать тему" : "Скрыть тему"}
+              </button>
+            )}
           </div>
         </div>
 
@@ -222,6 +262,7 @@ const CodeForumTopicView = () => {
                 <StyledUsername
                   username={post.profiles?.username}
                   usernameCss={post.profiles?.username_css}
+                  profilePath={`/codeforum/profile/${encodeURIComponent(post.profiles?.username || "")}`}
                 />
                 <span className="text-xs text-gray-500">
                   {formatDistanceToNow(new Date(post.created_at), { addSuffix: true, locale: ru })}

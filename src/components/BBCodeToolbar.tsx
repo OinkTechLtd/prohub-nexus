@@ -218,7 +218,7 @@ const BBCodeToolbar = ({ onInsert }: BBCodeToolbarProps) => {
         <PopoverContent className="w-64 p-2" side="top">
           <div className="space-y-2">
             <Input
-              placeholder="ID видео YouTube..."
+              placeholder="YouTube ID или URL Rutube/VK/YouTube..."
               value={youtubeInput}
               onChange={(e) => setYoutubeInput(e.target.value)}
               className="h-8 text-xs"
@@ -228,11 +228,13 @@ const BBCodeToolbar = ({ onInsert }: BBCodeToolbarProps) => {
               size="sm"
               className="w-full h-7 text-xs"
               onClick={() => {
-                onInsert(`[MEDIA=youtube]${youtubeInput}`, "[/MEDIA]");
+                const value = youtubeInput.trim();
+                if (!value) return;
+                onInsert(/^https?:\/\//i.test(value) ? `[MEDIA]${value}` : `[MEDIA=youtube]${value}`, "[/MEDIA]");
                 setYoutubeInput("");
               }}
             >
-              Вставить YouTube
+              Вставить медиа
             </Button>
           </div>
         </PopoverContent>
