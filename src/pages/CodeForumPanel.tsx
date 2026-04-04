@@ -2,7 +2,7 @@ import { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { supabase } from "@/integrations/supabase/client";
 import CodeForumHeader from "@/components/CodeForumHeader";
-import { MessageSquare, ChevronRight } from "lucide-react";
+import { MessageSquare, Package } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
 import { formatDistanceToNow } from "date-fns";
 import { ru } from "date-fns/locale";
@@ -18,9 +18,23 @@ interface Category {
   lastTopic?: { title: string; id: string; created_at: string; username: string } | null;
 }
 
+interface LatestTopic {
+  id: string;
+  title: string;
+  created_at: string;
+}
+
+interface LatestResource {
+  id: string;
+  title: string;
+  created_at: string;
+}
+
 const CodeForumPanel = () => {
   const [user, setUser] = useState<any>(null);
   const [categories, setCategories] = useState<Category[]>([]);
+  const [latestTopics, setLatestTopics] = useState<LatestTopic[]>([]);
+  const [latestResources, setLatestResources] = useState<LatestResource[]>([]);
   const [loading, setLoading] = useState(true);
   const navigate = useNavigate();
   const { toast } = useToast();
@@ -86,6 +100,28 @@ const CodeForumPanel = () => {
       );
 
       setCategories(categoriesWithCounts);
+
+      const categoryIds = (categoriesData || []).map((category) => category.id);
+      const [{ data: latestTopicsData }, { data: latestResourcesData }] = await Promise.all([
+        categoryIds.length > 0
+          ? supabase
+              .from("topics")
+              .select("id, title, created_at")
+              .in("category_id", categoryIds)
+              .eq("is_hidden", false)
+              .order("created_at", { ascending: false })
+              .limit(6)
+          : Promise.resolve({ data: [] as LatestTopic[] }),
+        supabase
+          .from("resources")
+          .select("id, title, created_at")
+          .eq("is_hidden", false)
+          .order("created_at", { ascending: false })
+          .limit(6),
+      ]);
+
+      setLatestTopics((latestTopicsData as LatestTopic[]) || []);
+      setLatestResources((latestResourcesData as LatestResource[]) || []);
     } catch (error: any) {
       toast({ title: "Ошибка загрузки", description: error.message, variant: "destructive" });
     } finally {
@@ -123,9 +159,9 @@ const CodeForumPanel = () => {
             </p>
           </div>
         ) : (
-          <div className="space-y-1">
-            {/* XenForo-style category list */}
-            <div className="bg-[#0f0f23] border border-[#1a1a3e] rounded-lg overflow-hidden">
+          <div className="grid gap-4 xl:grid-cols-[1.2fr,0.8fr]">
+            <div className="space-y-1">
+              <div className="bg-[#0f0f23] border border-[#1a1a3e] rounded-lg overflow-hidden">
               {/* Header row */}
               <div className="grid grid-cols-12 gap-2 px-4 py-2 bg-[#16213e]/50 text-xs text-gray-400 uppercase tracking-wider border-b border-[#1a1a3e]">
                 <div className="col-span-6 md:col-span-7">Форум</div>
@@ -181,13 +217,54 @@ const CodeForumPanel = () => {
                   </div>
                 </div>
               ))}
+              </div>
             </div>
+
+            <aside className="space-y-4">
+              <div className="rounded-lg border border-[#1a1a3e] bg-[#0f0f23] p-4">
+                <h2 className="mb-3 text-sm font-semibold uppercase tracking-wider text-emerald-400">Что нового</h2>
+                <div className="space-y-2">
+                  {latestTopics.length === 0 ? (
+                    <p className="text-sm text-gray-500">Пока нет новых тем</p>
+                  ) : latestTopics.map((topic) => (
+                    <button key={topic.id} onClick={() => navigate(`/codeforum/topic/${topic.id}`)} className="block w-full text-left rounded border border-[#1a1a3e] bg-[#16213e]/30 px-3 py-2 text-sm text-gray-200 hover:border-emerald-600 hover:text-white">
+                      <div className="truncate">{topic.title}</div>
+                      <div className="mt-1 text-xs text-gray-500">
+                        {formatDistanceToNow(new Date(topic.created_at), { addSuffix: true, locale: ru })}
+                      </div>
+                    </button>
+                  ))}
+                </div>
+              </div>
+
+              <div className="rounded-lg border border-[#1a1a3e] bg-[#0f0f23] p-4">
+                <div className="mb-3 flex items-center justify-between gap-2">
+                  <h2 className="text-sm font-semibold uppercase tracking-wider text-emerald-400">Новые ресурсы</h2>
+                  <button onClick={() => navigate("/codeforum/resources")} className="text-xs text-gray-400 hover:text-emerald-300">Все</button>
+                </div>
+                <div className="space-y-2">
+                  {latestResources.length === 0 ? (
+                    <p className="text-sm text-gray-500">Пока нет ресурсов</p>
+                  ) : latestResources.map((resource) => (
+                    <button key={resource.id} onClick={() => navigate(`/codeforum/resource/${resource.id}`)} className="block w-full text-left rounded border border-[#1a1a3e] bg-[#16213e]/30 px-3 py-2 text-sm text-gray-200 hover:border-emerald-600 hover:text-white">
+                      <div className="flex items-center gap-2">
+                        <Package className="h-4 w-4 text-emerald-400" />
+                        <span className="truncate">{resource.title}</span>
+                      </div>
+                      <div className="mt-1 text-xs text-gray-500">
+                        {formatDistanceToNow(new Date(resource.created_at), { addSuffix: true, locale: ru })}
+                      </div>
+                    </button>
+                  ))}
+                </div>
+              </div>
+
+              <div className="rounded-lg border border-[#1a1a3e] bg-[#16213e] p-4 text-xs text-gray-400">
+                <p>Code Forum теперь работает как отдельная форумная оболочка: свои категории, свои профили, свои участники и свои страницы ресурсов.</p>
+              </div>
+            </aside>
           </div>
         )}
-
-        <div className="mt-6 rounded-lg border border-[#1a1a3e] bg-[#16213e] p-4 text-xs text-gray-400">
-          <p>Code Forum — самостоятельная оболочка форума для разработчиков, адаптированная под мобильные устройства.</p>
-        </div>
       </main>
 
       <footer className="mt-8 border-t border-[#16213e] px-4 py-4 text-center text-xs text-gray-500">

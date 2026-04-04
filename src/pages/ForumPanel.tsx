@@ -22,9 +22,21 @@ interface Category {
   topicCount?: number;
 }
 
+interface LatestTopic {
+  id: string;
+  title: string;
+}
+
+interface LatestResource {
+  id: string;
+  title: string;
+}
+
 const Forum = () => {
   const [user, setUser] = useState<any>(null);
   const [categories, setCategories] = useState<Category[]>([]);
+  const [latestTopics, setLatestTopics] = useState<LatestTopic[]>([]);
+  const [latestResources, setLatestResources] = useState<LatestResource[]>([]);
   const [loading, setLoading] = useState(true);
   const navigate = useNavigate();
   const { toast } = useToast();
@@ -74,6 +86,29 @@ const Forum = () => {
       );
 
       setCategories(categoriesWithCounts);
+
+      const prohubCategoryIds = (categoriesData || []).map((category) => category.id);
+
+      const [{ data: latestTopicsData }, { data: latestResourcesData }] = await Promise.all([
+        prohubCategoryIds.length > 0
+          ? supabase
+              .from("topics")
+              .select("id, title")
+              .in("category_id", prohubCategoryIds)
+              .eq("is_hidden", false)
+              .order("created_at", { ascending: false })
+              .limit(5)
+          : Promise.resolve({ data: [] as LatestTopic[] }),
+        supabase
+          .from("resources")
+          .select("id, title")
+          .eq("is_hidden", false)
+          .order("created_at", { ascending: false })
+          .limit(5),
+      ]);
+
+      setLatestTopics((latestTopicsData as LatestTopic[]) || []);
+      setLatestResources((latestResourcesData as LatestResource[]) || []);
     } catch (error: any) {
       toast({
         title: "Ошибка загрузки",
@@ -144,6 +179,38 @@ const Forum = () => {
             </div>
             
             <div className="space-y-4">
+              <Card>
+                <CardHeader>
+                  <CardTitle className="text-sm">Что нового на ProHub</CardTitle>
+                  <CardDescription className="text-xs">Последние темы и ресурсы</CardDescription>
+                </CardHeader>
+                <CardContent className="space-y-3 text-sm">
+                  <div>
+                    <p className="mb-2 text-xs font-semibold uppercase tracking-wide text-muted-foreground">Темы</p>
+                    <div className="space-y-2">
+                      {latestTopics.length === 0 ? (
+                        <p className="text-xs text-muted-foreground">Пока пусто</p>
+                      ) : latestTopics.map((topic) => (
+                        <button key={topic.id} onClick={() => navigate(`/topic/${topic.id}`)} className="block w-full text-left text-sm hover:text-primary">
+                          {topic.title}
+                        </button>
+                      ))}
+                    </div>
+                  </div>
+                  <div>
+                    <p className="mb-2 text-xs font-semibold uppercase tracking-wide text-muted-foreground">Ресурсы</p>
+                    <div className="space-y-2">
+                      {latestResources.length === 0 ? (
+                        <p className="text-xs text-muted-foreground">Пока пусто</p>
+                      ) : latestResources.map((resource) => (
+                        <button key={resource.id} onClick={() => navigate(`/resource/${resource.id}`)} className="block w-full text-left text-sm hover:text-primary">
+                          {resource.title}
+                        </button>
+                      ))}
+                    </div>
+                  </div>
+                </CardContent>
+              </Card>
               <Card>
                 <CardHeader>
                   <CardTitle className="text-sm">Рекламный сервис</CardTitle>
