@@ -28,6 +28,13 @@ interface PostItem {
   topics?: { title: string } | null;
 }
 
+interface ResourceItem {
+  id: string;
+  title: string;
+  resource_type: string;
+  created_at: string;
+}
+
 const CodeForumProfile = () => {
   const { username: usernameParam } = useParams();
   const navigate = useNavigate();
@@ -40,6 +47,7 @@ const CodeForumProfile = () => {
   const [usernameCss, setUsernameCss] = useState("");
   const [topics, setTopics] = useState<TopicItem[]>([]);
   const [posts, setPosts] = useState<PostItem[]>([]);
+  const [resources, setResources] = useState<ResourceItem[]>([]);
   const [stats, setStats] = useState({ topics: 0, posts: 0, resources: 0 });
   const [loading, setLoading] = useState(true);
   const [saving, setSaving] = useState(false);
@@ -121,6 +129,14 @@ const CodeForumProfile = () => {
             .limit(8)
         : { data: [] as PostItem[] };
 
+      const { data: resourcesData } = await supabase
+        .from("resources")
+        .select("id, title, resource_type, created_at")
+        .eq("user_id", profileData.id)
+        .eq("is_hidden", false)
+        .order("created_at", { ascending: false })
+        .limit(8);
+
       const [{ count: topicsCount }, { count: postsCount }, { count: resourcesCount }] = await Promise.all([
         supabase
           .from("topics")
@@ -145,6 +161,7 @@ const CodeForumProfile = () => {
 
       setTopics(topicsData || []);
       setPosts((postsData as PostItem[]) || []);
+      setResources((resourcesData as ResourceItem[]) || []);
       setStats({
         topics: topicsCount || 0,
         posts: postsCount || 0,
@@ -280,7 +297,7 @@ const CodeForumProfile = () => {
           </section>
         )}
 
-        <section className="grid gap-4 lg:grid-cols-2">
+        <section className="grid gap-4 lg:grid-cols-3">
           <Card className="border-[#1a1a3e] bg-[#0f0f23] text-gray-200">
             <CardHeader>
               <CardTitle className="flex items-center gap-2"><FileText className="h-4 w-4" />Темы Code Forum</CardTitle>
@@ -292,6 +309,23 @@ const CodeForumProfile = () => {
                 <button key={topic.id} onClick={() => navigate(`/codeforum/topic/${topic.id}`)} className="block w-full rounded-lg border border-[#1a1a3e] bg-[#16213e]/40 px-3 py-3 text-left hover:bg-[#16213e]/70">
                   <div className="font-medium text-white">{topic.title}</div>
                   <div className="mt-1 text-xs text-gray-500">{formatDistanceToNow(new Date(topic.created_at), { addSuffix: true, locale: ru })}</div>
+                </button>
+              ))}
+            </CardContent>
+          </Card>
+
+          <Card className="border-[#1a1a3e] bg-[#0f0f23] text-gray-200">
+            <CardHeader>
+              <CardTitle className="flex items-center gap-2"><FileText className="h-4 w-4" />Ресурсы</CardTitle>
+            </CardHeader>
+            <CardContent className="space-y-3">
+              {resources.length === 0 ? (
+                <p className="text-sm text-gray-500">Пока нет ресурсов.</p>
+              ) : resources.map((resource) => (
+                <button key={resource.id} onClick={() => navigate(`/codeforum/resource/${resource.id}`)} className="block w-full rounded-lg border border-[#1a1a3e] bg-[#16213e]/40 px-3 py-3 text-left hover:bg-[#16213e]/70">
+                  <div className="font-medium text-white">{resource.title}</div>
+                  <div className="mt-1 text-xs uppercase tracking-wide text-emerald-400">{resource.resource_type}</div>
+                  <div className="mt-1 text-xs text-gray-500">{formatDistanceToNow(new Date(resource.created_at), { addSuffix: true, locale: ru })}</div>
                 </button>
               ))}
             </CardContent>

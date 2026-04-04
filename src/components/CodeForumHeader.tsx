@@ -3,6 +3,7 @@ import { Code, Menu, Shield } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { useState } from "react";
 import { useCodeForumRole } from "@/hooks/useCodeForumRole";
+import StyledUsername from "@/components/StyledUsername";
 
 interface CodeForumHeaderProps {
   user: any;
@@ -15,13 +16,19 @@ const CodeForumHeader = ({ user }: CodeForumHeaderProps) => {
   const { canModerate } = useCodeForumRole(user?.id);
 
   const navItems = [
-    { label: "Форум", path: "/codeforum/forum" },
+    { label: "Форум", path: "/codeforum" },
+    { label: "Ресурсы", path: "/codeforum/resources" },
     { label: "Участники", path: "/codeforum/members" },
     { label: "Профиль", path: "/codeforum/profile" },
     ...(canModerate ? [{ label: "Модерация", path: "/codeforum/moderator" }] : []),
   ];
 
-  const isActive = (path: string) => location.pathname === path || location.pathname.startsWith(`${path}/`);
+  const isActive = (path: string) => {
+    if (path === "/codeforum") {
+      return location.pathname === "/codeforum" || location.pathname === "/codeforum/forum" || location.pathname.startsWith("/codeforum/category/") || location.pathname.startsWith("/codeforum/topic/") || location.pathname.startsWith("/codeforum/create-topic");
+    }
+    return location.pathname === path || location.pathname.startsWith(`${path}/`);
+  };
 
   return (
     <header className="border-b border-[#16213e] bg-[#0f0f23]/95 backdrop-blur-sm sticky top-0 z-50">
@@ -61,7 +68,12 @@ const CodeForumHeader = ({ user }: CodeForumHeaderProps) => {
                 className="text-gray-300 hover:text-white"
                 onClick={() => navigate("/codeforum/profile")}
               >
-                {user.user_metadata?.username || user.email?.split("@")[0]}
+                <StyledUsername
+                  username={user.user_metadata?.username || user.email?.split("@")[0] || "Профиль"}
+                  userId={user.id}
+                  profilePath="/codeforum/profile"
+                  className="max-w-[140px]"
+                />
               </Button>
             ) : (
               <>

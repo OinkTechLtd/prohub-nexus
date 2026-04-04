@@ -45,6 +45,8 @@ import CodeForumMembers from "./pages/CodeForumMembers";
 import CodeForumCreateTopic from "./pages/CodeForumCreateTopic";
 import CodeForumProfile from "./pages/CodeForumProfile";
 import CodeForumModeratorPanel from "./pages/CodeForumModeratorPanel";
+import CodeForumResources from "./pages/CodeForumResources";
+import CodeForumResourceView from "./pages/CodeForumResourceView";
 import RecruitmentBanner from "./components/RecruitmentBanner";
 import PWAInstallPrompt from "./components/PWAInstallPrompt";
 import SeasonalEffects from "./components/SeasonalEffects";
@@ -97,12 +99,15 @@ const AppLayout = ({ user }: { user: any }) => {
           <Route path="/privacy" element={<PrivacyPolicy />} />
           <Route path="/faq" element={<FAQ />} />
           <Route path="/rules" element={<Rules />} />
-          <Route path="/codeforum" element={<CodeForumLanding />} />
+          <Route path="/codeforum" element={<CodeForumPanel />} />
+          <Route path="/codeforum/welcome" element={<CodeForumLanding />} />
           <Route path="/codeforum/forum" element={<CodeForumPanel />} />
           <Route path="/codeforum/category/:slug" element={<CodeForumCategoryView />} />
           <Route path="/codeforum/topic/:id" element={<CodeForumTopicView />} />
           <Route path="/codeforum/members" element={<CodeForumMembers />} />
           <Route path="/codeforum/create-topic" element={<CodeForumCreateTopic />} />
+          <Route path="/codeforum/resources" element={<CodeForumResources />} />
+          <Route path="/codeforum/resource/:id" element={<CodeForumResourceView />} />
           <Route path="/codeforum/profile" element={<CodeForumProfile />} />
           <Route path="/codeforum/profile/:username" element={<CodeForumProfile />} />
           <Route path="/codeforum/moderator" element={<CodeForumModeratorPanel />} />

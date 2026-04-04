@@ -49,51 +49,19 @@ const CodeForumMembers = () => {
 
   const loadMembers = async () => {
     try {
-      const { data: categories } = await supabase.from("categories").select("id").eq("forum_id", "codeforum");
-      const categoryIds = (categories || []).map((item) => item.id);
+      const [{ data: profiles }, { data: cfRoles }, { data: phRoles }] = await Promise.all([
+        supabase
+          .from("profiles")
+          .select("id, username, avatar_url, username_css, created_at")
+          .order("created_at", { ascending: true }),
+        supabase.from("codeforum_roles").select("user_id, role"),
+        supabase.from("user_roles").select("user_id, role"),
+      ]);
 
-      if (categoryIds.length === 0) {
-        setMembers([]);
-        setLoading(false);
-        return;
-      }
-
-      const { data: cfTopics } = await supabase
-        .from("topics")
-        .select("id, user_id")
-        .in("category_id", categoryIds);
-
-      const topicIds = (cfTopics || []).map((item) => item.id);
-
-      const { data: cfPosts } = topicIds.length > 0
-        ? await supabase.from("posts").select("user_id").in("topic_id", topicIds)
-        : { data: [] as { user_id: string | null }[] };
-
-      // Get all codeforum roles
-      const { data: cfRoles } = await supabase.from("codeforum_roles").select("user_id, role");
       const cfRolesMap = new Map((cfRoles || []).map((r) => [r.user_id, r.role]));
-
-      const memberIds = new Set<string>();
-      for (const topic of cfTopics || []) if (topic.user_id) memberIds.add(topic.user_id);
-      for (const post of (cfPosts as { user_id: string | null }[]) || []) if (post.user_id) memberIds.add(post.user_id);
-      for (const role of cfRoles || []) if (role.user_id) memberIds.add(role.user_id);
-
-      if (memberIds.size === 0) {
-        setMembers([]);
-        setLoading(false);
-        return;
-      }
-
-      const { data: profiles } = await supabase
-        .from("profiles")
-        .select("id, username, avatar_url, username_css, created_at")
-        .in("id", Array.from(memberIds))
-        .order("created_at", { ascending: true });
 
       if (!profiles) { setLoading(false); return; }
 
-      // Get all prohub roles
-      const { data: phRoles } = await supabase.from("user_roles").select("user_id, role");
       const phRolesMap = new Map<string, string>();
       for (const r of phRoles || []) {
         const existing = phRolesMap.get(r.user_id);
@@ -116,7 +84,7 @@ const CodeForumMembers = () => {
 
       // Sort by role order desc
       const roleOrder: Record<string, number> = { moderator: 5, editor: 4, advanced: 3, pro: 2, newbie: 1 };
-      enriched.sort((a, b) => (roleOrder[b.cfRole] || 0) - (roleOrder[a.cfRole] || 0));
+      enriched.sort((a, b) => ((roleOrder[b.cfRole] || 0) - (roleOrder[a.cfRole] || 0)) || a.username.localeCompare(b.username, "ru"));
 
       setMembers(enriched);
     } catch (e) {

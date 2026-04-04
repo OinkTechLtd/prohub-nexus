@@ -2,12 +2,15 @@ import type { CSSProperties } from "react";
 
 const ALLOWED_PROPS: Record<string, keyof CSSProperties | "WebkitBackgroundClip" | "WebkitTextFillColor" | "WebkitTextStroke" | "WebkitTextStrokeColor" | "WebkitTextStrokeWidth"> = {
   color: "color",
+  "font-size": "fontSize",
+  "font-family": "fontFamily",
   background: "background",
   "background-color": "backgroundColor",
   "background-image": "backgroundImage",
   "background-size": "backgroundSize",
   "background-position": "backgroundPosition",
   "background-repeat": "backgroundRepeat",
+  "line-height": "lineHeight",
   "-webkit-background-clip": "WebkitBackgroundClip",
   "background-clip": "backgroundClip",
   "-webkit-text-fill-color": "WebkitTextFillColor",
@@ -108,17 +111,36 @@ const extractKeyframes = (css: string) => {
   return { keyframes, remaining };
 };
 
+const extractRuleBodies = (css: string) => {
+  const bodies = Array.from(css.matchAll(/\{([^{}]+)\}/g))
+    .map((match) => match[1].trim())
+    .filter(Boolean);
+
+  return bodies.length > 0 ? bodies.join(";") : css;
+};
+
+const isAllowedAssetUrl = (url: string) => {
+  const cleaned = url.trim().replace(/^['"]|['"]$/g, "");
+  return /^https?:\/\//i.test(cleaned) && /\.(gif|png|jpe?g|webp|svg|avif)(\?.*)?$/i.test(cleaned);
+};
+
 const isBlockedValue = (value: string) => {
   if (/expression\s*\(/i.test(value)) return true;
   if (/javascript:/i.test(value)) return true;
   if (/@import/i.test(value)) return true;
-  if (/url\s*\(/i.test(value) && !/(linear-gradient|radial-gradient|conic-gradient)/i.test(value)) return true;
+
+  const urlMatches = Array.from(value.matchAll(/url\(([^)]+)\)/gi));
+  if (urlMatches.length > 0 && !/(linear-gradient|radial-gradient|conic-gradient)/i.test(value)) {
+    return urlMatches.some((match) => !isAllowedAssetUrl(match[1]));
+  }
+
   return false;
 };
 
 export const sanitizeUsernameCss = (css: string, scopePrefix = "username") => {
   const style: CSSProperties = {};
   const { keyframes, remaining } = extractKeyframes(css);
+  const declarationSource = extractRuleBodies(remaining);
   const scopedNames = new Map<string, string>();
 
   const scopedKeyframes = keyframes.map((block, index) => {
@@ -132,7 +154,7 @@ export const sanitizeUsernameCss = (css: string, scopePrefix = "username") => {
     return block.replace(originalName, scopedName);
   });
 
-  for (const declaration of splitDeclarations(remaining)) {
+  for (const declaration of splitDeclarations(declarationSource)) {
     const colonIndex = declaration.indexOf(":");
     if (colonIndex === -1) continue;
 
