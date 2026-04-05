@@ -19,6 +19,7 @@ type AuthStep = "login" | "2fa-setup" | "2fa-verify";
 
 const Auth = () => {
   const [email, setEmail] = useState("");
+  const [loginIdentifier, setLoginIdentifier] = useState("");
   const [password, setPassword] = useState("");
   const [username, setUsername] = useState("");
   const [loading, setLoading] = useState(false);
@@ -182,24 +183,36 @@ const Auth = () => {
     setLoading(true);
 
     try {
-      const validation = signInSchema.safeParse({
-        email,
-        password,
-      });
+      let loginEmail = loginIdentifier.trim();
 
-      if (!validation.success) {
-        const firstError = validation.error.issues[0];
-        toast({
-          title: "Ошибка валидации",
-          description: firstError.message,
-          variant: "destructive",
-        });
-        setLoading(false);
-        return;
+      // If not an email, look up by username
+      if (!loginEmail.includes("@")) {
+        const { data: profileData } = await supabase
+          .from("profiles")
+          .select("id")
+          .eq("username", loginEmail)
+          .maybeSingle();
+
+        if (!profileData) {
+          toast({ title: "Пользователь не найден", description: "Проверьте логин или email", variant: "destructive" });
+          setLoading(false);
+          return;
+        }
+
+        // Get email from auth - we need to try signing in, so we look for the user's email
+        // Since we can't query auth.users, we'll attempt to find email via profile id
+        const { data: userData } = await supabase.rpc("get_user_email_by_id", { _user_id: profileData.id }).maybeSingle();
+        if (userData) {
+          loginEmail = userData as unknown as string;
+        } else {
+          toast({ title: "Ошибка", description: "Не удалось найти email для этого пользователя. Попробуйте войти через email.", variant: "destructive" });
+          setLoading(false);
+          return;
+        }
       }
 
       const { data: signInData, error } = await supabase.auth.signInWithPassword({
-        email,
+        email: loginEmail,
         password,
       });
 
@@ -284,13 +297,13 @@ const Auth = () => {
             <TabsContent value="signin">
               <form onSubmit={handleSignIn} className="space-y-4">
                 <div className="space-y-2">
-                  <Label htmlFor="signin-email">Email</Label>
+                  <Label htmlFor="signin-identifier">Email или логин</Label>
                   <Input
-                    id="signin-email"
-                    type="email"
-                    placeholder="your@email.com"
-                    value={email}
-                    onChange={(e) => setEmail(e.target.value)}
+                    id="signin-identifier"
+                    type="text"
+                    placeholder="email или username"
+                    value={loginIdentifier}
+                    onChange={(e) => setLoginIdentifier(e.target.value)}
                     required
                   />
                 </div>
