@@ -47,6 +47,10 @@ import CodeForumProfile from "./pages/CodeForumProfile";
 import CodeForumModeratorPanel from "./pages/CodeForumModeratorPanel";
 import CodeForumResources from "./pages/CodeForumResources";
 import CodeForumResourceView from "./pages/CodeForumResourceView";
+import CodeForumRules from "./pages/CodeForumRules";
+import CodeForumPrivacy from "./pages/CodeForumPrivacy";
+import CodeForumTerms from "./pages/CodeForumTerms";
+import OinkGramBanner from "./components/OinkGramBanner";
 import RecruitmentBanner from "./components/RecruitmentBanner";
 import PWAInstallPrompt from "./components/PWAInstallPrompt";
 import SeasonalEffects from "./components/SeasonalEffects";
@@ -63,6 +67,7 @@ const AppLayout = ({ user }: { user: any }) => {
 
   return (
     <AuthGuard>
+      {!isCodeForumRoute && <OinkGramBanner />}
       {!isCodeForumRoute && <RecruitmentBanner />}
       <div className={isCodeForumRoute ? "" : "pb-16 lg:pb-0"}>
         <Routes>
@@ -111,6 +116,9 @@ const AppLayout = ({ user }: { user: any }) => {
           <Route path="/codeforum/profile" element={<CodeForumProfile />} />
           <Route path="/codeforum/profile/:username" element={<CodeForumProfile />} />
           <Route path="/codeforum/moderator" element={<CodeForumModeratorPanel />} />
+          <Route path="/codeforum/rules" element={<CodeForumRules />} />
+          <Route path="/codeforum/privacy" element={<CodeForumPrivacy />} />
+          <Route path="/codeforum/terms" element={<CodeForumTerms />} />
           <Route path="*" element={<NotFound />} />
         </Routes>
       </div>
