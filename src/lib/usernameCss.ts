@@ -173,6 +173,19 @@ export const sanitizeUsernameCss = (css: string, scopePrefix = "username") => {
     (style as Record<string, string>)[reactProp] = value;
   }
 
+  // Restrict font-size to avoid layout jumps
+  if (style.fontSize) {
+    const sizeNum = parseInt(String(style.fontSize), 10);
+    if (isNaN(sizeNum) || sizeNum > 16) {
+      delete style.fontSize;
+    }
+  }
+
+  // Restrict line-height to avoid layout jumps
+  if (style.lineHeight) {
+    delete style.lineHeight;
+  }
+
   if (Object.keys(style).length > 0) {
     style.display = "inline-block";
   }

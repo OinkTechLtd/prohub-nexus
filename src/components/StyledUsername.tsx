@@ -83,7 +83,7 @@ const StyledUsername = ({
       {parsed.keyframes && (
         <style dangerouslySetInnerHTML={{ __html: parsed.keyframes }} />
       )}
-      <span className="font-medium" style={parsed.style}>
+      <span className="font-medium overflow-hidden max-h-6 leading-normal" style={parsed.style}>
         {username}
       </span>
       {verified && <VerifiedBadge className="h-4 w-4" />}
