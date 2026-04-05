@@ -133,16 +133,16 @@ const CodeForumPanel = () => {
     <div className="min-h-screen bg-[#1a1a2e] text-gray-200">
       <CodeForumHeader user={user} />
 
-      <main className="container mx-auto px-4 py-6">
+      <main className="container mx-auto px-2 sm:px-4 py-4 sm:py-6">
         {/* Title bar */}
-        <div className="flex items-center justify-between mb-6">
-          <h1 className="text-xl md:text-2xl font-bold text-white">
+        <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-2 mb-4 sm:mb-6">
+          <h1 className="text-lg sm:text-xl md:text-2xl font-bold text-white">
             Code Forum — Форум о программировании
           </h1>
           {user && (
             <button
               onClick={() => navigate("/codeforum/create-topic")}
-              className="px-4 py-2 bg-emerald-600 hover:bg-emerald-700 text-white text-sm rounded transition-colors"
+              className="px-3 sm:px-4 py-2 bg-emerald-600 hover:bg-emerald-700 text-white text-xs sm:text-sm rounded transition-colors whitespace-nowrap"
             >
               + Создать тему
             </button>
@@ -159,7 +159,7 @@ const CodeForumPanel = () => {
             </p>
           </div>
         ) : (
-          <div className="grid gap-4 xl:grid-cols-[1.2fr,0.8fr]">
+          <div className="grid gap-4 xl:grid-cols-[1fr] lg:grid-cols-[1.2fr,0.8fr]">
             <div className="space-y-1">
               <div className="bg-[#0f0f23] border border-[#1a1a3e] rounded-lg overflow-hidden">
               {/* Header row */}
@@ -267,8 +267,16 @@ const CodeForumPanel = () => {
         )}
       </main>
 
-      <footer className="mt-8 border-t border-[#16213e] px-4 py-4 text-center text-xs text-gray-500">
-        Code Forum • developer community shell • mobile ready
+      <footer className="mt-8 border-t border-[#16213e] px-4 py-4 text-center text-xs text-gray-500 space-y-1">
+        <p>Code Forum • developer community shell</p>
+        <div className="flex items-center justify-center gap-3 flex-wrap">
+          <button onClick={() => navigate("/codeforum/rules")} className="hover:text-emerald-400 transition-colors">Правила</button>
+          <span>•</span>
+          <button onClick={() => navigate("/codeforum/privacy")} className="hover:text-emerald-400 transition-colors">Конфиденциальность</button>
+          <span>•</span>
+          <button onClick={() => navigate("/codeforum/terms")} className="hover:text-emerald-400 transition-colors">Условия использования</button>
+        </div>
+        <p>❤️ Made by <a href="https://freesoft.ru/gink-platforms" target="_blank" rel="noopener noreferrer" className="text-emerald-400 hover:underline">Oink Platforms</a></p>
       </footer>
     </div>
   );

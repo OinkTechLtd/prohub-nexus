@@ -1905,6 +1905,7 @@ export type Database = {
         Returns: string
       }
       get_user_chat_ids: { Args: { _user_id: string }; Returns: string[] }
+      get_user_email_by_id: { Args: { _user_id: string }; Returns: string }
       get_user_role: {
         Args: { _user_id: string }
         Returns: Database["public"]["Enums"]["app_role"]
