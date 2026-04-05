@@ -199,16 +199,14 @@ const Auth = () => {
           return;
         }
 
-        // Get email from auth - we need to try signing in, so we look for the user's email
-        // Since we can't query auth.users, we'll attempt to find email via profile id
-        const { data: userData } = await supabase.rpc("get_user_email_by_id", { _user_id: profileData.id }).maybeSingle();
-        if (userData) {
-          loginEmail = userData as unknown as string;
-        } else {
+        // Get email from auth via security definer function
+        const { data: userData, error: rpcError } = await supabase.rpc("get_user_email_by_id" as any, { _user_id: profileData.id });
+        if (rpcError || !userData) {
           toast({ title: "Ошибка", description: "Не удалось найти email для этого пользователя. Попробуйте войти через email.", variant: "destructive" });
           setLoading(false);
           return;
         }
+        loginEmail = userData as string;
       }
 
       const { data: signInData, error } = await supabase.auth.signInWithPassword({
