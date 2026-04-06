@@ -2,6 +2,7 @@ import { useNavigate } from "react-router-dom";
 import { useEffect, useId, useMemo, useState } from "react";
 import { supabase } from "@/integrations/supabase/client";
 import VerifiedBadge from "@/components/VerifiedBadge";
+import MiniProfileCard from "@/components/MiniProfileCard";
 import { sanitizeUsernameCss } from "@/lib/usernameCss";
 
 interface StyledUsernameProps {
@@ -12,6 +13,7 @@ interface StyledUsernameProps {
   className?: string;
   onClick?: (e: React.MouseEvent) => void;
   profilePath?: string;
+  disableMiniProfile?: boolean;
 }
 
 const StyledUsername = ({ 
@@ -22,6 +24,7 @@ const StyledUsername = ({
   className = "",
   onClick,
   profilePath,
+  disableMiniProfile = false,
 }: StyledUsernameProps) => {
   const navigate = useNavigate();
   const uniqueId = useId();
@@ -70,12 +73,14 @@ const StyledUsername = ({
     e.stopPropagation();
     if (onClick) {
       onClick(e);
-    } else {
+    }
+    // If mini profile is enabled, the popover handles it — no navigation
+    if (disableMiniProfile && !onClick) {
       navigate(profilePath || `/profile/${encodeURIComponent(username)}`);
     }
   };
 
-  return (
+  const inner = (
     <span 
       className={`inline-flex items-center gap-1 cursor-pointer hover:opacity-80 transition-opacity ${className}`}
       onClick={handleClick}
@@ -88,6 +93,16 @@ const StyledUsername = ({
       </span>
       {verified && <VerifiedBadge className="h-4 w-4" />}
     </span>
+  );
+
+  if (disableMiniProfile || onClick) {
+    return inner;
+  }
+
+  return (
+    <MiniProfileCard username={username} userId={userId} profilePath={profilePath}>
+      {inner}
+    </MiniProfileCard>
   );
 };
 
