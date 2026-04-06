@@ -91,13 +91,26 @@ const Auth = () => {
       }
 
       if (data.token_hash) {
-        // Verify the magic link token
+        // Try verifyOtp first
         const { error } = await supabase.auth.verifyOtp({
           token_hash: data.token_hash,
           type: "magiclink",
         });
 
-        if (error) throw error;
+        if (error) {
+          console.warn("verifyOtp failed, trying token:", error.message);
+          // Fallback: try with email + token if available
+          if (data.email && data.token) {
+            const { error: tokenError } = await supabase.auth.verifyOtp({
+              email: data.email,
+              token: data.token,
+              type: "magiclink",
+            });
+            if (tokenError) throw tokenError;
+          } else {
+            throw error;
+          }
+        }
 
         toast({
           title: "Вход выполнен",
@@ -115,7 +128,6 @@ const Auth = () => {
       });
     } finally {
       setSltvLoading(false);
-      // Clean URL
       window.history.replaceState({}, document.title, "/auth");
     }
   };
