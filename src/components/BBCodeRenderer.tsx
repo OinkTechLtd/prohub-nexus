@@ -85,9 +85,27 @@ const MediaEmbed = ({ value }: { value: string }) => {
   const media = resolveMedia(value);
 
   if (!media) {
+    // Try to embed any URL as iframe if it looks like a video/embed URL
+    const trimmedUrl = value.trim();
+    if (/^https?:\/\//i.test(trimmedUrl)) {
+      return (
+        <div className="my-2 aspect-video w-full max-w-3xl overflow-hidden rounded-md border border-border/60 bg-card">
+          <iframe
+            src={trimmedUrl}
+            title="Embedded content"
+            className="h-full w-full"
+            allow="autoplay; fullscreen; picture-in-picture; encrypted-media"
+            allowFullScreen
+            loading="lazy"
+            referrerPolicy="strict-origin-when-cross-origin"
+            sandbox="allow-scripts allow-same-origin allow-presentation allow-popups"
+          />
+        </div>
+      );
+    }
     return (
-      <a href={value.trim()} target="_blank" rel="noopener noreferrer" className="text-primary underline hover:text-primary/80 break-all">
-        {value.trim()}
+      <a href={trimmedUrl} target="_blank" rel="noopener noreferrer" className="text-primary underline hover:text-primary/80 break-all">
+        {trimmedUrl}
       </a>
     );
   }

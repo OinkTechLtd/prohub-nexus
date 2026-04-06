@@ -22,6 +22,14 @@ const Footer = () => {
             <Link to="/codeforum" className="hover:text-foreground transition-colors">
               Code Forum
             </Link>
+            <a
+              href="https://voracious-connect-world-now.base44.app"
+              target="_blank"
+              rel="noopener noreferrer"
+              className="hover:text-foreground transition-colors font-medium text-purple-500 dark:text-purple-400"
+            >
+              Мессенджер ProHub x OinkGram
+            </a>
           </div>
           <p className="text-sm text-muted-foreground flex items-center gap-1">
             <Heart className="h-3.5 w-3.5 text-red-500 fill-red-500" />
