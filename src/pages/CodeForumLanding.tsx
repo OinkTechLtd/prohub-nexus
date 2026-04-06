@@ -120,7 +120,7 @@ const CodeForumLanding = () => {
       </section>
 
       <footer className="border-t border-[#16213e] py-4 sm:py-6 px-4 text-center text-xs sm:text-sm text-gray-500 space-y-2">
-        <p>Code Forum — подфорум <span className="text-emerald-400 cursor-pointer" onClick={() => navigate("/")}>ProHub Nexus</span></p>
+        <p>Code Forum — Development Of Forums by <span className="text-emerald-400 cursor-pointer" onClick={() => navigate("/")}>ProHub Nexsus Forum</span></p>
         <div className="flex items-center justify-center gap-3 flex-wrap">
           <button onClick={() => navigate("/codeforum/rules")} className="hover:text-emerald-400 transition-colors">Правила</button>
           <span>•</span>
