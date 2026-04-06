@@ -197,12 +197,12 @@ const Auth = () => {
     try {
       let loginEmail = loginIdentifier.trim();
 
-      // If not an email, look up by username
+      // If not an email, look up by username (supports Cyrillic)
       if (!loginEmail.includes("@")) {
         const { data: profileData } = await supabase
           .from("profiles")
           .select("id")
-          .eq("username", loginEmail)
+          .ilike("username", loginEmail)
           .maybeSingle();
 
         if (!profileData) {

@@ -8,6 +8,7 @@ import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
 import { Label } from "@/components/ui/label";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
+import AvatarWithBorder from "@/components/AvatarWithBorder";
 import { Badge } from "@/components/ui/badge";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { useToast } from "@/hooks/use-toast";
@@ -535,15 +536,13 @@ const Profile = () => {
             <div className="flex flex-col md:flex-row items-center md:items-start gap-6">
               {/* Avatar */}
               <div className="relative -mt-20">
-                <Avatar className="h-32 w-32 border-4 border-background">
-                  {profile?.avatar_url ? (
-                    <AvatarImage src={profile.avatar_url} alt={username} />
-                  ) : (
-                    <AvatarFallback className="bg-primary text-primary-foreground text-4xl">
-                      {username?.[0]?.toUpperCase() || "U"}
-                    </AvatarFallback>
-                  )}
-                </Avatar>
+                <AvatarWithBorder
+                  src={profile?.avatar_url}
+                  fallback={username?.[0]?.toUpperCase() || "U"}
+                  role={userRole}
+                  size="xl"
+                  className="h-32 w-32"
+                />
                 {isOwnProfile && (
                   <label className="absolute bottom-0 right-0 cursor-pointer">
                     <Button size="icon" variant="secondary" className="h-8 w-8 rounded-full" asChild>
