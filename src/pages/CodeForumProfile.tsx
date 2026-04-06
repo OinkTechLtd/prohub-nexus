@@ -7,6 +7,7 @@ import { supabase } from "@/integrations/supabase/client";
 import CodeForumHeader from "@/components/CodeForumHeader";
 import StyledUsername from "@/components/StyledUsername";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
+import AvatarWithBorder from "@/components/AvatarWithBorder";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Textarea } from "@/components/ui/textarea";
@@ -220,10 +221,13 @@ const CodeForumProfile = () => {
           <div className="px-4 pb-4 md:px-6 md:pb-6">
             <div className="-mt-10 md:-mt-12 flex flex-col gap-4 md:flex-row md:items-end md:justify-between">
               <div className="flex items-end gap-4">
-                <Avatar className="h-20 w-20 border-4 border-[#0f0f23] md:h-24 md:w-24">
-                  <AvatarImage src={profile?.avatar_url || undefined} />
-                  <AvatarFallback className="bg-[#16213e] text-xl text-white">{profile?.username?.[0]?.toUpperCase()}</AvatarFallback>
-                </Avatar>
+                <AvatarWithBorder
+                  src={profile?.avatar_url}
+                  fallback={profile?.username?.[0]?.toUpperCase() || "?"}
+                  role={roleLabel === "Администратор" ? "admin" : roleLabel === "Модератор" ? "moderator" : roleLabel === "Редактор" ? "editor" : "newbie"}
+                  size="xl"
+                  className="h-20 w-20 md:h-24 md:w-24 border-4 border-[#0f0f23]"
+                />
                 <div className="pb-1">
                   <StyledUsername username={profile?.username || "Пользователь"} usernameCss={usernameCss || profile?.username_css} className="text-xl md:text-3xl" />
                   <div className="mt-2 flex flex-wrap items-center gap-2 text-xs md:text-sm text-gray-400">

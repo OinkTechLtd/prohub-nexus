@@ -3,7 +3,7 @@ import { useNavigate } from "react-router-dom";
 import { supabase } from "@/integrations/supabase/client";
 import CodeForumHeader from "@/components/CodeForumHeader";
 import StyledUsername from "@/components/StyledUsername";
-import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
+import AvatarWithBorder from "@/components/AvatarWithBorder";
 import { CF_ROLES } from "@/hooks/useCodeForumRole";
 import { formatDistanceToNow } from "date-fns";
 import { ru } from "date-fns/locale";
@@ -120,10 +120,12 @@ const CodeForumMembers = () => {
                 onClick={() => navigate(`/codeforum/profile/${encodeURIComponent(member.username)}`)}
               >
                 <div className="col-span-5 flex items-center gap-3">
-                  <Avatar className="h-8 w-8">
-                    <AvatarImage src={member.avatar_url || undefined} />
-                    <AvatarFallback className="bg-[#16213e] text-xs">{member.username[0]?.toUpperCase()}</AvatarFallback>
-                  </Avatar>
+                  <AvatarWithBorder
+                    src={member.avatar_url}
+                    fallback={member.username[0]?.toUpperCase() || "?"}
+                    role="newbie"
+                    size="sm"
+                  />
                   <StyledUsername
                     username={member.username}
                     usernameCss={member.username_css}
