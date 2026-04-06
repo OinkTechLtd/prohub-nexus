@@ -565,28 +565,18 @@ const Profile = () => {
               <div className="flex-1 text-center md:text-left">
                 <div className="flex flex-col md:flex-row items-center gap-3 mb-2">
                   <div className="flex items-center gap-2">
-                    <h1 className="text-3xl font-bold" style={(() => {
-                      if (!(profile as any)?.username_css) return {};
-                      try {
-                        const style: any = {};
-                        const decls = ((profile as any).username_css as string).split(';').map((d: string) => d.trim()).filter(Boolean);
-                        const allowed: Record<string, string> = {
-                          'color': 'color', 'background': 'background', 'background-image': 'backgroundImage',
-                          '-webkit-background-clip': 'WebkitBackgroundClip', 'background-clip': 'backgroundClip',
-                          '-webkit-text-fill-color': 'WebkitTextFillColor', 'text-shadow': 'textShadow',
-                          'font-weight': 'fontWeight', 'font-style': 'fontStyle', 'letter-spacing': 'letterSpacing',
-                          'text-transform': 'textTransform', 'filter': 'filter',
-                        };
-                        for (const d of decls) {
-                          const i = d.indexOf(':');
-                          if (i === -1) continue;
-                          const p = d.substring(0, i).trim().toLowerCase();
-                          const v = d.substring(i + 1).trim();
-                          if (allowed[p]) style[allowed[p]] = v;
-                        }
-                        return style;
-                      } catch { return {}; }
-                    })()}>{username}</h1>
+                    {(() => {
+                      if (!(profile as any)?.username_css) {
+                        return <h1 className="text-3xl font-bold">{username}</h1>;
+                      }
+                      const parsed = sanitizeUsernameCss((profile as any).username_css, "profile-header");
+                      return (
+                        <>
+                          {parsed.keyframes && <style dangerouslySetInnerHTML={{ __html: parsed.keyframes }} />}
+                          <h1 className="text-3xl font-bold inline-block" style={parsed.style}>{username}</h1>
+                        </>
+                      );
+                    })()}
                     {profile?.is_verified && <VerifiedBadge className="h-6 w-6" />}
                   </div>
                   {profile?.custom_title ? (

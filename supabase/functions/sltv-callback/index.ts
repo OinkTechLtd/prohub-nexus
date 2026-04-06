@@ -134,7 +134,8 @@ serve(async (req) => {
       }).eq("id", userId);
     }
 
-    // Generate magic link for sign-in
+    // Generate a session directly using signInWithPassword with the temp password
+    // or use admin.generateLink to create a proper magic link
     const { data: signInData, error: signInError } = await supabase.auth.admin.generateLink({
       type: "magiclink",
       email,
@@ -148,10 +149,24 @@ serve(async (req) => {
 
     console.log("Magic link generated, token_hash present:", !!signInData.properties?.hashed_token);
 
+    // Extract the action_link and parse the token
+    const actionLink = signInData.properties?.action_link;
+    let tokenFromLink = "";
+    if (actionLink) {
+      try {
+        const linkUrl = new URL(actionLink);
+        tokenFromLink = linkUrl.searchParams.get("token") || linkUrl.hash?.match(/token=([^&]+)/)?.[1] || "";
+      } catch (e) {
+        console.error("Failed to parse action_link:", e);
+      }
+    }
+
     return new Response(JSON.stringify({ 
       success: true, 
       user_id: userId,
       token_hash: signInData.properties?.hashed_token,
+      token: tokenFromLink,
+      email: email,
       verification_type: "magiclink",
       redirect_to: redirectUri || "/"
     }), {

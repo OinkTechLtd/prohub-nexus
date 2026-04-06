@@ -41,7 +41,7 @@ const CodeForumHeader = ({ user }: CodeForumHeaderProps) => {
               </div>
               <div className="leading-tight">
                 <span className="block text-sm font-semibold uppercase tracking-[0.22em] text-emerald-400">Code Forum</span>
-                <span className="block text-[11px] text-gray-500">XenForo-style community</span>
+                <span className="block text-[10px] text-gray-500 leading-tight">Development Of Forums by ProHub Nexsus Forum</span>
               </div>
             </div>
             <nav className="hidden md:flex items-center gap-1">

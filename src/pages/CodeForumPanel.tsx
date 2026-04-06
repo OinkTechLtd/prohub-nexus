@@ -159,62 +159,47 @@ const CodeForumPanel = () => {
             </p>
           </div>
         ) : (
-          <div className="grid gap-4 xl:grid-cols-[1fr] lg:grid-cols-[1.2fr,0.8fr]">
+          <div className="grid gap-4 lg:grid-cols-[1fr_320px]">
             <div className="space-y-1">
               <div className="bg-[#0f0f23] border border-[#1a1a3e] rounded-lg overflow-hidden">
               {/* Header row */}
-              <div className="grid grid-cols-12 gap-2 px-4 py-2 bg-[#16213e]/50 text-xs text-gray-400 uppercase tracking-wider border-b border-[#1a1a3e]">
-                <div className="col-span-6 md:col-span-7">Форум</div>
-                <div className="col-span-2 hidden md:block text-center">Темы</div>
-                <div className="col-span-2 hidden md:block text-center">Сообщения</div>
-                <div className="col-span-6 md:col-span-1 text-right md:text-left">Посл. сообщение</div>
+              <div className="grid grid-cols-12 gap-2 px-3 sm:px-4 py-2 bg-[#16213e]/50 text-[10px] sm:text-xs text-gray-400 uppercase tracking-wider border-b border-[#1a1a3e]">
+                <div className="col-span-12 sm:col-span-7">Форум</div>
+                <div className="hidden sm:block col-span-2 text-center">Темы</div>
+                <div className="hidden sm:block col-span-2 text-center">Сообщения</div>
+                <div className="hidden sm:block col-span-1">Посл.</div>
               </div>
 
               {categories.map((category, idx) => (
                 <div
                   key={category.id}
-                  className={`grid grid-cols-12 gap-2 px-4 py-3 items-center hover:bg-[#16213e]/30 cursor-pointer transition-colors ${
+                  className={`px-3 sm:px-4 py-3 hover:bg-[#16213e]/30 cursor-pointer transition-colors ${
                     idx < categories.length - 1 ? "border-b border-[#1a1a3e]/50" : ""
                   }`}
                   onClick={() => navigate(`/codeforum/category/${category.slug}`)}
                 >
-                  {/* Category info */}
-                  <div className="col-span-6 md:col-span-7 flex items-center gap-3">
-                    <span className="text-2xl flex-shrink-0">{category.icon || "💬"}</span>
-                    <div className="min-w-0">
+                  <div className="flex items-center gap-3">
+                    <span className="text-xl sm:text-2xl flex-shrink-0">{category.icon || "💬"}</span>
+                    <div className="min-w-0 flex-1">
                       <h3 className="text-sm font-semibold text-emerald-400 hover:text-emerald-300 truncate">
                         {category.name}
                       </h3>
                       <p className="text-xs text-gray-500 truncate">{category.description}</p>
+                      <div className="flex items-center gap-3 mt-1 sm:hidden text-xs text-gray-400">
+                        <span>{category.topicCount} тем</span>
+                        <span>{category.postCount} сообщений</span>
+                      </div>
+                    </div>
+                    <div className="hidden sm:flex items-center gap-4 text-sm text-gray-400 flex-shrink-0">
+                      <span className="w-12 text-center">{category.topicCount}</span>
+                      <span className="w-12 text-center">{category.postCount}</span>
                     </div>
                   </div>
-
-                  {/* Counts */}
-                  <div className="col-span-2 hidden md:block text-center text-sm text-gray-400">
-                    {category.topicCount}
-                  </div>
-                  <div className="col-span-2 hidden md:block text-center text-sm text-gray-400">
-                    {category.postCount}
-                  </div>
-
-                  {/* Last topic */}
-                  <div className="col-span-6 md:col-span-1 text-right md:text-left">
-                    {category.lastTopic ? (
-                      <div className="text-xs">
-                        <p className="text-gray-300 truncate max-w-[120px] md:max-w-[150px] ml-auto md:ml-0">
-                          {category.lastTopic.username}
-                        </p>
-                        <p className="text-gray-500">
-                          {formatDistanceToNow(new Date(category.lastTopic.created_at), {
-                            addSuffix: true,
-                            locale: ru,
-                          })}
-                        </p>
-                      </div>
-                    ) : (
-                      <span className="text-xs text-gray-600">—</span>
-                    )}
-                  </div>
+                  {category.lastTopic && (
+                    <div className="mt-1 ml-9 sm:ml-11 text-xs text-gray-500 truncate">
+                      {category.lastTopic.username} · {formatDistanceToNow(new Date(category.lastTopic.created_at), { addSuffix: true, locale: ru })}
+                    </div>
+                  )}
                 </div>
               ))}
               </div>
@@ -268,7 +253,7 @@ const CodeForumPanel = () => {
       </main>
 
       <footer className="mt-8 border-t border-[#16213e] px-4 py-4 text-center text-xs text-gray-500 space-y-1">
-        <p>Code Forum • developer community shell</p>
+        <p>Code Forum • Development Of Forums by ProHub Nexsus Forum</p>
         <div className="flex items-center justify-center gap-3 flex-wrap">
           <button onClick={() => navigate("/codeforum/rules")} className="hover:text-emerald-400 transition-colors">Правила</button>
           <span>•</span>
