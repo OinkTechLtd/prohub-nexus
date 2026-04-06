@@ -253,7 +253,7 @@ const CodeForumPanel = () => {
       </main>
 
       <footer className="mt-8 border-t border-[#16213e] px-4 py-4 text-center text-xs text-gray-500 space-y-1">
-        <p>Code Forum • developer community shell</p>
+        <p>Code Forum • Development Of Forums by ProHub Nexsus Forum</p>
         <div className="flex items-center justify-center gap-3 flex-wrap">
           <button onClick={() => navigate("/codeforum/rules")} className="hover:text-emerald-400 transition-colors">Правила</button>
           <span>•</span>
