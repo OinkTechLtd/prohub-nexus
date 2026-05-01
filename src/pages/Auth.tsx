@@ -360,8 +360,8 @@ const Auth = () => {
                     required
                   />
                 </div>
+                <TurnstileWidget siteKey={turnstileSiteKey} onVerify={setTurnstileToken} />
                 <Button type="submit" className="w-full" disabled={loading || sltvLoading}>
-                  {loading ? "Загрузка..." : "Войти"}
                 </Button>
 
                 <div className="relative my-4">
