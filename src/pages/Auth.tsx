@@ -225,6 +225,7 @@ const Auth = () => {
   const handleSignIn = async (e: React.FormEvent) => {
     e.preventDefault();
     setLoading(true);
+    if (!(await verifyTurnstile())) { setLoading(false); return; }
 
     try {
       let loginEmail = loginIdentifier.trim();
