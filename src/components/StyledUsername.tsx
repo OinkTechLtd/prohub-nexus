@@ -3,6 +3,7 @@ import { useEffect, useId, useMemo, useState } from "react";
 import { supabase } from "@/integrations/supabase/client";
 import VerifiedBadge from "@/components/VerifiedBadge";
 import MiniProfileCard from "@/components/MiniProfileCard";
+import UsernameFlair from "@/components/UsernameFlair";
 import { sanitizeUsernameCss } from "@/lib/usernameCss";
 
 interface StyledUsernameProps {
@@ -30,6 +31,7 @@ const StyledUsername = ({
   const uniqueId = useId();
   const [cssData, setCssData] = useState<string | null>(usernameCss ?? null);
   const [verified, setVerified] = useState(isVerified);
+  const [flair, setFlair] = useState<{ prefix?: string | null; suffix?: string | null; icon?: string | null }>({});
 
   useEffect(() => {
     if (usernameCss !== undefined) {
@@ -46,16 +48,23 @@ const StyledUsername = ({
     if (!username && !userId) return;
 
     const fetchData = async () => {
-      const query = supabase.from("profiles").select("is_verified, username_css");
+      const query = supabase
+        .from("profiles")
+        .select("is_verified, username_css, flair_emoji_prefix, flair_emoji_suffix, flair_icon");
       const { data } = userId
         ? await query.eq("id", userId).maybeSingle()
         : await query.eq("username", username).maybeSingle();
 
       if (data) {
-        setVerified(data.is_verified || false);
+        setVerified((data as any).is_verified || false);
         if (usernameCss === undefined) {
-          setCssData(data.username_css || null);
+          setCssData((data as any).username_css || null);
         }
+        setFlair({
+          prefix: (data as any).flair_emoji_prefix,
+          suffix: (data as any).flair_emoji_suffix,
+          icon: (data as any).flair_icon,
+        });
       }
     };
 
