@@ -146,9 +146,33 @@ const Auth = () => {
     window.location.href = authUrl;
   };
 
+  const verifyTurnstile = async (): Promise<boolean> => {
+    if (!turnstileSiteKey) return true; // нет ключа — проверка отключена
+    if (!turnstileToken) {
+      toast({ title: "Подтвердите, что вы не робот", variant: "destructive" });
+      return false;
+    }
+    try {
+      const r = await fetch(`${import.meta.env.VITE_SUPABASE_URL}/functions/v1/verify-turnstile`, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ token: turnstileToken }),
+      });
+      const d = await r.json();
+      if (!d.success) {
+        toast({ title: "Проверка не пройдена", description: "Попробуйте ещё раз", variant: "destructive" });
+        return false;
+      }
+      return true;
+    } catch {
+      return true; // не блокируем при сетевой ошибке
+    }
+  };
+
   const handleSignUp = async (e: React.FormEvent) => {
     e.preventDefault();
     setLoading(true);
+    if (!(await verifyTurnstile())) { setLoading(false); return; }
 
     try {
       const validation = signUpSchema.safeParse({
