@@ -26,12 +26,19 @@ const Auth = () => {
   const [loading, setLoading] = useState(false);
   const [sltvLoading, setSltvLoading] = useState(false);
   const [authStep, setAuthStep] = useState<AuthStep>("login");
+  const [turnstileToken, setTurnstileToken] = useState<string | null>(null);
+  const [turnstileSiteKey, setTurnstileSiteKey] = useState<string | undefined>(undefined);
   const navigate = useNavigate();
   const [searchParams] = useSearchParams();
   const { toast } = useToast();
 
   useEffect(() => {
     checkSession();
+    // Загружаем публичный Turnstile site key из edge function
+    fetch(`${import.meta.env.VITE_SUPABASE_URL}/functions/v1/public-config`)
+      .then((r) => r.json())
+      .then((d) => setTurnstileSiteKey(d.turnstileSiteKey || undefined))
+      .catch(() => {});
   }, []);
 
   const checkSession = async () => {
