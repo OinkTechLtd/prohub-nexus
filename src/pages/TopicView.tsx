@@ -23,6 +23,7 @@ import PostBookmarkButton from "@/components/PostBookmarkButton";
 import ShareButton from "@/components/ShareButton";
 import ReadingProgress from "@/components/ReadingProgress";
 import { use2FAGuard } from "@/hooks/use2FAGuard";
+import BannedUserBadge from "@/components/BannedUserBadge";
 
 interface Post {
   id: string;
