@@ -9,6 +9,7 @@ import { Textarea } from "@/components/ui/textarea";
 import { Label } from "@/components/ui/label";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import AvatarWithBorder from "@/components/AvatarWithBorder";
+import BannedUserBadge from "@/components/BannedUserBadge";
 import { Badge } from "@/components/ui/badge";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { useToast } from "@/hooks/use-toast";
@@ -533,6 +534,7 @@ const Profile = () => {
         {/* Profile Header */}
         <Card className="rounded-t-none -mt-16 relative">
           <CardContent className="pt-20 pb-6">
+            <BannedUserBadge userId={profile?.id} className="mb-4" />
             <div className="flex flex-col md:flex-row items-center md:items-start gap-6">
               {/* Avatar */}
               <div className="relative -mt-20">

@@ -8,6 +8,7 @@ import CodeForumHeader from "@/components/CodeForumHeader";
 import StyledUsername from "@/components/StyledUsername";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import AvatarWithBorder from "@/components/AvatarWithBorder";
+import BannedUserBadge from "@/components/BannedUserBadge";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Textarea } from "@/components/ui/textarea";
@@ -219,6 +220,7 @@ const CodeForumProfile = () => {
             style={profile?.cover_url ? { backgroundImage: `url(${profile.cover_url})`, backgroundSize: "cover", backgroundPosition: "center" } : undefined}
           />
           <div className="px-4 pb-4 md:px-6 md:pb-6">
+            <BannedUserBadge userId={profile?.id} className="mt-3 mb-3" />
             <div className="-mt-10 md:-mt-12 flex flex-col gap-4 md:flex-row md:items-end md:justify-between">
               <div className="flex items-end gap-4">
                 <AvatarWithBorder
