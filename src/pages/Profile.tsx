@@ -1092,12 +1092,93 @@ const Profile = () => {
                 </CardContent>
               </Card>
 
+              {/* Декорации никнейма: эмодзи и флейры */}
               <Card>
                 <CardHeader>
-                  <CardTitle className="flex items-center gap-2">
-                    <Users className="h-5 w-5" />
-                    Гильдии
-                  </CardTitle>
+                  <CardTitle className="flex items-center gap-2">✨ Декорации никнейма</CardTitle>
+                </CardHeader>
+                <CardContent className="space-y-4">
+                  <p className="text-xs text-muted-foreground">
+                    Добавь эмодзи слева/справа от ника или иконку-флейр (как в XenForo). Они хранятся отдельно, но визуально приклеиваются к нику.
+                  </p>
+                  <div className="grid sm:grid-cols-3 gap-3">
+                    <div>
+                      <Label>Эмодзи слева</Label>
+                      <Input maxLength={4} value={flairPrefix} onChange={(e) => setFlairPrefix(e.target.value)} placeholder="🔥" />
+                    </div>
+                    <div>
+                      <Label>Эмодзи справа</Label>
+                      <Input maxLength={4} value={flairSuffix} onChange={(e) => setFlairSuffix(e.target.value)} placeholder="👑" />
+                    </div>
+                    <div>
+                      <Label>Иконка-флейр</Label>
+                      <select
+                        className="w-full h-10 rounded-md border border-input bg-background px-3 text-sm"
+                        value={flairIcon}
+                        onChange={(e) => setFlairIcon(e.target.value)}
+                      >
+                        <option value="">— нет —</option>
+                        <option value="crown">👑 Корона</option>
+                        <option value="flame">🔥 Огонь</option>
+                        <option value="star">⭐ Звезда</option>
+                        <option value="heart">❤️ Сердце</option>
+                        <option value="sparkles">✨ Искры</option>
+                        <option value="shield">🛡️ Щит</option>
+                        <option value="zap">⚡ Молния</option>
+                        <option value="gem">💎 Алмаз</option>
+                      </select>
+                    </div>
+                  </div>
+                  <div className="p-4 bg-muted/50 rounded-lg flex items-center gap-2">
+                    <span className="text-xs text-muted-foreground mr-2">Предпросмотр:</span>
+                    <StyledUsername
+                      username={username}
+                      usernameCss={usernameCss}
+                      disableMiniProfile
+                      className="text-lg"
+                    />
+                  </div>
+                  <div className="flex gap-2">
+                    <Button
+                      size="sm"
+                      onClick={async () => {
+                        try {
+                          const { error } = await supabase
+                            .from("profiles")
+                            .update({
+                              flair_emoji_prefix: flairPrefix || null,
+                              flair_emoji_suffix: flairSuffix || null,
+                              flair_icon: flairIcon || null,
+                            } as any)
+                            .eq("id", currentUser.id);
+                          if (error) throw error;
+                          setProfile({ ...profile, flair_emoji_prefix: flairPrefix || null, flair_emoji_suffix: flairSuffix || null, flair_icon: flairIcon || null });
+                          toast({ title: "Декорации сохранены!" });
+                        } catch (e: any) {
+                          toast({ title: "Ошибка", description: e.message, variant: "destructive" });
+                        }
+                      }}
+                    >
+                      Сохранить декорации
+                    </Button>
+                    <Button
+                      size="sm"
+                      variant="outline"
+                      onClick={async () => {
+                        await supabase
+                          .from("profiles")
+                          .update({ flair_emoji_prefix: null, flair_emoji_suffix: null, flair_icon: null } as any)
+                          .eq("id", currentUser.id);
+                        setFlairPrefix(""); setFlairSuffix(""); setFlairIcon("");
+                        setProfile({ ...profile, flair_emoji_prefix: null, flair_emoji_suffix: null, flair_icon: null });
+                        toast({ title: "Декорации сброшены" });
+                      }}
+                    >
+                      Сбросить
+                    </Button>
+                  </div>
+                </CardContent>
+              </Card>
                 </CardHeader>
                 <CardContent>
                   {userGuilds.length === 0 ? (
