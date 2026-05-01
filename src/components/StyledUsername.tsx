@@ -97,9 +97,11 @@ const StyledUsername = ({
       {parsed.keyframes && (
         <style dangerouslySetInnerHTML={{ __html: parsed.keyframes }} />
       )}
+      <UsernameFlair prefix={flair.prefix} icon={flair.icon} />
       <span className="font-medium overflow-hidden max-h-6 leading-normal" style={parsed.style}>
         {username}
       </span>
+      <UsernameFlair suffix={flair.suffix} />
       {verified && <VerifiedBadge className="h-4 w-4" />}
     </span>
   );
