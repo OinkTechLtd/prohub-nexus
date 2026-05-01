@@ -11,6 +11,7 @@ import { signUpSchema, signInSchema } from "@/lib/authSchemas";
 import { Separator } from "@/components/ui/separator";
 import TwoFactorSetup from "@/components/TwoFactorSetup";
 import TwoFactorVerify from "@/components/TwoFactorVerify";
+import TurnstileWidget from "@/components/TurnstileWidget";
 
 const SLTV_CLIENT_ID = "aa0b8e6fea64873f8355043e6b3a42ff";
 const SLTV_API = "https://sltvid.lovable.app";
@@ -25,12 +26,19 @@ const Auth = () => {
   const [loading, setLoading] = useState(false);
   const [sltvLoading, setSltvLoading] = useState(false);
   const [authStep, setAuthStep] = useState<AuthStep>("login");
+  const [turnstileToken, setTurnstileToken] = useState<string | null>(null);
+  const [turnstileSiteKey, setTurnstileSiteKey] = useState<string | undefined>(undefined);
   const navigate = useNavigate();
   const [searchParams] = useSearchParams();
   const { toast } = useToast();
 
   useEffect(() => {
     checkSession();
+    // Загружаем публичный Turnstile site key из edge function
+    fetch(`${import.meta.env.VITE_SUPABASE_URL}/functions/v1/public-config`)
+      .then((r) => r.json())
+      .then((d) => setTurnstileSiteKey(d.turnstileSiteKey || undefined))
+      .catch(() => {});
   }, []);
 
   const checkSession = async () => {
@@ -138,9 +146,33 @@ const Auth = () => {
     window.location.href = authUrl;
   };
 
+  const verifyTurnstile = async (): Promise<boolean> => {
+    if (!turnstileSiteKey) return true; // нет ключа — проверка отключена
+    if (!turnstileToken) {
+      toast({ title: "Подтвердите, что вы не робот", variant: "destructive" });
+      return false;
+    }
+    try {
+      const r = await fetch(`${import.meta.env.VITE_SUPABASE_URL}/functions/v1/verify-turnstile`, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ token: turnstileToken }),
+      });
+      const d = await r.json();
+      if (!d.success) {
+        toast({ title: "Проверка не пройдена", description: "Попробуйте ещё раз", variant: "destructive" });
+        return false;
+      }
+      return true;
+    } catch {
+      return true; // не блокируем при сетевой ошибке
+    }
+  };
+
   const handleSignUp = async (e: React.FormEvent) => {
     e.preventDefault();
     setLoading(true);
+    if (!(await verifyTurnstile())) { setLoading(false); return; }
 
     try {
       const validation = signUpSchema.safeParse({
@@ -193,6 +225,7 @@ const Auth = () => {
   const handleSignIn = async (e: React.FormEvent) => {
     e.preventDefault();
     setLoading(true);
+    if (!(await verifyTurnstile())) { setLoading(false); return; }
 
     try {
       let loginEmail = loginIdentifier.trim();
@@ -327,8 +360,8 @@ const Auth = () => {
                     required
                   />
                 </div>
+                <TurnstileWidget siteKey={turnstileSiteKey} onVerify={setTurnstileToken} />
                 <Button type="submit" className="w-full" disabled={loading || sltvLoading}>
-                  {loading ? "Загрузка..." : "Войти"}
                 </Button>
 
                 <div className="relative my-4">
@@ -386,6 +419,7 @@ const Auth = () => {
                     minLength={6}
                   />
                 </div>
+                <TurnstileWidget siteKey={turnstileSiteKey} onVerify={setTurnstileToken} />
                 <Button type="submit" className="w-full" disabled={loading || sltvLoading}>
                   {loading ? "Загрузка..." : "Зарегистрироваться"}
                 </Button>

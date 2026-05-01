@@ -1014,6 +1014,9 @@ export type Database = {
           created_at: string | null
           custom_title: string | null
           custom_title_color: string | null
+          flair_emoji_prefix: string | null
+          flair_emoji_suffix: string | null
+          flair_icon: string | null
           id: string
           is_verified: boolean | null
           signature: string | null
@@ -1030,6 +1033,9 @@ export type Database = {
           created_at?: string | null
           custom_title?: string | null
           custom_title_color?: string | null
+          flair_emoji_prefix?: string | null
+          flair_emoji_suffix?: string | null
+          flair_icon?: string | null
           id: string
           is_verified?: boolean | null
           signature?: string | null
@@ -1046,6 +1052,9 @@ export type Database = {
           created_at?: string | null
           custom_title?: string | null
           custom_title_color?: string | null
+          flair_emoji_prefix?: string | null
+          flair_emoji_suffix?: string | null
+          flair_icon?: string | null
           id?: string
           is_verified?: boolean | null
           signature?: string | null
@@ -1053,6 +1062,27 @@ export type Database = {
           updated_at?: string | null
           username?: string
           username_css?: string | null
+        }
+        Relationships: []
+      }
+      protected_usernames: {
+        Row: {
+          created_at: string
+          id: string
+          reason: string | null
+          username: string
+        }
+        Insert: {
+          created_at?: string
+          id?: string
+          reason?: string | null
+          username: string
+        }
+        Update: {
+          created_at?: string
+          id?: string
+          reason?: string | null
+          username?: string
         }
         Relationships: []
       }
@@ -1922,7 +1952,10 @@ export type Database = {
         Args: { _action_type: string; _user_id: string }
         Returns: undefined
       }
+      is_protected_username: { Args: { _user_id: string }; Returns: boolean }
+      is_user_banned: { Args: { _user_id: string }; Returns: boolean }
       randomly_assign_editor_role: { Args: never; Returns: undefined }
+      rename_inactive_users: { Args: { _days?: number }; Returns: number }
       set_content_hidden: {
         Args: {
           _content_id: string

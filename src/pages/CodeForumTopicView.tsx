@@ -15,6 +15,7 @@ import { useCodeForumRole } from "@/hooks/useCodeForumRole";
 import { formatDistanceToNow } from "date-fns";
 import { ru } from "date-fns/locale";
 import { Pin, Lock, Send, Eye, EyeOff } from "lucide-react";
+import BannedUserBadge from "@/components/BannedUserBadge";
 
 interface Post {
   id: string;
@@ -258,6 +259,7 @@ const CodeForumTopicView = () => {
                 post.is_hidden ? "border-red-800/50 opacity-60" : "border-[#1a1a3e]"
               }`}
             >
+              <BannedUserBadge userId={post.user_id} className="mb-3" />
               <div className="flex items-center gap-2 mb-2 text-sm" onClick={(e) => e.stopPropagation()}>
                 <StyledUsername
                   username={post.profiles?.username}
