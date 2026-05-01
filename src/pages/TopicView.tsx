@@ -309,6 +309,7 @@ const TopicView = () => {
           {posts.map((post) => (
             <Card key={post.id}>
               <CardContent className="pt-4 sm:pt-6">
+                <BannedUserBadge userId={post.user_id} className="mb-3" />
                 <div className="flex items-start gap-3">
                   <Avatar className="h-8 w-8 sm:h-10 sm:w-10 flex-shrink-0">
                     <AvatarFallback className="bg-secondary text-xs sm:text-sm">
