@@ -23,3 +23,12 @@ verify_jwt = false
 
 [functions.sltv-callback]
 verify_jwt = false
+
+[functions.verify-turnstile]
+verify_jwt = false
+
+[functions.public-config]
+verify_jwt = false
+
+[functions.rename-inactive-users]
+verify_jwt = false
