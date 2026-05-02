@@ -722,6 +722,33 @@ export type Database = {
         }
         Relationships: []
       }
+      inactive_rename_runs: {
+        Row: {
+          duration_ms: number | null
+          error: string | null
+          id: string
+          ran_at: string
+          renamed_count: number
+          triggered_by: string | null
+        }
+        Insert: {
+          duration_ms?: number | null
+          error?: string | null
+          id?: string
+          ran_at?: string
+          renamed_count?: number
+          triggered_by?: string | null
+        }
+        Update: {
+          duration_ms?: number | null
+          error?: string | null
+          id?: string
+          ran_at?: string
+          renamed_count?: number
+          triggered_by?: string | null
+        }
+        Relationships: []
+      }
       message_reactions: {
         Row: {
           created_at: string | null
@@ -1145,6 +1172,33 @@ export type Database = {
           },
         ]
       }
+      rate_limits: {
+        Row: {
+          blocked_until: string | null
+          endpoint: string
+          id: string
+          ip_hash: string
+          request_count: number
+          window_start: string
+        }
+        Insert: {
+          blocked_until?: string | null
+          endpoint: string
+          id?: string
+          ip_hash: string
+          request_count?: number
+          window_start?: string
+        }
+        Update: {
+          blocked_until?: string | null
+          endpoint?: string
+          id?: string
+          ip_hash?: string
+          request_count?: number
+          window_start?: string
+        }
+        Relationships: []
+      }
       resource_comments: {
         Row: {
           content: string
@@ -1274,6 +1328,95 @@ export type Database = {
             referencedColumns: ["id"]
           },
         ]
+      }
+      sub_forum_categories: {
+        Row: {
+          created_at: string
+          description: string | null
+          icon: string | null
+          id: string
+          name: string
+          order_position: number | null
+          slug: string
+          sub_forum_id: string
+        }
+        Insert: {
+          created_at?: string
+          description?: string | null
+          icon?: string | null
+          id?: string
+          name: string
+          order_position?: number | null
+          slug: string
+          sub_forum_id: string
+        }
+        Update: {
+          created_at?: string
+          description?: string | null
+          icon?: string | null
+          id?: string
+          name?: string
+          order_position?: number | null
+          slug?: string
+          sub_forum_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "sub_forum_categories_sub_forum_id_fkey"
+            columns: ["sub_forum_id"]
+            isOneToOne: false
+            referencedRelation: "sub_forums"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      sub_forums: {
+        Row: {
+          accent_color: string | null
+          bg_color: string | null
+          card_bg: string | null
+          created_at: string
+          created_by: string | null
+          description: string | null
+          id: string
+          is_active: boolean
+          logo_url: string | null
+          name: string
+          primary_color: string | null
+          slug: string
+          updated_at: string
+        }
+        Insert: {
+          accent_color?: string | null
+          bg_color?: string | null
+          card_bg?: string | null
+          created_at?: string
+          created_by?: string | null
+          description?: string | null
+          id?: string
+          is_active?: boolean
+          logo_url?: string | null
+          name: string
+          primary_color?: string | null
+          slug: string
+          updated_at?: string
+        }
+        Update: {
+          accent_color?: string | null
+          bg_color?: string | null
+          card_bg?: string | null
+          created_at?: string
+          created_by?: string | null
+          description?: string | null
+          id?: string
+          is_active?: boolean
+          logo_url?: string | null
+          name?: string
+          primary_color?: string | null
+          slug?: string
+          updated_at?: string
+        }
+        Relationships: []
       }
       topic_watches: {
         Row: {
@@ -1930,6 +2073,16 @@ export type Database = {
         Args: { _user_id: string }
         Returns: boolean
       }
+      check_rate_limit: {
+        Args: {
+          _endpoint: string
+          _ip_hash: string
+          _limit?: number
+          _window_seconds?: number
+        }
+        Returns: boolean
+      }
+      cleanup_rate_limits: { Args: never; Returns: undefined }
       create_private_chat: {
         Args: { _user1: string; _user2: string }
         Returns: string
