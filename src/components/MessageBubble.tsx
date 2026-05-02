@@ -7,6 +7,7 @@ import { formatDistanceToNow } from "date-fns";
 import { ru } from "date-fns/locale";
 import EmojiPicker from "./EmojiPicker";
 import RepostCard from "./RepostCard";
+import BannedUserInlineBadge from "./BannedUserInlineBadge";
 
 interface MessageBubbleProps {
   message: any;
@@ -20,12 +21,17 @@ const MessageBubble = ({ message, isOwn, onReply, onReact }: MessageBubbleProps)
 
   return (
     <div className={`flex gap-2 ${isOwn ? "flex-row-reverse" : ""}`}>
-      <Avatar className="h-8 w-8">
-        <AvatarImage src={message.profiles?.avatar_url || undefined} />
-        <AvatarFallback>
-          {message.profiles?.username?.[0]?.toUpperCase() || "?"}
-        </AvatarFallback>
-      </Avatar>
+      <div className="relative">
+        <Avatar className="h-8 w-8">
+          <AvatarImage src={message.profiles?.avatar_url || undefined} />
+          <AvatarFallback>
+            {message.profiles?.username?.[0]?.toUpperCase() || "?"}
+          </AvatarFallback>
+        </Avatar>
+        <span className="absolute -bottom-1 -right-1">
+          <BannedUserInlineBadge userId={message.user_id} />
+        </span>
+      </div>
 
       <div className={`flex flex-col max-w-[70%] ${isOwn ? "items-end" : ""}`}>
         {message.reply_to && (

@@ -33,7 +33,8 @@ import {
   Puzzle,
   Layout,
   FolderOpen,
-  Settings
+  Settings,
+  RefreshCw
 } from "lucide-react";
 import VerifiedBadge from "@/components/VerifiedBadge";
 import AdminReportsTab from "@/components/AdminReportsTab";
@@ -41,6 +42,8 @@ import AdminPluginsTab from "@/components/admin/AdminPluginsTab";
 import AdminTemplatesTab from "@/components/admin/AdminTemplatesTab";
 import AdminSectionsTab from "@/components/admin/AdminSectionsTab";
 import AdminSettingsTab from "@/components/admin/AdminSettingsTab";
+import AdminInactiveRenameTab from "@/components/admin/AdminInactiveRenameTab";
+import AdminSubForumsTab from "@/components/admin/AdminSubForumsTab";
 
 interface User {
   id: string;
@@ -445,6 +448,14 @@ const AdminPanel = () => {
               <Video className="h-4 w-4" />
               <span className="hidden sm:inline">Видео</span>
             </TabsTrigger>
+            <TabsTrigger value="subforums" className="gap-1">
+              <FolderOpen className="h-4 w-4" />
+              <span className="hidden sm:inline">Подфорумы</span>
+            </TabsTrigger>
+            <TabsTrigger value="rename-log" className="gap-1">
+              <RefreshCw className="h-4 w-4" />
+              <span className="hidden sm:inline">Переименования</span>
+            </TabsTrigger>
             <TabsTrigger value="settings" className="gap-1">
               <Settings className="h-4 w-4" />
               <span className="hidden sm:inline">Настройки</span>
@@ -748,6 +759,14 @@ const AdminPanel = () => {
 
           <TabsContent value="templates" className="space-y-4">
             <AdminTemplatesTab />
+          </TabsContent>
+
+          <TabsContent value="subforums" className="space-y-4">
+            <AdminSubForumsTab />
+          </TabsContent>
+
+          <TabsContent value="rename-log" className="space-y-4">
+            <AdminInactiveRenameTab />
           </TabsContent>
 
           <TabsContent value="settings" className="space-y-4">

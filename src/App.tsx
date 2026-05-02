@@ -50,6 +50,8 @@ import CodeForumResourceView from "./pages/CodeForumResourceView";
 import CodeForumRules from "./pages/CodeForumRules";
 import CodeForumPrivacy from "./pages/CodeForumPrivacy";
 import CodeForumTerms from "./pages/CodeForumTerms";
+import SubForumPanel from "./pages/SubForumPanel";
+import PluginRunner from "./components/PluginRunner";
 import OinkGramBanner from "./components/OinkGramBanner";
 import RecruitmentBanner from "./components/RecruitmentBanner";
 import PWAInstallPrompt from "./components/PWAInstallPrompt";
@@ -67,6 +69,7 @@ const AppLayout = ({ user }: { user: any }) => {
 
   return (
     <AuthGuard>
+      <PluginRunner hookPoint="global_header" />
       {!isCodeForumRoute && <OinkGramBanner />}
       {!isCodeForumRoute && <RecruitmentBanner />}
       <div className={isCodeForumRoute ? "" : "pb-16 lg:pb-0"}>
@@ -119,9 +122,11 @@ const AppLayout = ({ user }: { user: any }) => {
           <Route path="/codeforum/rules" element={<CodeForumRules />} />
           <Route path="/codeforum/privacy" element={<CodeForumPrivacy />} />
           <Route path="/codeforum/terms" element={<CodeForumTerms />} />
+          <Route path="/f/:slug" element={<SubForumPanel />} />
           <Route path="*" element={<NotFound />} />
         </Routes>
       </div>
+      <PluginRunner hookPoint="global_footer" />
       {!isCodeForumRoute && <Footer />}
       {!isCodeForumRoute && <MobileBottomNav user={user} />}
     </AuthGuard>

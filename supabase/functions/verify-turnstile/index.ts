@@ -1,4 +1,6 @@
-// Проверка CloudFlare Turnstile токена на сервере
+// Проверка CloudFlare Turnstile токена на сервере + rate-limit
+import { rateLimitGuard, tooManyResponse } from "../_shared/rateLimit.ts";
+
 const corsHeaders = {
   "Access-Control-Allow-Origin": "*",
   "Access-Control-Allow-Headers": "authorization, x-client-info, apikey, content-type",
@@ -6,6 +8,9 @@ const corsHeaders = {
 
 Deno.serve(async (req) => {
   if (req.method === "OPTIONS") return new Response(null, { headers: corsHeaders });
+
+  const { allowed } = await rateLimitGuard(req, "verify-turnstile", { limit: 30, windowSec: 60 });
+  if (!allowed) return tooManyResponse(corsHeaders);
 
   try {
     const { token } = await req.json();

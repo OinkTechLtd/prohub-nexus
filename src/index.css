@@ -120,40 +120,47 @@ All colors MUST be HSL.
 }
 
 /* ========================================
-   Mobile responsive fixes for Code Forum
+   Mobile responsive fixes (Code Forum + global)
    ======================================== */
 @media (max-width: 480px) {
-  /* Code Forum scope: pages routed under /codeforum use the dark emerald theme */
-  body {
-    -webkit-text-size-adjust: 100%;
-  }
-  /* Avoid horizontal overflow on any container */
+  body { -webkit-text-size-adjust: 100%; }
   html, body, #root {
     overflow-x: hidden;
     max-width: 100vw;
   }
-  /* Long words/URLs break instead of widening layout */
   p, span, a, h1, h2, h3, h4, .break-anywhere {
     overflow-wrap: anywhere;
     word-break: break-word;
   }
-  /* Ensure cards/containers stay within viewport */
-  .card, [class*="border-[#1a1a3e]"], [class*="bg-[#0f0f23]"] {
+  .card, [class*="border-[#1a1a3e]"], [class*="bg-[#0f0f23]"], [class*="bg-[#16213e]"] {
     max-width: 100%;
   }
-  /* Fluid base font for readability */
-  html { font-size: 15px; }
-  /* Reduce default heading sizes on tiny screens */
-  h1 { font-size: 1.4rem !important; line-height: 1.2; }
-  h2 { font-size: 1.2rem !important; }
-  /* Prevent images/iframes from overflowing */
+  html { font-size: 14px; }
+  h1 { font-size: 1.3rem !important; line-height: 1.2; }
+  h2 { font-size: 1.1rem !important; }
+  h3 { font-size: 1rem !important; }
   img, video, iframe { max-width: 100%; height: auto; }
-  /* Horizontal scroll for code blocks instead of layout break */
-  pre, code { max-width: 100%; overflow-x: auto; }
+  pre, code { max-width: 100%; overflow-x: auto; white-space: pre-wrap; word-break: break-word; }
+
+  /* CodeForum-specific: ensure containers don't drift on narrow screens */
+  [class*="bg-[#1a1a2e]"] .container,
+  [class*="bg-[#0f0f23]"] .container {
+    padding-left: 8px !important;
+    padding-right: 8px !important;
+  }
+  /* Tighter cards on mobile */
+  .card { padding: 0.5rem; }
+  /* Buttons should not overflow */
+  button { max-width: 100%; }
+  /* Tables horizontal scroll */
+  table { display: block; overflow-x: auto; max-width: 100%; }
+  /* Sticky headers should remain readable */
+  header { padding-left: 8px; padding-right: 8px; }
+  /* Prevent flex items from forcing width */
+  [class*="flex"] > * { min-width: 0; }
 }
 
 /* Tablet+small phones */
 @media (max-width: 640px) {
-  /* Tighten container padding */
   .container { padding-left: 12px !important; padding-right: 12px !important; }
 }
