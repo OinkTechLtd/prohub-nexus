@@ -1370,6 +1370,81 @@ export type Database = {
           },
         ]
       }
+      sub_forum_posts: {
+        Row: {
+          content: string
+          created_at: string
+          id: string
+          is_hidden: boolean | null
+          topic_id: string
+          updated_at: string
+          user_id: string
+        }
+        Insert: {
+          content: string
+          created_at?: string
+          id?: string
+          is_hidden?: boolean | null
+          topic_id: string
+          updated_at?: string
+          user_id: string
+        }
+        Update: {
+          content?: string
+          created_at?: string
+          id?: string
+          is_hidden?: boolean | null
+          topic_id?: string
+          updated_at?: string
+          user_id?: string
+        }
+        Relationships: []
+      }
+      sub_forum_topics: {
+        Row: {
+          category_id: string
+          content: string
+          created_at: string
+          id: string
+          is_hidden: boolean | null
+          is_locked: boolean | null
+          is_pinned: boolean | null
+          sub_forum_id: string
+          title: string
+          updated_at: string
+          user_id: string
+          views: number | null
+        }
+        Insert: {
+          category_id: string
+          content: string
+          created_at?: string
+          id?: string
+          is_hidden?: boolean | null
+          is_locked?: boolean | null
+          is_pinned?: boolean | null
+          sub_forum_id: string
+          title: string
+          updated_at?: string
+          user_id: string
+          views?: number | null
+        }
+        Update: {
+          category_id?: string
+          content?: string
+          created_at?: string
+          id?: string
+          is_hidden?: boolean | null
+          is_locked?: boolean | null
+          is_pinned?: boolean | null
+          sub_forum_id?: string
+          title?: string
+          updated_at?: string
+          user_id?: string
+          views?: number | null
+        }
+        Relationships: []
+      }
       sub_forums: {
         Row: {
           accent_color: string | null
