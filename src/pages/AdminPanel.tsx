@@ -406,7 +406,7 @@ const AdminPanel = () => {
         </div>
 
         <Tabs defaultValue="users" className="space-y-6">
-          <TabsList className="flex flex-wrap gap-1 h-auto">
+          <TabsList className="flex flex-nowrap gap-1 h-auto overflow-x-auto w-full justify-start scrollbar-thin">
             <TabsTrigger value="users" className="gap-1">
               <Users className="h-4 w-4" />
               <span className="hidden sm:inline">Пользователи</span>

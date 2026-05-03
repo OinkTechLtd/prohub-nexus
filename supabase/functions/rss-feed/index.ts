@@ -18,7 +18,30 @@ serve(async (req) => {
     const supabase = createClient(supabaseUrl, supabaseKey);
 
     // Get the forum base URL from environment or use default
-    const forumBaseUrl = Deno.env.get('FORUM_BASE_URL') || 'https://prohub-nexsus.lovable.app';
+    const forumBaseUrl = Deno.env.get('FORUM_BASE_URL') || 'https://prohub-nexus.lovable.app';
+
+    // Sub-forum / category RSS branch
+    const url = new URL(req.url);
+    const forumSlug = url.searchParams.get('forum');
+    const catSlug = url.searchParams.get('category');
+    if (forumSlug) {
+      const { data: sf } = await supabase.from('sub_forums').select('id,name,slug').eq('slug', forumSlug).maybeSingle();
+      if (!sf) return new Response('Not found', { status: 404, headers: corsHeaders });
+      let q: any = supabase.from('sub_forum_topics').select('id,title,content,created_at,user_id,category_id, profiles:user_id(username)').eq('sub_forum_id', sf.id).eq('is_hidden', false).order('created_at', { ascending: false }).limit(50);
+      if (catSlug) {
+        const { data: cat } = await supabase.from('sub_forum_categories').select('id').eq('sub_forum_id', sf.id).eq('slug', catSlug).maybeSingle();
+        if (cat) q = q.eq('category_id', cat.id);
+      }
+      const { data: tps } = await q;
+      const items = (tps || []).map((t: any) => {
+        const link = `${forumBaseUrl}/f/${sf.slug}/t/${t.id}`;
+        const author = t.profiles?.username || 'Аноним';
+        const desc = (t.content || '').replace(/<[^>]*>/g, '').substring(0, 200) + '...';
+        return `<item><title><![CDATA[${t.title}]]></title><link>${link}</link><guid>${link}</guid><description><![CDATA[${desc}]]></description><author><![CDATA[${author}]]></author><pubDate>${new Date(t.created_at).toUTCString()}</pubDate></item>`;
+      }).join('');
+      const feed = `<?xml version="1.0" encoding="UTF-8"?><rss version="2.0"><channel><title>${sf.name}${catSlug ? ` — ${catSlug}` : ''}</title><link>${forumBaseUrl}/f/${sf.slug}</link><description>RSS подфорума ${sf.name}</description><language>ru</language><lastBuildDate>${new Date().toUTCString()}</lastBuildDate>${items}</channel></rss>`;
+      return new Response(feed, { headers: corsHeaders, status: 200 });
+    }
 
     // Fetch latest topics with user profiles and category info
     const { data: topics, error: topicsError } = await supabase

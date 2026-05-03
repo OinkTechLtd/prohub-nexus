@@ -11,6 +11,7 @@ import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import AvatarWithBorder from "@/components/AvatarWithBorder";
 import BannedUserBadge from "@/components/BannedUserBadge";
 import StyledUsername from "@/components/StyledUsername";
+import { UsernameFlair } from "@/components/UsernameFlair";
 import { Badge } from "@/components/ui/badge";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { useToast } from "@/hooks/use-toast";
@@ -572,19 +573,21 @@ const Profile = () => {
               {/* Profile Info */}
               <div className="flex-1 text-center md:text-left">
                 <div className="flex flex-col md:flex-row items-center gap-3 mb-2">
-                  <div className="flex items-center gap-2">
+                  <div className="flex items-center gap-2 flex-wrap justify-center md:justify-start">
+                    <UsernameFlair prefix={(profile as any)?.flair_emoji_prefix} icon={(profile as any)?.flair_icon} size="md" />
                     {(() => {
                       if (!(profile as any)?.username_css) {
-                        return <h1 className="text-3xl font-bold">{username}</h1>;
+                        return <h1 className="text-3xl font-bold break-all">{username}</h1>;
                       }
                       const parsed = sanitizeUsernameCss((profile as any).username_css, "profile-header");
                       return (
                         <>
                           {parsed.keyframes && <style dangerouslySetInnerHTML={{ __html: parsed.keyframes }} />}
-                          <h1 className="text-3xl font-bold inline-block" style={parsed.style}>{username}</h1>
+                          <h1 className="text-3xl font-bold inline-block break-all" style={parsed.style}>{username}</h1>
                         </>
                       );
                     })()}
+                    <UsernameFlair suffix={(profile as any)?.flair_emoji_suffix} size="md" />
                     {profile?.is_verified && <VerifiedBadge className="h-6 w-6" />}
                   </div>
                   {profile?.custom_title ? (

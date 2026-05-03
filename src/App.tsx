@@ -2,7 +2,7 @@ import { Toaster } from "@/components/ui/toaster";
 import { Toaster as Sonner } from "@/components/ui/sonner";
 import { TooltipProvider } from "@/components/ui/tooltip";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
-import { BrowserRouter, Routes, Route, useLocation } from "react-router-dom";
+import { BrowserRouter, Routes, Route, useLocation, Navigate } from "react-router-dom";
 import AuthGuard from "./components/AuthGuard";
 import Landing from "./pages/Landing";
 import ForumPanel from "./pages/ForumPanel";
@@ -51,6 +51,10 @@ import CodeForumRules from "./pages/CodeForumRules";
 import CodeForumPrivacy from "./pages/CodeForumPrivacy";
 import CodeForumTerms from "./pages/CodeForumTerms";
 import SubForumPanel from "./pages/SubForumPanel";
+import SubForumCategoryView from "./pages/SubForumCategoryView";
+import SubForumTopicView from "./pages/SubForumTopicView";
+import SubForumCreateTopic from "./pages/SubForumCreateTopic";
+import ChangelogModal from "./components/ChangelogModal";
 import PluginRunner from "./components/PluginRunner";
 import OinkGramBanner from "./components/OinkGramBanner";
 import RecruitmentBanner from "./components/RecruitmentBanner";
@@ -62,6 +66,14 @@ import { useState, useEffect } from "react";
 import { supabase } from "@/integrations/supabase/client";
 
 const queryClient = new QueryClient();
+
+const CodeForumGate = () => {
+  const seen = typeof window !== "undefined" && localStorage.getItem("codeforum_visited") === "1";
+  if (!seen && typeof window !== "undefined") {
+    return <Navigate to="/codeforum/welcome" replace />;
+  }
+  return <CodeForumPanel />;
+};
 
 const AppLayout = ({ user }: { user: any }) => {
   const location = useLocation();
@@ -107,7 +119,7 @@ const AppLayout = ({ user }: { user: any }) => {
           <Route path="/privacy" element={<PrivacyPolicy />} />
           <Route path="/faq" element={<FAQ />} />
           <Route path="/rules" element={<Rules />} />
-          <Route path="/codeforum" element={<CodeForumPanel />} />
+          <Route path="/codeforum" element={<CodeForumGate />} />
           <Route path="/codeforum/welcome" element={<CodeForumLanding />} />
           <Route path="/codeforum/forum" element={<CodeForumPanel />} />
           <Route path="/codeforum/category/:slug" element={<CodeForumCategoryView />} />
@@ -123,6 +135,9 @@ const AppLayout = ({ user }: { user: any }) => {
           <Route path="/codeforum/privacy" element={<CodeForumPrivacy />} />
           <Route path="/codeforum/terms" element={<CodeForumTerms />} />
           <Route path="/f/:slug" element={<SubForumPanel />} />
+          <Route path="/f/:slug/c/:catSlug" element={<SubForumCategoryView />} />
+          <Route path="/f/:slug/t/:topicId" element={<SubForumTopicView />} />
+          <Route path="/f/:slug/new" element={<SubForumCreateTopic />} />
           <Route path="*" element={<NotFound />} />
         </Routes>
       </div>
@@ -155,6 +170,7 @@ const App = () => {
         <Sonner />
         <PWAInstallPrompt />
         <SeasonalEffects />
+        <ChangelogModal />
         <BrowserRouter>
           <AppLayout user={user} />
         </BrowserRouter>

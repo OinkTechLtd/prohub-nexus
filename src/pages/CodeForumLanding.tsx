@@ -37,7 +37,7 @@ const CodeForumLanding = () => {
             <span className="text-lg font-bold text-white">CF</span>
           </div>
           <nav className="flex items-center gap-1 sm:gap-2">
-            <Button variant="ghost" size="sm" className="text-gray-300 hover:text-white text-xs sm:text-sm px-2 sm:px-3" onClick={() => navigate("/codeforum/forum")}>
+            <Button variant="ghost" size="sm" className="text-gray-300 hover:text-white text-xs sm:text-sm px-2 sm:px-3" onClick={() => (localStorage.setItem("codeforum_visited","1"), navigate("/codeforum/forum"))}>
               Форум
             </Button>
             <Button variant="ghost" size="sm" className="text-gray-300 hover:text-white text-xs sm:text-sm px-2 sm:px-3" onClick={() => navigate("/forum")}>
@@ -87,7 +87,7 @@ const CodeForumLanding = () => {
             ))}
           </div>
           <div className="text-center">
-            <Button onClick={() => navigate("/codeforum/forum")} className="bg-emerald-600 hover:bg-emerald-700">
+            <Button onClick={() => (localStorage.setItem("codeforum_visited","1"), navigate("/codeforum/forum"))} className="bg-emerald-600 hover:bg-emerald-700">
               Перейти на форум <ArrowRight className="ml-2 h-4 w-4" />
             </Button>
           </div>
