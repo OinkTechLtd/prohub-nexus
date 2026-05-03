@@ -170,6 +170,7 @@ const App = () => {
         <Sonner />
         <PWAInstallPrompt />
         <SeasonalEffects />
+        <ChangelogModal />
         <BrowserRouter>
           <AppLayout user={user} />
         </BrowserRouter>
