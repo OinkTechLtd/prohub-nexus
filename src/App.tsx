@@ -111,7 +111,7 @@ const AppLayout = ({ user }: { user: any }) => {
           <Route path="/privacy" element={<PrivacyPolicy />} />
           <Route path="/faq" element={<FAQ />} />
           <Route path="/rules" element={<Rules />} />
-          <Route path="/codeforum" element={<CodeForumPanel />} />
+          <Route path="/codeforum" element={<CodeForumGate />} />
           <Route path="/codeforum/welcome" element={<CodeForumLanding />} />
           <Route path="/codeforum/forum" element={<CodeForumPanel />} />
           <Route path="/codeforum/category/:slug" element={<CodeForumCategoryView />} />
