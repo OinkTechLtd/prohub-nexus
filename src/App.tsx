@@ -127,6 +127,9 @@ const AppLayout = ({ user }: { user: any }) => {
           <Route path="/codeforum/privacy" element={<CodeForumPrivacy />} />
           <Route path="/codeforum/terms" element={<CodeForumTerms />} />
           <Route path="/f/:slug" element={<SubForumPanel />} />
+          <Route path="/f/:slug/c/:catSlug" element={<SubForumCategoryView />} />
+          <Route path="/f/:slug/t/:topicId" element={<SubForumTopicView />} />
+          <Route path="/f/:slug/new" element={<SubForumCreateTopic />} />
           <Route path="*" element={<NotFound />} />
         </Routes>
       </div>
