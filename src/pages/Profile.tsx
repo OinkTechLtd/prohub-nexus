@@ -11,6 +11,7 @@ import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import AvatarWithBorder from "@/components/AvatarWithBorder";
 import BannedUserBadge from "@/components/BannedUserBadge";
 import StyledUsername from "@/components/StyledUsername";
+import { UsernameFlair } from "@/components/UsernameFlair";
 import { Badge } from "@/components/ui/badge";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { useToast } from "@/hooks/use-toast";
