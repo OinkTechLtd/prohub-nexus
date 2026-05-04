@@ -67,6 +67,8 @@ const SubForumCategoryView = () => {
           </div>
         </div>
 
+        <SubForumSearch forum={forum} categories={[cat]} defaultCategoryId={cat.id} />
+
         <div className="space-y-2">
           {topics.length === 0 ? (
             <Card style={{ background: forum.card_bg }} className="border-0">
