@@ -8,6 +8,7 @@ import { Plus, Pin, Lock, Rss } from "lucide-react";
 import { formatDistanceToNow } from "date-fns";
 import { ru } from "date-fns/locale";
 import SubForumHeader from "@/components/SubForumHeader";
+import SubForumSearch from "@/components/SubForumSearch";
 import StyledUsername from "@/components/StyledUsername";
 import BannedUserInlineBadge from "@/components/BannedUserInlineBadge";
 import { useToast } from "@/hooks/use-toast";
