@@ -312,6 +312,22 @@ const TopicView = () => {
                     <TopicWatchButton topicId={topic?.id} userId={user?.id} />
                   </div>
                 </div>
+                {canMod && (
+                  <div className="flex flex-wrap gap-1.5 mt-3 pt-3 border-t">
+                    <Button size="sm" variant="outline" className="h-7 text-xs" onClick={() => updateTopic({ is_pinned: !topic.is_pinned }, topic.is_pinned ? "Откреплена" : "Закреплена")}>
+                      {topic.is_pinned ? <PinOff className="h-3 w-3 mr-1" /> : <Pin className="h-3 w-3 mr-1" />}
+                      {topic.is_pinned ? "Открепить" : "Закрепить"}
+                    </Button>
+                    <Button size="sm" variant="outline" className="h-7 text-xs" onClick={() => updateTopic({ is_locked: !topic.is_locked }, topic.is_locked ? "Открыта" : "Закрыта")}>
+                      {topic.is_locked ? <Unlock className="h-3 w-3 mr-1" /> : <Lock className="h-3 w-3 mr-1" />}
+                      {topic.is_locked ? "Открыть" : "Закрыть"}
+                    </Button>
+                    <Button size="sm" variant="outline" className="h-7 text-xs" onClick={() => updateTopic({ is_hidden: !topic.is_hidden }, topic.is_hidden ? "Показана" : "Скрыта")}>
+                      {topic.is_hidden ? <Eye className="h-3 w-3 mr-1" /> : <EyeOff className="h-3 w-3 mr-1" />}
+                      {topic.is_hidden ? "Показать" : "Скрыть"}
+                    </Button>
+                  </div>
+                )}
               </div>
             </div>
           </CardContent>
