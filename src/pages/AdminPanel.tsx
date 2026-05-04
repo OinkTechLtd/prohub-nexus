@@ -648,10 +648,11 @@ const AdminPanel = () => {
                       key={topic.id}
                       className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3 p-4 border rounded-lg"
                     >
-                      <div>
-                        <div className="font-medium">{topic.title}</div>
-                        <div className="text-sm text-muted-foreground">
+                      <div className="min-w-0">
+                        <div className="font-medium truncate">{topic.title}</div>
+                        <div className="text-sm text-muted-foreground flex items-center gap-1.5 flex-wrap">
                           от {topic.profiles?.username || "Неизвестно"}
+                          <BannedUserInlineBadge userId={topic.user_id} />
                         </div>
                       </div>
                       <div className="flex items-center gap-2">
