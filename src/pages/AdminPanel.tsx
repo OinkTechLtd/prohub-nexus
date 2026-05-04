@@ -37,6 +37,7 @@ import {
   RefreshCw
 } from "lucide-react";
 import VerifiedBadge from "@/components/VerifiedBadge";
+import BannedUserInlineBadge from "@/components/BannedUserInlineBadge";
 import AdminReportsTab from "@/components/AdminReportsTab";
 import AdminPluginsTab from "@/components/admin/AdminPluginsTab";
 import AdminTemplatesTab from "@/components/admin/AdminTemplatesTab";
@@ -399,14 +400,14 @@ const AdminPanel = () => {
     <div className="min-h-screen bg-background">
       <Header user={currentUser} />
 
-      <main className="container mx-auto px-4 py-8 max-w-7xl">
-        <div className="flex items-center gap-3 mb-8">
-          <Shield className="h-8 w-8 text-primary" />
-          <h1 className="text-3xl font-bold">Админ-панель</h1>
+      <main className="container mx-auto px-2 sm:px-4 py-4 sm:py-8 max-w-7xl">
+        <div className="flex items-center gap-2 sm:gap-3 mb-4 sm:mb-8">
+          <Shield className="h-6 w-6 sm:h-8 sm:w-8 text-primary" />
+          <h1 className="text-xl sm:text-3xl font-bold">Админ-панель</h1>
         </div>
 
-        <Tabs defaultValue="users" className="space-y-6">
-          <TabsList className="flex flex-nowrap gap-1 h-auto overflow-x-auto w-full justify-start scrollbar-thin">
+        <Tabs defaultValue="users" className="space-y-4 sm:space-y-6">
+          <TabsList className="flex flex-nowrap gap-1 h-auto overflow-x-auto w-full justify-start scrollbar-thin p-1 max-w-full">
             <TabsTrigger value="users" className="gap-1">
               <Users className="h-4 w-4" />
               <span className="hidden sm:inline">Пользователи</span>
@@ -485,22 +486,23 @@ const AdminPanel = () => {
                   {filteredUsers.map((user) => (
                     <div
                       key={user.id}
-                      className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4 p-4 border rounded-lg"
+                      className="flex flex-col gap-3 p-3 sm:p-4 border rounded-lg sm:flex-row sm:items-center sm:justify-between"
                     >
-                      <div className="flex items-center gap-3">
-                        <Avatar>
+                      <div className="flex items-center gap-3 min-w-0">
+                        <Avatar className="shrink-0">
                           <AvatarImage src={user.avatar_url || undefined} />
                           <AvatarFallback>{user.username[0]?.toUpperCase()}</AvatarFallback>
                         </Avatar>
-                        <div>
-                          <div className="flex items-center gap-2">
-                            <span className="font-medium">{user.username}</span>
+                        <div className="min-w-0">
+                          <div className="flex items-center gap-1.5 flex-wrap">
+                            <span className="font-medium truncate">{user.username}</span>
                             {user.is_verified && <VerifiedBadge />}
+                            <BannedUserInlineBadge userId={user.id} />
                             <Badge className={getRoleBadgeColor(user.role || "newbie")}>
                               {user.role || "newbie"}
                             </Badge>
                           </div>
-                          <span className="text-sm text-muted-foreground">
+                          <span className="text-xs text-muted-foreground">
                             ID: {user.id.slice(0, 8)}...
                           </span>
                         </div>
@@ -646,10 +648,11 @@ const AdminPanel = () => {
                       key={topic.id}
                       className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3 p-4 border rounded-lg"
                     >
-                      <div>
-                        <div className="font-medium">{topic.title}</div>
-                        <div className="text-sm text-muted-foreground">
+                      <div className="min-w-0">
+                        <div className="font-medium truncate">{topic.title}</div>
+                        <div className="text-sm text-muted-foreground flex items-center gap-1.5 flex-wrap">
                           от {topic.profiles?.username || "Неизвестно"}
+                          <BannedUserInlineBadge userId={topic.user_id} />
                         </div>
                       </div>
                       <div className="flex items-center gap-2">
@@ -683,10 +686,11 @@ const AdminPanel = () => {
                       key={resource.id}
                       className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3 p-4 border rounded-lg"
                     >
-                      <div>
-                        <div className="font-medium">{resource.title}</div>
-                        <div className="text-sm text-muted-foreground">
+                      <div className="min-w-0">
+                        <div className="font-medium truncate">{resource.title}</div>
+                        <div className="text-sm text-muted-foreground flex items-center gap-1.5 flex-wrap">
                           от {resource.profiles?.username || "Неизвестно"}
+                          <BannedUserInlineBadge userId={resource.user_id} />
                         </div>
                       </div>
                       <div className="flex items-center gap-2">
@@ -723,10 +727,11 @@ const AdminPanel = () => {
                         key={video.id}
                         className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3 p-4 border rounded-lg"
                       >
-                        <div>
-                          <div className="font-medium">{video.title}</div>
-                          <div className="text-sm text-muted-foreground">
+                        <div className="min-w-0">
+                          <div className="font-medium truncate">{video.title}</div>
+                          <div className="text-sm text-muted-foreground flex items-center gap-1.5 flex-wrap">
                             от {video.profiles?.username || "Неизвестно"}
+                            <BannedUserInlineBadge userId={video.user_id} />
                           </div>
                         </div>
                         <div className="flex items-center gap-2">

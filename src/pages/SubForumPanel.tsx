@@ -8,6 +8,7 @@ import { MessageSquare, FolderOpen, Plus } from "lucide-react";
 import { formatDistanceToNow } from "date-fns";
 import { ru } from "date-fns/locale";
 import SubForumHeader from "@/components/SubForumHeader";
+import SubForumSearch from "@/components/SubForumSearch";
 
 interface SubForum {
   id: string; slug: string; name: string; description: string | null;
@@ -59,6 +60,7 @@ const SubForumPanel = () => {
             <p className="text-sm text-white/80">{forum.description}</p>
           </div>
         )}
+        <SubForumSearch forum={forum} categories={cats} />
         <div className="flex items-center justify-between mb-3 gap-2">
           <h2 className="text-lg sm:text-xl font-bold flex items-center gap-2" style={{ color: forum.primary_color }}>
             <FolderOpen className="h-5 w-5" />Разделы

@@ -24,6 +24,8 @@ import ShareButton from "@/components/ShareButton";
 import ReadingProgress from "@/components/ReadingProgress";
 import { use2FAGuard } from "@/hooks/use2FAGuard";
 import BannedUserBadge from "@/components/BannedUserBadge";
+import { useUserRole } from "@/hooks/useUserRole";
+import { PinOff, Unlock, EyeOff } from "lucide-react";
 
 interface Post {
   id: string;
@@ -48,6 +50,16 @@ const TopicView = () => {
   const { toast } = useToast();
   const { trackInterest } = useInterestTracking(user?.id);
   const { check2FA } = use2FAGuard();
+  const { isAdmin, isModerator, canModerateTopics } = useUserRole();
+  const canMod = isAdmin || (isModerator && canModerateTopics);
+
+  const updateTopic = async (patch: Record<string, any>, label: string) => {
+    if (!canMod || !topic?.id) return;
+    const { error } = await supabase.from("topics").update(patch).eq("id", topic.id);
+    if (error) { toast({ title: "Ошибка", description: error.message, variant: "destructive" }); return; }
+    toast({ title: label });
+    setTopic({ ...topic, ...patch });
+  };
 
   useEffect(() => {
     supabase.auth.getSession().then(({ data: { session } }) => {
@@ -300,6 +312,22 @@ const TopicView = () => {
                     <TopicWatchButton topicId={topic?.id} userId={user?.id} />
                   </div>
                 </div>
+                {canMod && (
+                  <div className="flex flex-wrap gap-1.5 mt-3 pt-3 border-t">
+                    <Button size="sm" variant="outline" className="h-7 text-xs" onClick={() => updateTopic({ is_pinned: !topic.is_pinned }, topic.is_pinned ? "Откреплена" : "Закреплена")}>
+                      {topic.is_pinned ? <PinOff className="h-3 w-3 mr-1" /> : <Pin className="h-3 w-3 mr-1" />}
+                      {topic.is_pinned ? "Открепить" : "Закрепить"}
+                    </Button>
+                    <Button size="sm" variant="outline" className="h-7 text-xs" onClick={() => updateTopic({ is_locked: !topic.is_locked }, topic.is_locked ? "Открыта" : "Закрыта")}>
+                      {topic.is_locked ? <Unlock className="h-3 w-3 mr-1" /> : <Lock className="h-3 w-3 mr-1" />}
+                      {topic.is_locked ? "Открыть" : "Закрыть"}
+                    </Button>
+                    <Button size="sm" variant="outline" className="h-7 text-xs" onClick={() => updateTopic({ is_hidden: !topic.is_hidden }, topic.is_hidden ? "Показана" : "Скрыта")}>
+                      {topic.is_hidden ? <Eye className="h-3 w-3 mr-1" /> : <EyeOff className="h-3 w-3 mr-1" />}
+                      {topic.is_hidden ? "Показать" : "Скрыть"}
+                    </Button>
+                  </div>
+                )}
               </div>
             </div>
           </CardContent>

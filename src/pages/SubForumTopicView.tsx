@@ -4,20 +4,24 @@ import { supabase } from "@/integrations/supabase/client";
 import { Card, CardContent } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Textarea } from "@/components/ui/textarea";
-import { Pin, Lock } from "lucide-react";
+import { Pin, PinOff, Lock, Unlock, Eye, EyeOff } from "lucide-react";
 import { formatDistanceToNow } from "date-fns";
 import { ru } from "date-fns/locale";
 import SubForumHeader from "@/components/SubForumHeader";
 import StyledUsername from "@/components/StyledUsername";
 import AvatarWithBorder from "@/components/AvatarWithBorder";
 import BannedUserBadge from "@/components/BannedUserBadge";
+import BannedUserInlineBadge from "@/components/BannedUserInlineBadge";
 import BBCodeRenderer from "@/components/BBCodeRenderer";
 import { useToast } from "@/hooks/use-toast";
+import { useUserRole } from "@/hooks/useUserRole";
 
 const SubForumTopicView = () => {
   const { slug, topicId } = useParams();
   const navigate = useNavigate();
   const { toast } = useToast();
+  const { isAdmin, isModerator } = useUserRole();
+  const canModerate = isAdmin || isModerator;
   const [forum, setForum] = useState<any>(null);
   const [topic, setTopic] = useState<any>(null);
   const [posts, setPosts] = useState<any[]>([]);
@@ -35,7 +39,6 @@ const SubForumTopicView = () => {
       .eq("id", topicId).maybeSingle();
     if (!t) { setLoading(false); return; }
     setTopic(t);
-    await supabase.from("sub_forum_topics" as any).update({ views: ((t as any).views || 0) + 1 } as any).eq("id", topicId);
     const { data: p } = await supabase.from("sub_forum_posts" as any)
       .select("*, profiles:user_id(username, avatar_url, is_verified, username_css)")
       .eq("topic_id", topicId).eq("is_hidden", false).order("created_at");
@@ -46,9 +49,18 @@ const SubForumTopicView = () => {
   useEffect(() => {
     supabase.auth.getSession().then(({ data: { session } }) => setUser(session?.user ?? null));
     load();
+    // bump views once per mount
+    if (topicId) {
+      supabase.rpc("get_user_role", { _user_id: "00000000-0000-0000-0000-000000000000" }).then(() => {});
+      (async () => {
+        const { data: cur } = await supabase.from("sub_forum_topics" as any).select("views").eq("id", topicId).maybeSingle();
+        if (cur) await supabase.from("sub_forum_topics" as any).update({ views: ((cur as any).views || 0) + 1 } as any).eq("id", topicId);
+      })();
+    }
 
     const ch = supabase.channel(`sft-${topicId}`)
-      .on("postgres_changes", { event: "INSERT", schema: "public", table: "sub_forum_posts", filter: `topic_id=eq.${topicId}` }, () => load())
+      .on("postgres_changes", { event: "*", schema: "public", table: "sub_forum_posts", filter: `topic_id=eq.${topicId}` }, () => load())
+      .on("postgres_changes", { event: "UPDATE", schema: "public", table: "sub_forum_topics", filter: `id=eq.${topicId}` }, () => load())
       .subscribe();
     return () => { supabase.removeChannel(ch); };
   }, [slug, topicId]);
@@ -63,6 +75,13 @@ const SubForumTopicView = () => {
     setPosting(false);
     if (error) { toast({ title: "Ошибка", description: error.message, variant: "destructive" }); return; }
     setReply("");
+  };
+
+  const updateTopic = async (patch: Record<string, any>, label: string) => {
+    if (!canModerate) return;
+    const { error } = await supabase.from("sub_forum_topics" as any).update(patch).eq("id", topicId);
+    if (error) { toast({ title: "Ошибка", description: error.message, variant: "destructive" }); return; }
+    toast({ title: label });
     load();
   };
 
@@ -74,11 +93,29 @@ const SubForumTopicView = () => {
       <SubForumHeader forum={forum} />
       <main className="container mx-auto px-2 sm:px-4 py-4 sm:py-6 max-w-4xl">
         <Link to={`/f/${slug}`} className="text-xs text-white/50 hover:underline">← {forum.name}</Link>
-        <div className="flex items-center gap-2 mb-3 mt-1 flex-wrap">
+        <div className="flex items-center gap-2 mb-2 mt-1 flex-wrap">
           {topic.is_pinned && <Pin className="h-4 w-4" style={{ color: forum.accent_color }} />}
           {topic.is_locked && <Lock className="h-4 w-4 text-white/50" />}
+          {topic.is_hidden && <span className="text-xs px-1.5 py-0.5 rounded bg-red-900/60 text-red-200">скрыта</span>}
           <h1 className="text-xl sm:text-2xl font-bold break-words" style={{ color: forum.primary_color }}>{topic.title}</h1>
         </div>
+
+        {canModerate && (
+          <div className="flex flex-wrap gap-1.5 mb-3">
+            <Button size="sm" variant="outline" className="h-7 text-xs border-white/20 text-white" onClick={() => updateTopic({ is_pinned: !topic.is_pinned }, topic.is_pinned ? "Откреплена" : "Закреплена")}>
+              {topic.is_pinned ? <PinOff className="h-3 w-3 mr-1" /> : <Pin className="h-3 w-3 mr-1" />}
+              {topic.is_pinned ? "Открепить" : "Закрепить"}
+            </Button>
+            <Button size="sm" variant="outline" className="h-7 text-xs border-white/20 text-white" onClick={() => updateTopic({ is_locked: !topic.is_locked }, topic.is_locked ? "Открыта" : "Закрыта")}>
+              {topic.is_locked ? <Unlock className="h-3 w-3 mr-1" /> : <Lock className="h-3 w-3 mr-1" />}
+              {topic.is_locked ? "Открыть" : "Закрыть"}
+            </Button>
+            <Button size="sm" variant="outline" className="h-7 text-xs border-white/20 text-white" onClick={() => updateTopic({ is_hidden: !topic.is_hidden }, topic.is_hidden ? "Показана" : "Скрыта")}>
+              {topic.is_hidden ? <Eye className="h-3 w-3 mr-1" /> : <EyeOff className="h-3 w-3 mr-1" />}
+              {topic.is_hidden ? "Показать" : "Скрыть"}
+            </Button>
+          </div>
+        )}
 
         <Card style={{ background: forum.card_bg }} className="border-0 mb-3">
           <CardContent className="p-3 sm:p-4">
@@ -86,9 +123,11 @@ const SubForumTopicView = () => {
             <div className="flex items-start gap-3">
               <AvatarWithBorder src={topic.profiles?.avatar_url} fallback={topic.profiles?.username?.[0]?.toUpperCase() || "?"} size="md" />
               <div className="min-w-0 flex-1">
-                <div className="flex items-center gap-2 mb-1 text-xs text-white/60">
+                <div className="flex items-center gap-2 mb-1 text-xs text-white/60 flex-wrap">
                   <StyledUsername username={topic.profiles?.username || "—"} userId={topic.user_id} className="text-sm" />
+                  <BannedUserInlineBadge userId={topic.user_id} />
                   <span>· {formatDistanceToNow(new Date(topic.created_at), { locale: ru, addSuffix: true })}</span>
+                  <span>· {topic.views || 0} просмотров</span>
                 </div>
                 <div className="prose prose-invert prose-sm max-w-none break-words">
                   <BBCodeRenderer content={topic.content} />
@@ -106,8 +145,9 @@ const SubForumTopicView = () => {
                 <div className="flex items-start gap-3">
                   <AvatarWithBorder src={p.profiles?.avatar_url} fallback={p.profiles?.username?.[0]?.toUpperCase() || "?"} size="sm" />
                   <div className="min-w-0 flex-1">
-                    <div className="flex items-center gap-2 mb-1 text-xs text-white/60">
+                    <div className="flex items-center gap-2 mb-1 text-xs text-white/60 flex-wrap">
                       <StyledUsername username={p.profiles?.username || "—"} userId={p.user_id} className="text-sm" />
+                      <BannedUserInlineBadge userId={p.user_id} />
                       <span>· {formatDistanceToNow(new Date(p.created_at), { locale: ru, addSuffix: true })}</span>
                     </div>
                     <div className="prose prose-invert prose-sm max-w-none break-words">

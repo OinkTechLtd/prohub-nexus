@@ -19,6 +19,7 @@ import { Link } from "react-router-dom";
 import VerifiedBadge from "@/components/VerifiedBadge";
 import ReputationDisplay from "@/components/ReputationDisplay";
 import UserLevelBadge from "@/components/UserLevelBadge";
+import BannedUserInlineBadge from "@/components/BannedUserInlineBadge";
 
 interface MemberInfo {
   id: string;
@@ -227,6 +228,7 @@ const Members = () => {
                         <div className="flex items-center gap-2 flex-wrap">
                           <span className="font-semibold truncate">{member.username}</span>
                           {member.is_verified && <VerifiedBadge />}
+                          <BannedUserInlineBadge userId={member.id} />
                         </div>
                         <div className="flex items-center gap-2 mt-1 flex-wrap">
                           <Badge className={ROLE_COLORS[member.role] || ROLE_COLORS.newbie}>
