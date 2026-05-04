@@ -217,6 +217,7 @@ const CodeForumTopicView = () => {
               usernameCss={topic?.profiles?.username_css}
               profilePath={`/codeforum/profile/${encodeURIComponent(topic?.profiles?.username || "")}`}
             />
+            <BannedUserInlineBadge userId={topic?.user_id} />
             <span>•</span>
             <span>
               {topic?.created_at &&
@@ -291,6 +292,7 @@ const CodeForumTopicView = () => {
                   usernameCss={post.profiles?.username_css}
                   profilePath={`/codeforum/profile/${encodeURIComponent(post.profiles?.username || "")}`}
                 />
+                <BannedUserInlineBadge userId={post.user_id} />
                 <span className="text-xs text-gray-500">
                   {formatDistanceToNow(new Date(post.created_at), { addSuffix: true, locale: ru })}
                 </span>
