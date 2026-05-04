@@ -686,10 +686,11 @@ const AdminPanel = () => {
                       key={resource.id}
                       className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3 p-4 border rounded-lg"
                     >
-                      <div>
-                        <div className="font-medium">{resource.title}</div>
-                        <div className="text-sm text-muted-foreground">
+                      <div className="min-w-0">
+                        <div className="font-medium truncate">{resource.title}</div>
+                        <div className="text-sm text-muted-foreground flex items-center gap-1.5 flex-wrap">
                           от {resource.profiles?.username || "Неизвестно"}
+                          <BannedUserInlineBadge userId={resource.user_id} />
                         </div>
                       </div>
                       <div className="flex items-center gap-2">
@@ -726,10 +727,11 @@ const AdminPanel = () => {
                         key={video.id}
                         className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3 p-4 border rounded-lg"
                       >
-                        <div>
-                          <div className="font-medium">{video.title}</div>
-                          <div className="text-sm text-muted-foreground">
+                        <div className="min-w-0">
+                          <div className="font-medium truncate">{video.title}</div>
+                          <div className="text-sm text-muted-foreground flex items-center gap-1.5 flex-wrap">
                             от {video.profiles?.username || "Неизвестно"}
+                            <BannedUserInlineBadge userId={video.user_id} />
                           </div>
                         </div>
                         <div className="flex items-center gap-2">
