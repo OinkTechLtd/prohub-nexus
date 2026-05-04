@@ -14,8 +14,9 @@ import { useToast } from "@/hooks/use-toast";
 import { useCodeForumRole } from "@/hooks/useCodeForumRole";
 import { formatDistanceToNow } from "date-fns";
 import { ru } from "date-fns/locale";
-import { Pin, Lock, Send, Eye, EyeOff } from "lucide-react";
+import { Pin, PinOff, Lock, Unlock, Send, Eye, EyeOff } from "lucide-react";
 import BannedUserBadge from "@/components/BannedUserBadge";
+import BannedUserInlineBadge from "@/components/BannedUserInlineBadge";
 
 interface Post {
   id: string;
@@ -239,13 +240,37 @@ const CodeForumTopicView = () => {
               <ReportDialog contentType="topic" contentId={topic?.id} contentAuthorId={topic?.user_id} />
             )}
             {canModerate && topic?.id && (
-              <button
-                onClick={() => handleHideTopic(!topic.is_hidden)}
-                className="text-xs text-gray-400 hover:text-red-400 flex items-center gap-1"
-              >
-                {topic.is_hidden ? <Eye className="h-3 w-3" /> : <EyeOff className="h-3 w-3" />}
-                {topic.is_hidden ? "Показать тему" : "Скрыть тему"}
-              </button>
+              <>
+                <button
+                  onClick={async () => {
+                    const { error } = await supabase.from("topics").update({ is_pinned: !topic.is_pinned }).eq("id", topic.id);
+                    if (error) toast({ title: "Ошибка", description: error.message, variant: "destructive" });
+                    else { toast({ title: topic.is_pinned ? "Откреплена" : "Закреплена" }); loadData(); }
+                  }}
+                  className="text-xs text-gray-400 hover:text-emerald-400 flex items-center gap-1"
+                >
+                  {topic.is_pinned ? <PinOff className="h-3 w-3" /> : <Pin className="h-3 w-3" />}
+                  {topic.is_pinned ? "Открепить" : "Закрепить"}
+                </button>
+                <button
+                  onClick={async () => {
+                    const { error } = await supabase.from("topics").update({ is_locked: !topic.is_locked }).eq("id", topic.id);
+                    if (error) toast({ title: "Ошибка", description: error.message, variant: "destructive" });
+                    else { toast({ title: topic.is_locked ? "Открыта" : "Закрыта" }); loadData(); }
+                  }}
+                  className="text-xs text-gray-400 hover:text-emerald-400 flex items-center gap-1"
+                >
+                  {topic.is_locked ? <Unlock className="h-3 w-3" /> : <Lock className="h-3 w-3" />}
+                  {topic.is_locked ? "Открыть" : "Закрыть"}
+                </button>
+                <button
+                  onClick={() => handleHideTopic(!topic.is_hidden)}
+                  className="text-xs text-gray-400 hover:text-red-400 flex items-center gap-1"
+                >
+                  {topic.is_hidden ? <Eye className="h-3 w-3" /> : <EyeOff className="h-3 w-3" />}
+                  {topic.is_hidden ? "Показать тему" : "Скрыть тему"}
+                </button>
+              </>
             )}
           </div>
         </div>
