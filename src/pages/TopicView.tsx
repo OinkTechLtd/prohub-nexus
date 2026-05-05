@@ -347,11 +347,9 @@ const TopicView = () => {
                   <div className="flex-1 min-w-0">
                     <div className="flex items-center gap-2 mb-2 flex-wrap">
                       <UserLink username={post.profiles?.username} avatarUrl={post.profiles?.avatar_url} />
+                      <BannedUserInlineBadge userId={post.user_id} />
                       <span className="text-xs text-muted-foreground">
-                        {formatDistanceToNow(new Date(post.created_at), {
-                          addSuffix: true,
-                          locale: ru,
-                        })}
+                        {formatDistanceToNow(new Date(post.created_at), { addSuffix: true, locale: ru })}
                       </span>
                     </div>
                     <BBCodeRenderer content={post.content} />
@@ -442,6 +440,13 @@ const TopicView = () => {
           </Card>
         )}
       </main>
+      <ModerationActionDialog
+        open={hideOpen}
+        onOpenChange={setHideOpen}
+        title="Скрыть тему"
+        requireReason
+        onConfirm={(reason) => callModAction("hide", reason)}
+      />
     </div>
   );
 };
