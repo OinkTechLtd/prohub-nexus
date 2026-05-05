@@ -24,6 +24,10 @@ import ShareButton from "@/components/ShareButton";
 import ReadingProgress from "@/components/ReadingProgress";
 import { use2FAGuard } from "@/hooks/use2FAGuard";
 import BannedUserBadge from "@/components/BannedUserBadge";
+import BannedUserInlineBadge from "@/components/BannedUserInlineBadge";
+import HiddenContentBanner from "@/components/HiddenContentBanner";
+import SeasonalCountdown from "@/components/SeasonalCountdown";
+import ModerationActionDialog from "@/components/ModerationActionDialog";
 import { useUserRole } from "@/hooks/useUserRole";
 import { PinOff, Unlock, EyeOff } from "lucide-react";
 
@@ -53,12 +57,14 @@ const TopicView = () => {
   const { isAdmin, isModerator, canModerateTopics } = useUserRole();
   const canMod = isAdmin || (isModerator && canModerateTopics);
 
-  const updateTopic = async (patch: Record<string, any>, label: string) => {
+  const [hideOpen, setHideOpen] = useState(false);
+
+  const callModAction = async (action: string, reason?: string) => {
     if (!canMod || !topic?.id) return;
-    const { error } = await supabase.from("topics").update(patch).eq("id", topic.id);
+    const { error } = await supabase.rpc("moderate_topic" as any, { _scope: "prohub", _topic_id: topic.id, _action: action, _reason: reason || null });
     if (error) { toast({ title: "Ошибка", description: error.message, variant: "destructive" }); return; }
-    toast({ title: label });
-    setTopic({ ...topic, ...patch });
+    toast({ title: "Готово" });
+    loadTopicAndPosts();
   };
 
   useEffect(() => {
@@ -92,18 +98,9 @@ const TopicView = () => {
 
   const incrementViews = async () => {
     if (!id) return;
-    const { data: currentTopic } = await supabase
-      .from("topics")
-      .select("views")
-      .eq("id", id)
-      .single();
-
-    if (currentTopic) {
-      await supabase
-        .from("topics")
-        .update({ views: currentTopic.views + 1 })
-        .eq("id", id);
-    }
+    let key = localStorage.getItem("ph_viewer_key");
+    if (!key) { key = crypto.randomUUID(); localStorage.setItem("ph_viewer_key", key); }
+    await supabase.rpc("increment_topic_views" as any, { _scope: "prohub", _topic_id: id, _viewer_key: user?.id || key });
   };
 
   const loadTopicAndPosts = async () => {
