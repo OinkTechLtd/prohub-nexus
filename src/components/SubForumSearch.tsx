@@ -85,6 +85,10 @@ const SubForumSearch = ({ forum, categories, defaultCategoryId }: Props) => {
               <div className="truncate" style={{ color: forum.primary_color }}>{r.title}</div>
             </button>
           ))}
+          <button
+            onClick={() => navigate(`/f/${forum.slug}/search?q=${encodeURIComponent(q)}${catId ? `&cat=${catId}` : ""}`)}
+            className="w-full text-left px-3 py-2 text-xs hover:bg-white/5 text-white/70 border-t border-white/10"
+          >Все результаты →</button>
         </div>
       )}
     </div>

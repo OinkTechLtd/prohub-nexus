@@ -17,6 +17,8 @@ import { ru } from "date-fns/locale";
 import { Pin, PinOff, Lock, Unlock, Send, Eye, EyeOff } from "lucide-react";
 import BannedUserBadge from "@/components/BannedUserBadge";
 import BannedUserInlineBadge from "@/components/BannedUserInlineBadge";
+import HiddenContentBanner from "@/components/HiddenContentBanner";
+import SeasonalCountdown from "@/components/SeasonalCountdown";
 
 interface Post {
   id: string;
@@ -54,8 +56,9 @@ const CodeForumTopicView = () => {
 
   const incrementViews = async () => {
     if (!id) return;
-    const { data } = await supabase.from("topics").select("views").eq("id", id).single();
-    if (data) await supabase.from("topics").update({ views: data.views + 1 }).eq("id", id);
+    let key = localStorage.getItem("ph_viewer_key");
+    if (!key) { key = crypto.randomUUID(); localStorage.setItem("ph_viewer_key", key); }
+    await supabase.rpc("increment_topic_views" as any, { _scope: "codeforum", _topic_id: id, _viewer_key: user?.id || key });
   };
 
   const loadData = async () => {
