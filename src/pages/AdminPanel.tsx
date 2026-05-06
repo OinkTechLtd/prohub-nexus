@@ -666,7 +666,7 @@ const AdminPanel = () => {
                       </div>
                       <div className="flex items-center gap-2 flex-wrap">
                         {topic.is_pinned && <Badge variant="secondary" className="gap-1"><Pin className="h-3 w-3" />Закреп</Badge>}
-                        {topic.is_locked && <Badge variant="secondary" className="gap-1"><Lock className="h-3 w-3" />Закрыта</Badge>}
+                        {topic.is_locked && <Badge variant="secondary" className="gap-1"><LockIcon className="h-3 w-3" />Закрыта</Badge>}
                         <Badge variant={topic.is_hidden ? "destructive" : "default"}>
                           {topic.is_hidden ? "Скрыта" : "Активна"}
                         </Badge>
