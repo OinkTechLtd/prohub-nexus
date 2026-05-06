@@ -778,6 +778,10 @@ const AdminPanel = () => {
             <AdminInactiveRenameTab />
           </TabsContent>
 
+          <TabsContent value="audit" className="space-y-4">
+            <AdminAuditLogTab />
+          </TabsContent>
+
           <TabsContent value="settings" className="space-y-4">
             <AdminSettingsTab />
           </TabsContent>
