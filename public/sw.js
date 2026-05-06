@@ -1,5 +1,5 @@
-// ProHub Nexus Service Worker v3.2 - Force Update
-const SW_VERSION = "v3.2";
+// ProHub Nexus Service Worker v3.3 - Force Update
+const SW_VERSION = "v3.3";
 const CACHE_NAME = "prohub-" + SW_VERSION;
 
 // Install - skip waiting to activate immediately  
@@ -23,12 +23,13 @@ self.addEventListener("activate", (event) => {
   );
 });
 
-// Fetch - network first, never serve stale HTML
+// Fetch - network first, never serve stale app shell/assets
 self.addEventListener("fetch", (event) => {
+  const url = new URL(event.request.url);
   // Always go to network for navigation (HTML pages)
-  if (event.request.mode === "navigate") {
+  if (event.request.mode === "navigate" || url.pathname === "/" || url.pathname.endsWith(".html") || url.pathname.endsWith(".js") || url.pathname.endsWith(".css")) {
     event.respondWith(
-      fetch(event.request).catch(() => new Response("Offline", { status: 503 }))
+      fetch(event.request, { cache: "no-store" }).catch(() => caches.match(event.request).then((r) => r || new Response("Offline", { status: 503 })))
     );
     return;
   }

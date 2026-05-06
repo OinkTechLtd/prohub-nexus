@@ -8,7 +8,6 @@ import { Pin, PinOff, Lock, Unlock, Eye, EyeOff } from "lucide-react";
 import { formatDistanceToNow } from "date-fns";
 import { ru } from "date-fns/locale";
 import SubForumHeader from "@/components/SubForumHeader";
-import SeasonalCountdown from "@/components/SeasonalCountdown";
 import StyledUsername from "@/components/StyledUsername";
 import AvatarWithBorder from "@/components/AvatarWithBorder";
 import BannedUserBadge from "@/components/BannedUserBadge";
@@ -142,7 +141,6 @@ const SubForumTopicView = () => {
     <div className="min-h-screen text-white" style={{ background: forum.bg_color }}>
       <SubForumHeader forum={forum} />
       <main className="container mx-auto px-2 sm:px-4 py-4 sm:py-6 max-w-4xl">
-        <SeasonalCountdown />
         <Link to={`/f/${slug}`} className="text-xs text-white/50 hover:underline">← {forum.name}</Link>
         <div className="flex items-center gap-2 mb-2 mt-1 flex-wrap">
           {topic.is_pinned && <Pin className="h-4 w-4" style={{ color: forum.accent_color }} />}

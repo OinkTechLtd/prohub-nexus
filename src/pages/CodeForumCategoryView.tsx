@@ -7,6 +7,7 @@ import { useToast } from "@/hooks/use-toast";
 import { formatDistanceToNow } from "date-fns";
 import { ru } from "date-fns/locale";
 import { Pin, Lock, Eye, MessageSquare } from "lucide-react";
+import SeasonalCountdown from "@/components/SeasonalCountdown";
 
 interface Topic {
   id: string;
@@ -40,6 +41,15 @@ const CodeForumCategoryView = () => {
   useEffect(() => {
     loadData();
   }, [slug]);
+
+  useEffect(() => {
+    if (!category?.id) return;
+    const ch = supabase.channel(`codeforum-category-${category.id}`)
+      .on("postgres_changes", { event: "*", schema: "public", table: "topics", filter: `category_id=eq.${category.id}` }, () => loadData())
+      .on("postgres_changes", { event: "*", schema: "public", table: "posts" }, () => loadData())
+      .subscribe();
+    return () => { supabase.removeChannel(ch); };
+  }, [category?.id]);
 
   const loadData = async () => {
     try {
@@ -88,6 +98,7 @@ const CodeForumCategoryView = () => {
       <CodeForumHeader user={user} />
 
       <main className="container mx-auto px-4 py-6">
+        <SeasonalCountdown />
         <div className="mb-4">
           <button
             onClick={() => navigate("/codeforum/forum")}

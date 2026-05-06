@@ -10,6 +10,7 @@ import { useToast } from "@/hooks/use-toast";
 import { formatDistanceToNow } from "date-fns";
 import { ru } from "date-fns/locale";
 import { useInterestTracking } from "@/hooks/useInterestTracking";
+import SeasonalCountdown from "@/components/SeasonalCountdown";
 
 interface Topic {
   id: string;
@@ -56,6 +57,15 @@ const CategoryView = () => {
       trackInterest(category.slug);
     }
   }, [category]);
+
+  useEffect(() => {
+    if (!category?.id) return;
+    const ch = supabase.channel(`prohub-category-${category.id}`)
+      .on("postgres_changes", { event: "*", schema: "public", table: "topics", filter: `category_id=eq.${category.id}` }, () => loadCategoryAndTopics())
+      .on("postgres_changes", { event: "*", schema: "public", table: "posts" }, () => loadCategoryAndTopics())
+      .subscribe();
+    return () => { supabase.removeChannel(ch); };
+  }, [category?.id]);
 
   const loadCategoryAndTopics = async () => {
     try {
@@ -130,6 +140,7 @@ const CategoryView = () => {
       <Header user={user} />
 
       <main className="container mx-auto px-4 py-8">
+        <SeasonalCountdown />
         <div className="mb-8 flex items-center justify-between">
           <div>
             <h1 className="text-4xl font-bold mb-2 flex items-center">

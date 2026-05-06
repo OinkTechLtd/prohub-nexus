@@ -22,25 +22,36 @@ const SubForumCategoryView = () => {
   const [topics, setTopics] = useState<any[]>([]);
   const [loading, setLoading] = useState(true);
 
+  const loadData = async () => {
+    const { data: f } = await supabase.from("sub_forums" as any).select("*").eq("slug", slug).maybeSingle();
+    if (!f) { setLoading(false); return; }
+    setForum(f);
+    const { data: c } = await supabase.from("sub_forum_categories" as any).select("*").eq("sub_forum_id", (f as any).id).eq("slug", catSlug).maybeSingle();
+    if (!c) { setLoading(false); return; }
+    setCat(c);
+    const { data: t } = await supabase.from("sub_forum_topics" as any)
+      .select("*, profiles:user_id(username, avatar_url, is_verified, username_css)")
+      .eq("category_id", (c as any).id)
+      .eq("is_hidden", false)
+      .order("is_pinned", { ascending: false })
+      .order("created_at", { ascending: false })
+      .limit(50);
+    setTopics((t as any) || []);
+    setLoading(false);
+  };
+
   useEffect(() => {
-    (async () => {
-      const { data: f } = await supabase.from("sub_forums" as any).select("*").eq("slug", slug).maybeSingle();
-      if (!f) { setLoading(false); return; }
-      setForum(f);
-      const { data: c } = await supabase.from("sub_forum_categories" as any).select("*").eq("sub_forum_id", (f as any).id).eq("slug", catSlug).maybeSingle();
-      if (!c) { setLoading(false); return; }
-      setCat(c);
-      const { data: t } = await supabase.from("sub_forum_topics" as any)
-        .select("*, profiles:user_id(username, avatar_url, is_verified, username_css)")
-        .eq("category_id", (c as any).id)
-        .eq("is_hidden", false)
-        .order("is_pinned", { ascending: false })
-        .order("created_at", { ascending: false })
-        .limit(50);
-      setTopics((t as any) || []);
-      setLoading(false);
-    })();
+    loadData();
   }, [slug, catSlug]);
+
+  useEffect(() => {
+    if (!cat?.id) return;
+    const ch = supabase.channel(`subforum-category-${cat.id}`)
+      .on("postgres_changes", { event: "*", schema: "public", table: "sub_forum_topics", filter: `category_id=eq.${cat.id}` }, () => loadData())
+      .on("postgres_changes", { event: "*", schema: "public", table: "sub_forum_posts" }, () => loadData())
+      .subscribe();
+    return () => { supabase.removeChannel(ch); };
+  }, [cat?.id]);
 
   if (loading) return <div className="p-8 text-center text-white">Загрузка...</div>;
   if (!forum || !cat) return <div className="p-8 text-center text-white">Не найдено</div>;

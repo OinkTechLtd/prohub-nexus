@@ -61,6 +61,7 @@ import OinkGramBanner from "./components/OinkGramBanner";
 import RecruitmentBanner from "./components/RecruitmentBanner";
 import PWAInstallPrompt from "./components/PWAInstallPrompt";
 import SeasonalEffects from "./components/SeasonalEffects";
+import SeasonalCountdown from "./components/SeasonalCountdown";
 import MobileBottomNav from "./components/MobileBottomNav";
 import Footer from "./components/Footer";
 import { useState, useEffect } from "react";
@@ -79,12 +80,19 @@ const CodeForumGate = () => {
 const AppLayout = ({ user }: { user: any }) => {
   const location = useLocation();
   const isCodeForumRoute = location.pathname === "/codeforum" || location.pathname.startsWith("/codeforum/");
+  const shouldShowForumCountdown =
+    location.pathname === "/forum" ||
+    location.pathname === "/codeforum" ||
+    location.pathname === "/codeforum/forum" ||
+    location.pathname === "/codeforum/welcome" ||
+    location.pathname.startsWith("/f/");
 
   return (
     <AuthGuard>
       <PluginRunner hookPoint="global_header" />
       {!isCodeForumRoute && <OinkGramBanner />}
       {!isCodeForumRoute && <RecruitmentBanner />}
+      {shouldShowForumCountdown && <div className="container mx-auto px-2 sm:px-4"><SeasonalCountdown /></div>}
       <div className={isCodeForumRoute ? "" : "pb-16 lg:pb-0"}>
         <Routes>
           <Route path="/" element={<Landing />} />

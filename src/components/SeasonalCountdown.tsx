@@ -1,72 +1,73 @@
-import { useEffect, useState } from "react";
-import { Snowflake, Sun } from "lucide-react";
+import { useEffect, useMemo, useState } from "react";
+import { Snowflake, Sparkles, Sun } from "lucide-react";
 
 /**
  * Сезонный отсчёт в стиле BLESS RUSSIA: до зимы (1 ноября) и до лета (1 июня).
  * Лето: январь–июнь → отсчёт до 1 июня; иначе → отсчёт до 1 ноября.
  */
+const getTarget = (now: Date, monthIndex: number, day = 1) => {
+  const year = now.getFullYear();
+  const target = new Date(year, monthIndex, day, 0, 0, 0);
+  return target.getTime() <= now.getTime() ? new Date(year + 1, monthIndex, day, 0, 0, 0) : target;
+};
+
+const splitDiff = (target: Date, now: Date) => {
+  const diff = Math.max(0, target.getTime() - now.getTime());
+  return {
+    days: Math.floor(diff / 86400000),
+    hours: Math.floor((diff % 86400000) / 3600000),
+    minutes: Math.floor((diff % 3600000) / 60000),
+    seconds: Math.floor((diff % 60000) / 1000),
+  };
+};
+
 const SeasonalCountdown = () => {
   const [now, setNow] = useState(() => new Date());
-  const [dismissed, setDismissed] = useState(false);
 
   useEffect(() => {
     const t = setInterval(() => setNow(new Date()), 1000);
     return () => clearInterval(t);
   }, []);
 
-  const month = now.getMonth(); // 0..11
-  const year = now.getFullYear();
+  const month = now.getMonth();
+  const isSummerMode = month <= 4 || month >= 10;
+  const primary = useMemo(() => {
+    const summer = getTarget(now, 5, 1);
+    const winter = getTarget(now, 10, 1);
+    return isSummerMode
+      ? { label: "До лета", year: summer.getFullYear(), icon: Sun, kind: "summer" as const, value: splitDiff(summer, now), secondary: { label: "До зимы", value: splitDiff(winter, now) } }
+      : { label: "До зимы", year: winter.getFullYear(), icon: Snowflake, kind: "winter" as const, value: splitDiff(winter, now), secondary: { label: "До лета", value: splitDiff(summer, now) } };
+  }, [isSummerMode, now]);
 
-  // 1 января – 31 мая → лето; 1 июня – 31 октября → зима; ноябрь+декабрь → следующее лето
-  let mode: "summer" | "winter" = "winter";
-  let target: Date;
-  if (month <= 4) {
-    mode = "summer";
-    target = new Date(year, 5, 1, 0, 0, 0); // 1 июня
-  } else if (month <= 9) {
-    mode = "winter";
-    target = new Date(year, 10, 1, 0, 0, 0); // 1 ноября
-  } else {
-    mode = "summer";
-    target = new Date(year + 1, 5, 1, 0, 0, 0);
-  }
-
-  const diff = Math.max(0, target.getTime() - now.getTime());
-  const days = Math.floor(diff / 86400000);
-  const hours = Math.floor((diff % 86400000) / 3600000);
-  const minutes = Math.floor((diff % 3600000) / 60000);
-  const seconds = Math.floor((diff % 60000) / 1000);
-
-  if (dismissed) return null;
-
-  const isSummer = mode === "summer";
-  const grad = isSummer
-    ? "linear-gradient(135deg, #fb923c 0%, #f59e0b 50%, #facc15 100%)"
-    : "linear-gradient(135deg, #1e3a8a 0%, #3b82f6 50%, #93c5fd 100%)";
-  const Icon = isSummer ? Sun : Snowflake;
+  const Icon = primary.icon;
+  const time = primary.value;
 
   return (
-    <div className="relative w-full overflow-hidden rounded-lg shadow-lg my-3" style={{ background: grad }}>
-      <button
-        onClick={() => setDismissed(true)}
-        className="absolute right-2 top-2 text-white/70 hover:text-white text-xs"
-        aria-label="Закрыть"
-      >
-        ✕
-      </button>
-      <div className="px-3 py-3 sm:px-4 sm:py-4 flex items-center gap-3 text-white">
-        <Icon className="h-7 w-7 sm:h-9 sm:w-9 shrink-0 drop-shadow" />
-        <div className="min-w-0 flex-1">
-          <div className="text-[11px] sm:text-xs uppercase tracking-wider opacity-90">
-            {isSummer ? "До лета осталось" : "До зимы осталось"}
-          </div>
-          <div className="font-mono font-bold text-sm sm:text-lg flex flex-wrap gap-x-2 gap-y-0">
-            <span><b>{days}</b>д</span>
-            <span><b>{String(hours).padStart(2, "0")}</b>ч</span>
-            <span><b>{String(minutes).padStart(2, "0")}</b>м</span>
-            <span><b>{String(seconds).padStart(2, "0")}</b>с</span>
-          </div>
+    <div className={`seasonal-countdown seasonal-countdown--${primary.kind}`}>
+      <div className="seasonal-countdown__shine" aria-hidden="true" />
+      <div className="seasonal-countdown__flakes" aria-hidden="true">✦ ✧ ✦ ✧ ✦</div>
+      <div className="seasonal-countdown__head">
+        <Icon className="seasonal-countdown__icon" />
+        <div className="min-w-0">
+          <div className="seasonal-countdown__title">{primary.label} осталось</div>
+          <div className="seasonal-countdown__year"><Sparkles className="h-3.5 w-3.5" /> {primary.year}</div>
         </div>
+      </div>
+      <div className="seasonal-countdown__grid" aria-label={`${primary.label} осталось`}>
+        {[
+          [time.days, "Дней"],
+          [time.hours, "Часов"],
+          [time.minutes, "Мин"],
+          [time.seconds, "Сек"],
+        ].map(([value, label]) => (
+          <div className="seasonal-countdown__cell" key={label}>
+            <span className="seasonal-countdown__number">{String(value).padStart(2, "0")}</span>
+            <span className="seasonal-countdown__label">{label}</span>
+          </div>
+        ))}
+      </div>
+      <div className="seasonal-countdown__subline">
+        {primary.secondary.label}: {primary.secondary.value.days}д {String(primary.secondary.value.hours).padStart(2, "0")}ч
       </div>
     </div>
   );
