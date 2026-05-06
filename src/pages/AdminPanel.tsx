@@ -457,6 +457,10 @@ const AdminPanel = () => {
               <RefreshCw className="h-4 w-4" />
               <span className="hidden sm:inline">Переименования</span>
             </TabsTrigger>
+            <TabsTrigger value="audit" className="gap-1">
+              <RefreshCw className="h-4 w-4" />
+              <span className="hidden sm:inline">Аудит</span>
+            </TabsTrigger>
             <TabsTrigger value="settings" className="gap-1">
               <Settings className="h-4 w-4" />
               <span className="hidden sm:inline">Настройки</span>
