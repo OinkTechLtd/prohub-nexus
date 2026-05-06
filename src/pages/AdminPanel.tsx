@@ -62,6 +62,8 @@ interface ContentItem {
   id: string;
   title: string;
   is_hidden: boolean;
+  is_pinned?: boolean;
+  is_locked?: boolean;
   created_at: string;
   user_id: string;
   profiles?: { username: string };
