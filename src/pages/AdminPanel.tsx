@@ -146,7 +146,7 @@ const AdminPanel = () => {
       // Load topics
       const { data: topicsData } = await supabase
         .from("topics")
-        .select("id, title, is_hidden, created_at, user_id, profiles(username)")
+        .select("id, title, is_hidden, is_pinned, is_locked, created_at, user_id, profiles(username)")
         .order("created_at", { ascending: false })
         .limit(50);
       setTopics(topicsData || []);
