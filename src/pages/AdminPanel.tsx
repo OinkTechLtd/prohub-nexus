@@ -45,6 +45,7 @@ import AdminSectionsTab from "@/components/admin/AdminSectionsTab";
 import AdminSettingsTab from "@/components/admin/AdminSettingsTab";
 import AdminInactiveRenameTab from "@/components/admin/AdminInactiveRenameTab";
 import AdminSubForumsTab from "@/components/admin/AdminSubForumsTab";
+import AdminAuditLogTab from "@/components/admin/AdminAuditLogTab";
 
 interface User {
   id: string;
@@ -457,6 +458,10 @@ const AdminPanel = () => {
               <RefreshCw className="h-4 w-4" />
               <span className="hidden sm:inline">Переименования</span>
             </TabsTrigger>
+            <TabsTrigger value="audit" className="gap-1">
+              <RefreshCw className="h-4 w-4" />
+              <span className="hidden sm:inline">Аудит</span>
+            </TabsTrigger>
             <TabsTrigger value="settings" className="gap-1">
               <Settings className="h-4 w-4" />
               <span className="hidden sm:inline">Настройки</span>
@@ -772,6 +777,10 @@ const AdminPanel = () => {
 
           <TabsContent value="rename-log" className="space-y-4">
             <AdminInactiveRenameTab />
+          </TabsContent>
+
+          <TabsContent value="audit" className="space-y-4">
+            <AdminAuditLogTab />
           </TabsContent>
 
           <TabsContent value="settings" className="space-y-4">
