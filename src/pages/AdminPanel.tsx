@@ -45,6 +45,7 @@ import AdminSectionsTab from "@/components/admin/AdminSectionsTab";
 import AdminSettingsTab from "@/components/admin/AdminSettingsTab";
 import AdminInactiveRenameTab from "@/components/admin/AdminInactiveRenameTab";
 import AdminSubForumsTab from "@/components/admin/AdminSubForumsTab";
+import AdminAuditLogTab from "@/components/admin/AdminAuditLogTab";
 
 interface User {
   id: string;
