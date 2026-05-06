@@ -26,27 +26,37 @@ const SubForumPanel = () => {
   const [counts, setCounts] = useState<Record<string, { topics: number; latest?: Topic }>>({});
   const [loading, setLoading] = useState(true);
 
-  useEffect(() => {
-    (async () => {
-      const { data: f } = await supabase.from("sub_forums" as any).select("*").eq("slug", slug).eq("is_active", true).maybeSingle();
-      if (f) {
-        setForum(f as any);
-        const { data: c } = await supabase.from("sub_forum_categories" as any).select("*").eq("sub_forum_id", (f as any).id).order("order_position");
-        const cats = (c as any) || [];
-        setCats(cats);
+  const loadData = async () => {
+    const { data: f } = await supabase.from("sub_forums" as any).select("*").eq("slug", slug).eq("is_active", true).maybeSingle();
+    if (f) {
+      setForum(f as any);
+      const { data: c } = await supabase.from("sub_forum_categories" as any).select("*").eq("sub_forum_id", (f as any).id).order("order_position");
+      const cats = (c as any) || [];
+      setCats(cats);
 
-        // counts per category
-        const map: Record<string, { topics: number; latest?: Topic }> = {};
-        await Promise.all(cats.map(async (cat: Cat) => {
-          const { count } = await supabase.from("sub_forum_topics" as any).select("id", { count: "exact", head: true }).eq("category_id", cat.id);
-          const { data: latest } = await supabase.from("sub_forum_topics" as any).select("id,title,created_at,category_id,user_id").eq("category_id", cat.id).order("created_at", { ascending: false }).limit(1).maybeSingle();
-          map[cat.id] = { topics: count || 0, latest: (latest as any) || undefined };
-        }));
-        setCounts(map);
-      }
-      setLoading(false);
-    })();
+      const map: Record<string, { topics: number; latest?: Topic }> = {};
+      await Promise.all(cats.map(async (cat: Cat) => {
+        const { count } = await supabase.from("sub_forum_topics" as any).select("id", { count: "exact", head: true }).eq("category_id", cat.id).eq("is_hidden", false);
+        const { data: latest } = await supabase.from("sub_forum_topics" as any).select("id,title,created_at,category_id,user_id").eq("category_id", cat.id).eq("is_hidden", false).order("created_at", { ascending: false }).limit(1).maybeSingle();
+        map[cat.id] = { topics: count || 0, latest: (latest as any) || undefined };
+      }));
+      setCounts(map);
+    }
+    setLoading(false);
+  };
+
+  useEffect(() => {
+    loadData();
   }, [slug]);
+
+  useEffect(() => {
+    if (!forum?.id) return;
+    const ch = supabase.channel(`subforum-panel-${forum.id}`)
+      .on("postgres_changes", { event: "*", schema: "public", table: "sub_forum_topics", filter: `sub_forum_id=eq.${forum.id}` }, () => loadData())
+      .on("postgres_changes", { event: "*", schema: "public", table: "sub_forum_posts" }, () => loadData())
+      .subscribe();
+    return () => { supabase.removeChannel(ch); };
+  }, [forum?.id]);
 
   if (loading) return <div className="p-8 text-center text-white">Загрузка...</div>;
   if (!forum) return <div className="p-8 text-center text-white">Подфорум не найден</div>;
