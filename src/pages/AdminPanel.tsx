@@ -660,7 +660,9 @@ const AdminPanel = () => {
                           <BannedUserInlineBadge userId={topic.user_id} />
                         </div>
                       </div>
-                      <div className="flex items-center gap-2">
+                      <div className="flex items-center gap-2 flex-wrap">
+                        {topic.is_pinned && <Badge variant="secondary" className="gap-1"><Pin className="h-3 w-3" />Закреп</Badge>}
+                        {topic.is_locked && <Badge variant="secondary" className="gap-1"><Lock className="h-3 w-3" />Закрыта</Badge>}
                         <Badge variant={topic.is_hidden ? "destructive" : "default"}>
                           {topic.is_hidden ? "Скрыта" : "Активна"}
                         </Badge>
