@@ -34,7 +34,9 @@ import {
   Layout,
   FolderOpen,
   Settings,
-  RefreshCw
+  RefreshCw,
+  Pin,
+  Lock as LockIcon
 } from "lucide-react";
 import VerifiedBadge from "@/components/VerifiedBadge";
 import BannedUserInlineBadge from "@/components/BannedUserInlineBadge";
