@@ -39,15 +39,15 @@ const BannedUserBadge = ({ userId, username, className = "" }: BannedUserBadgePr
 
   return (
     <div
-      className={`flex items-start gap-2 rounded-md border border-destructive/40 bg-destructive/10 p-3 text-sm ${className}`}
+      className={`flex items-start gap-2 rounded-md border-2 border-red-600 bg-red-600 p-3 text-sm text-white shadow-md ${className}`}
       role="alert"
     >
-      <span className="mt-0.5 flex h-5 w-5 shrink-0 items-center justify-center rounded-full bg-destructive">
-        <XCircle className="h-4 w-4 text-destructive-foreground" />
+      <span className="mt-0.5 flex h-5 w-5 shrink-0 items-center justify-center rounded-full bg-white">
+        <XCircle className="h-4 w-4 text-red-600" />
       </span>
-      <p className="text-destructive-foreground/90 leading-snug">
-        <strong>Обратите внимание</strong>, пользователь заблокирован на форуме.
-        Не рекомендуется проводить сделки. Мы не несём ответственности за действия пользователя вне форума.
+      <p className="leading-snug text-white">
+        <strong className="font-bold">⚠️ Пользователь заблокирован.</strong>{" "}
+        Не рекомендуется проводить с ним сделки. Администрация форума не несёт ответственности за его действия вне форума.
       </p>
     </div>
   );

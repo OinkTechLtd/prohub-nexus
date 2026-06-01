@@ -1080,6 +1080,7 @@ export type Database = {
           flair_emoji_prefix: string | null
           flair_emoji_suffix: string | null
           flair_icon: string | null
+          flair_sticker: string | null
           id: string
           is_verified: boolean | null
           signature: string | null
@@ -1099,6 +1100,7 @@ export type Database = {
           flair_emoji_prefix?: string | null
           flair_emoji_suffix?: string | null
           flair_icon?: string | null
+          flair_sticker?: string | null
           id: string
           is_verified?: boolean | null
           signature?: string | null
@@ -1118,6 +1120,7 @@ export type Database = {
           flair_emoji_prefix?: string | null
           flair_emoji_suffix?: string | null
           flair_icon?: string | null
+          flair_sticker?: string | null
           id?: string
           is_verified?: boolean | null
           signature?: string | null

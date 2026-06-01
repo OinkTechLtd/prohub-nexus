@@ -82,9 +82,9 @@ const AppLayout = ({ user }: { user: any }) => {
   const isCodeForumRoute = location.pathname === "/codeforum" || location.pathname.startsWith("/codeforum/");
   const shouldShowForumCountdown =
     location.pathname === "/forum" ||
-    location.pathname === "/codeforum" ||
-    location.pathname === "/codeforum/forum" ||
-    location.pathname === "/codeforum/welcome" ||
+    location.pathname.startsWith("/category/") ||
+    location.pathname.startsWith("/topic/") ||
+    isCodeForumRoute ||
     location.pathname.startsWith("/f/");
 
   return (
@@ -92,7 +92,7 @@ const AppLayout = ({ user }: { user: any }) => {
       <PluginRunner hookPoint="global_header" />
       {!isCodeForumRoute && <OinkGramBanner />}
       {!isCodeForumRoute && <RecruitmentBanner />}
-      {shouldShowForumCountdown && <div className="container mx-auto px-2 sm:px-4"><SeasonalCountdown /></div>}
+      {shouldShowForumCountdown && <div className="container mx-auto px-2 sm:px-4 relative z-10"><SeasonalCountdown /></div>}
       <div className={isCodeForumRoute ? "" : "pb-16 lg:pb-0"}>
         <Routes>
           <Route path="/" element={<Landing />} />

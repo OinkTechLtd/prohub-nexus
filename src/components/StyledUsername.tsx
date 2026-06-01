@@ -31,7 +31,7 @@ const StyledUsername = ({
   const uniqueId = useId();
   const [cssData, setCssData] = useState<string | null>(usernameCss ?? null);
   const [verified, setVerified] = useState(isVerified);
-  const [flair, setFlair] = useState<{ prefix?: string | null; suffix?: string | null; icon?: string | null }>({});
+  const [flair, setFlair] = useState<{ prefix?: string | null; suffix?: string | null; icon?: string | null; sticker?: string | null }>({});
 
   useEffect(() => {
     if (usernameCss !== undefined) {
@@ -50,7 +50,7 @@ const StyledUsername = ({
     const fetchData = async () => {
       const query = supabase
         .from("profiles")
-        .select("is_verified, username_css, flair_emoji_prefix, flair_emoji_suffix, flair_icon");
+        .select("is_verified, username_css, flair_emoji_prefix, flair_emoji_suffix, flair_icon, flair_sticker");
       const { data } = userId
         ? await query.eq("id", userId).maybeSingle()
         : await query.eq("username", username).maybeSingle();
@@ -64,6 +64,7 @@ const StyledUsername = ({
           prefix: (data as any).flair_emoji_prefix,
           suffix: (data as any).flair_emoji_suffix,
           icon: (data as any).flair_icon,
+          sticker: (data as any).flair_sticker,
         });
       }
     };
@@ -101,7 +102,7 @@ const StyledUsername = ({
       <span className="font-medium overflow-hidden max-h-6 leading-normal" style={parsed.style}>
         {username}
       </span>
-      <UsernameFlair suffix={flair.suffix} />
+      <UsernameFlair suffix={flair.suffix} sticker={flair.sticker} />
       {verified && <VerifiedBadge className="h-4 w-4" />}
     </span>
   );

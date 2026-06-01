@@ -37,8 +37,12 @@ const BannedUserInlineBadge = ({ userId, username, className = "" }: Props) => {
     <TooltipProvider>
       <Tooltip>
         <TooltipTrigger asChild>
-          <span className={`inline-flex h-4 w-4 shrink-0 items-center justify-center rounded-full bg-destructive align-middle ${className}`} aria-label="Заблокирован">
-            <XCircle className="h-3 w-3 text-destructive-foreground" />
+          <span
+            className={`inline-flex items-center gap-1 rounded-full bg-red-600 px-1.5 py-0.5 text-[10px] font-bold text-white align-middle shadow-sm ring-1 ring-white/30 ${className}`}
+            aria-label="Заблокирован"
+          >
+            <XCircle className="h-3 w-3" />
+            <span className="leading-none">БАН</span>
           </span>
         </TooltipTrigger>
         <TooltipContent>Пользователь заблокирован</TooltipContent>

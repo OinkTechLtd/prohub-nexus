@@ -76,6 +76,7 @@ const Profile = () => {
   const [flairPrefix, setFlairPrefix] = useState("");
   const [flairSuffix, setFlairSuffix] = useState("");
   const [flairIcon, setFlairIcon] = useState("");
+  const [flairSticker, setFlairSticker] = useState("");
   const [loading, setLoading] = useState(false);
   const [editMode, setEditMode] = useState(false);
   const [userRole, setUserRole] = useState<string>("newbie");
@@ -166,6 +167,7 @@ const Profile = () => {
       setFlairPrefix((profileData as any).flair_emoji_prefix || "");
       setFlairSuffix((profileData as any).flair_emoji_suffix || "");
       setFlairIcon((profileData as any).flair_icon || "");
+      setFlairSticker((profileData as any).flair_sticker || "");
       setIsOwnProfile(currentUserId === profileData.id);
       
       await loadUserData(profileData.id);
@@ -208,6 +210,10 @@ const Profile = () => {
       setCustomTitle(profileData.custom_title || "");
       setCustomTitleColor(profileData.custom_title_color || "#ef4444");
       setUsernameCss((profileData as any).username_css || "");
+      setFlairPrefix((profileData as any).flair_emoji_prefix || "");
+      setFlairSuffix((profileData as any).flair_emoji_suffix || "");
+      setFlairIcon((profileData as any).flair_icon || "");
+      setFlairSticker((profileData as any).flair_sticker || "");
       setIsOwnProfile(userId === currentUserId);
       
       await loadUserData(userId);
@@ -1133,6 +1139,18 @@ const Profile = () => {
                       </select>
                     </div>
                   </div>
+                  <div>
+                    <Label>Стикер (URL картинки или эмодзи)</Label>
+                    <Input
+                      maxLength={300}
+                      value={flairSticker}
+                      onChange={(e) => setFlairSticker(e.target.value)}
+                      placeholder="https://example.com/sticker.png или 🐸"
+                    />
+                    <p className="text-[11px] text-muted-foreground mt-1">
+                      Будет показан в полупрозрачном квадрате после ника — в темах, постах, ресурсах и комментариях.
+                    </p>
+                  </div>
                   <div className="p-4 bg-muted/50 rounded-lg flex items-center gap-2">
                     <span className="text-xs text-muted-foreground mr-2">Предпросмотр:</span>
                     <StyledUsername
@@ -1153,10 +1171,11 @@ const Profile = () => {
                               flair_emoji_prefix: flairPrefix || null,
                               flair_emoji_suffix: flairSuffix || null,
                               flair_icon: flairIcon || null,
+                              flair_sticker: flairSticker || null,
                             } as any)
                             .eq("id", currentUser.id);
                           if (error) throw error;
-                          setProfile({ ...profile, flair_emoji_prefix: flairPrefix || null, flair_emoji_suffix: flairSuffix || null, flair_icon: flairIcon || null });
+                          setProfile({ ...profile, flair_emoji_prefix: flairPrefix || null, flair_emoji_suffix: flairSuffix || null, flair_icon: flairIcon || null, flair_sticker: flairSticker || null });
                           toast({ title: "Декорации сохранены!" });
                         } catch (e: any) {
                           toast({ title: "Ошибка", description: e.message, variant: "destructive" });
@@ -1171,10 +1190,10 @@ const Profile = () => {
                       onClick={async () => {
                         await supabase
                           .from("profiles")
-                          .update({ flair_emoji_prefix: null, flair_emoji_suffix: null, flair_icon: null } as any)
+                          .update({ flair_emoji_prefix: null, flair_emoji_suffix: null, flair_icon: null, flair_sticker: null } as any)
                           .eq("id", currentUser.id);
-                        setFlairPrefix(""); setFlairSuffix(""); setFlairIcon("");
-                        setProfile({ ...profile, flair_emoji_prefix: null, flair_emoji_suffix: null, flair_icon: null });
+                        setFlairPrefix(""); setFlairSuffix(""); setFlairIcon(""); setFlairSticker("");
+                        setProfile({ ...profile, flair_emoji_prefix: null, flair_emoji_suffix: null, flair_icon: null, flair_sticker: null });
                         toast({ title: "Декорации сброшены" });
                       }}
                     >
