@@ -102,7 +102,7 @@ const StyledUsername = ({
       <span className="font-medium overflow-hidden max-h-6 leading-normal" style={parsed.style}>
         {username}
       </span>
-      <UsernameFlair suffix={flair.suffix} />
+      <UsernameFlair suffix={flair.suffix} sticker={flair.sticker} />
       {verified && <VerifiedBadge className="h-4 w-4" />}
     </span>
   );
