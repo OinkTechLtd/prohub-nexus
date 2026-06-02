@@ -4,6 +4,7 @@ import { Download, ExternalLink, Package, Plus } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
 import CodeForumHeader from "@/components/CodeForumHeader";
 import StyledUsername from "@/components/StyledUsername";
+import BannedUserInlineBadge from "@/components/BannedUserInlineBadge";
 
 interface Resource {
   id: string;
@@ -15,6 +16,7 @@ interface Resource {
   downloads: number;
   rating: number;
   created_at: string;
+  user_id: string;
   profiles: {
     username: string;
     username_css: string | null;
@@ -39,7 +41,7 @@ const CodeForumResources = () => {
       try {
         const { data } = await supabase
           .from("resources")
-          .select("id, title, description, resource_type, url, file_url, downloads, rating, created_at, profiles(username, username_css)")
+          .select("id, title, description, resource_type, url, file_url, downloads, rating, created_at, user_id, profiles(username, username_css)")
           .eq("is_hidden", false)
           .order("created_at", { ascending: false });
 
@@ -112,6 +114,7 @@ const CodeForumResources = () => {
                           className="text-sm"
                         />
                       )}
+                      <BannedUserInlineBadge userId={resource.user_id} />
                       <span>•</span>
                       <span>{resource.downloads || 0} загрузок</span>
                     </div>
