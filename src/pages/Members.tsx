@@ -20,6 +20,7 @@ import VerifiedBadge from "@/components/VerifiedBadge";
 import ReputationDisplay from "@/components/ReputationDisplay";
 import UserLevelBadge from "@/components/UserLevelBadge";
 import BannedUserInlineBadge from "@/components/BannedUserInlineBadge";
+import StyledUsername from "@/components/StyledUsername";
 
 interface MemberInfo {
   id: string;
@@ -226,7 +227,7 @@ const Members = () => {
                       </Avatar>
                       <div className="flex-1 min-w-0">
                         <div className="flex items-center gap-2 flex-wrap">
-                          <span className="font-semibold truncate">{member.username}</span>
+                          <StyledUsername username={member.username} userId={member.id} disableMiniProfile className="font-semibold truncate" />
                           {member.is_verified && <VerifiedBadge />}
                           <BannedUserInlineBadge userId={member.id} />
                         </div>
