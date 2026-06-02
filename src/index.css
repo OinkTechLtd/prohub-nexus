@@ -126,13 +126,14 @@ All colors MUST be HSL.
     margin: 0.75rem auto 1rem;
     overflow: hidden;
     border-radius: 0.75rem;
-    border: 1px solid hsl(0 0% 100% / 0.1);
+    border: 1px solid hsl(0 0% 100% / 0.22);
     padding: 0.85rem;
     color: hsl(0 0% 100%);
-    box-shadow: 0 0.75rem 2rem hsl(220 40% 2% / 0.35);
+    text-shadow: 0 1px 2px hsl(220 40% 2% / 0.7);
+    box-shadow: 0 0.75rem 2rem hsl(220 40% 2% / 0.35), 0 0 0 1px hsl(0 0% 100% / 0.1) inset;
   }
-  .seasonal-countdown--summer { background: linear-gradient(135deg, hsl(199 89% 38%), hsl(151 72% 42%), hsl(43 96% 56%)); }
-  .seasonal-countdown--winter { background: linear-gradient(135deg, hsl(224 76% 28%), hsl(199 89% 48%), hsl(186 100% 82%)); }
+  .seasonal-countdown--summer { background: linear-gradient(135deg, hsl(199 89% 25%), hsl(151 72% 28%), hsl(43 96% 38%)); }
+  .seasonal-countdown--winter { background: linear-gradient(135deg, hsl(224 76% 20%), hsl(199 89% 32%), hsl(186 80% 42%)); }
   .seasonal-countdown__shine { position: absolute; inset: 0; background: linear-gradient(90deg, transparent, hsl(0 0% 100% / 0.16), transparent); transform: translateX(-100%); animation: countdown-shine 5s linear infinite; }
   .seasonal-countdown__flakes { position: absolute; inset-inline: 0; top: 0.2rem; display: flex; justify-content: space-around; opacity: 0.45; pointer-events: none; animation: countdown-float 6s ease-in-out infinite; }
   .seasonal-countdown__head { position: relative; display: flex; align-items: center; justify-content: center; gap: 0.65rem; margin-bottom: 0.7rem; }
@@ -140,10 +141,12 @@ All colors MUST be HSL.
   .seasonal-countdown__title { font-size: 0.95rem; font-weight: 800; text-transform: uppercase; letter-spacing: 0; line-height: 1.1; }
   .seasonal-countdown__year { margin-top: 0.15rem; display: inline-flex; align-items: center; gap: 0.25rem; font-size: 0.78rem; opacity: 0.85; }
   .seasonal-countdown__grid { position: relative; display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 0.4rem; }
-  .seasonal-countdown__cell { min-width: 0; border-radius: 0.5rem; border: 1px solid hsl(0 0% 100% / 0.1); background: hsl(0 0% 100% / 0.08); padding: 0.5rem 0.25rem; text-align: center; }
+  .seasonal-countdown__cell { min-width: 0; border-radius: 0.5rem; border: 1px solid hsl(0 0% 100% / 0.18); background: hsl(220 45% 6% / 0.34); padding: 0.5rem 0.25rem; text-align: center; }
   .seasonal-countdown__number { display: block; font-family: ui-monospace, SFMono-Regular, Menlo, monospace; font-size: 1.25rem; font-weight: 900; line-height: 1; }
   .seasonal-countdown__label { display: block; margin-top: 0.25rem; font-size: 0.62rem; font-weight: 700; text-transform: uppercase; opacity: 0.75; }
   .seasonal-countdown__subline { position: relative; margin-top: 0.65rem; border-top: 1px solid hsl(0 0% 100% / 0.12); padding-top: 0.55rem; text-align: center; font-size: 0.75rem; opacity: 0.82; }
+  .ban-status-banner { border: 2px solid hsl(var(--destructive)); background: linear-gradient(135deg, hsl(var(--destructive)), hsl(0 80% 42%)); color: hsl(var(--destructive-foreground)); box-shadow: 0 0.65rem 1.4rem hsl(0 84% 30% / 0.28); }
+  .ban-inline-badge { background: hsl(var(--destructive)); color: hsl(var(--destructive-foreground)); border: 1px solid hsl(var(--destructive-foreground) / 0.45); box-shadow: 0 0.2rem 0.65rem hsl(0 84% 30% / 0.35); text-shadow: 0 1px 1px hsl(0 0% 0% / 0.35); }
   @keyframes countdown-shine { to { transform: translateX(100%); } }
   @keyframes countdown-float { 50% { transform: translateY(0.35rem); } }
 }
