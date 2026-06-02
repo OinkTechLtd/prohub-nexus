@@ -147,6 +147,8 @@ All colors MUST be HSL.
   .seasonal-countdown__subline { position: relative; margin-top: 0.65rem; border-top: 1px solid hsl(0 0% 100% / 0.12); padding-top: 0.55rem; text-align: center; font-size: 0.75rem; opacity: 0.82; }
   .ban-status-banner { border: 2px solid hsl(var(--destructive)); background: linear-gradient(135deg, hsl(var(--destructive)), hsl(0 80% 42%)); color: hsl(var(--destructive-foreground)); box-shadow: 0 0.65rem 1.4rem hsl(0 84% 30% / 0.28); }
   .ban-inline-badge { background: hsl(var(--destructive)); color: hsl(var(--destructive-foreground)); border: 1px solid hsl(var(--destructive-foreground) / 0.45); box-shadow: 0 0.2rem 0.65rem hsl(0 84% 30% / 0.35); text-shadow: 0 1px 1px hsl(0 0% 0% / 0.35); }
+  .username-sticker { background: hsl(var(--foreground) / 0.12); color: hsl(var(--foreground)); border: 1px solid hsl(var(--foreground) / 0.22); box-shadow: 0 1px 4px hsl(var(--background) / 0.22); }
+  .dark .username-sticker { background: hsl(0 0% 100% / 0.16); border-color: hsl(0 0% 100% / 0.24); }
   @keyframes countdown-shine { to { transform: translateX(100%); } }
   @keyframes countdown-float { 50% { transform: translateY(0.35rem); } }
 }
