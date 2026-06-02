@@ -593,7 +593,7 @@ const Profile = () => {
                         </>
                       );
                     })()}
-                    <UsernameFlair suffix={(profile as any)?.flair_emoji_suffix} size="md" />
+                    <UsernameFlair suffix={(profile as any)?.flair_emoji_suffix} sticker={(profile as any)?.flair_sticker} size="md" />
                     {profile?.is_verified && <VerifiedBadge className="h-6 w-6" />}
                   </div>
                   {profile?.custom_title ? (
@@ -1156,6 +1156,7 @@ const Profile = () => {
                     <StyledUsername
                       username={username}
                       usernameCss={usernameCss}
+                      flairOverride={{ prefix: flairPrefix, suffix: flairSuffix, icon: flairIcon, sticker: flairSticker }}
                       disableMiniProfile
                       className="text-lg"
                     />
