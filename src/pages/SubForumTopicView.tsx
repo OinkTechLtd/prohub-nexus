@@ -15,6 +15,7 @@ import BannedUserInlineBadge from "@/components/BannedUserInlineBadge";
 import HiddenContentBanner from "@/components/HiddenContentBanner";
 import ModerationActionDialog from "@/components/ModerationActionDialog";
 import BBCodeRenderer from "@/components/BBCodeRenderer";
+import SeasonalCountdown from "@/components/SeasonalCountdown";
 import { useToast } from "@/hooks/use-toast";
 import { useUserRole } from "@/hooks/useUserRole";
 
@@ -141,6 +142,7 @@ const SubForumTopicView = () => {
     <div className="min-h-screen text-white" style={{ background: forum.bg_color }}>
       <SubForumHeader forum={forum} />
       <main className="container mx-auto px-2 sm:px-4 py-4 sm:py-6 max-w-4xl">
+        <SeasonalCountdown />
         <Link to={`/f/${slug}`} className="text-xs text-white/50 hover:underline">← {forum.name}</Link>
         <div className="flex items-center gap-2 mb-2 mt-1 flex-wrap">
           {topic.is_pinned && <Pin className="h-4 w-4" style={{ color: forum.accent_color }} />}
@@ -176,7 +178,7 @@ const SubForumTopicView = () => {
               <AvatarWithBorder src={author?.avatar_url} fallback={author?.username?.[0]?.toUpperCase() || "?"} size="md" />
               <div className="min-w-0 flex-1">
                 <div className="flex items-center gap-2 mb-1 text-xs text-white/60 flex-wrap">
-                  <StyledUsername username={author?.username || "—"} userId={topic.user_id} className="text-sm" />
+                  <StyledUsername username={author?.username || "—"} userId={topic.user_id} flairOverride={{}} className="text-sm" />
                   <BannedUserInlineBadge userId={topic.user_id} />
                   <span>· {formatDistanceToNow(new Date(topic.created_at), { locale: ru, addSuffix: true })}</span>
                   <span>· {topic.views || 0} просмотров</span>
@@ -202,7 +204,7 @@ const SubForumTopicView = () => {
                       <AvatarWithBorder src={p.profile?.avatar_url} fallback={p.profile?.username?.[0]?.toUpperCase() || "?"} size="sm" />
                       <div className="min-w-0 flex-1">
                         <div className="flex items-center gap-2 mb-1 text-xs text-white/60 flex-wrap">
-                          <StyledUsername username={p.profile?.username || "—"} userId={p.user_id} className="text-sm" />
+                          <StyledUsername username={p.profile?.username || "—"} userId={p.user_id} flairOverride={{}} className="text-sm" />
                           <BannedUserInlineBadge userId={p.user_id} />
                           <span>· {formatDistanceToNow(new Date(p.created_at), { locale: ru, addSuffix: true })}</span>
                           {canModerate && (
