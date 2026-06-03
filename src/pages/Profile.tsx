@@ -34,6 +34,8 @@ import WarningDialog from "@/components/WarningDialog";
 import WarningsList from "@/components/WarningsList";
 import { Switch } from "@/components/ui/switch";
 import DailyQuestsWidget from "@/components/DailyQuestsWidget";
+import StickerPicker from "@/components/StickerPicker";
+import StickerLivePreview from "@/components/StickerLivePreview";
 import { sanitizeUsernameCss } from "@/lib/usernameCss";
 
 interface Topic {
@@ -1140,25 +1142,30 @@ const Profile = () => {
                     </div>
                   </div>
                   <div>
-                    <Label>Стикер (URL картинки или эмодзи)</Label>
-                    <Input
-                      maxLength={300}
-                      value={flairSticker}
-                      onChange={(e) => setFlairSticker(e.target.value)}
-                      placeholder="https://example.com/sticker.png или 🐸"
-                    />
-                    <p className="text-[11px] text-muted-foreground mt-1">
-                      Будет показан в полупрозрачном квадрате после ника — в темах, постах, ресурсах и комментариях.
+                    <Label>Стикер после ника</Label>
+                    <p className="text-[11px] text-muted-foreground mb-2">
+                      Выбери из каталога (как флаг страны) — будет показан в маленьком «жидко-стеклянном» квадратике после ника везде на платформе.
                     </p>
+                    <StickerPicker value={flairSticker} onChange={setFlairSticker} />
                   </div>
-                  <div className="p-4 bg-muted/50 rounded-lg flex items-center gap-2">
-                    <span className="text-xs text-muted-foreground mr-2">Предпросмотр:</span>
-                    <StyledUsername
+                  <div className="p-3 bg-muted/40 rounded-lg space-y-2">
+                    <div className="flex items-center gap-2">
+                      <span className="text-xs font-semibold text-muted-foreground">Предпросмотр ника:</span>
+                      <StyledUsername
+                        username={username}
+                        usernameCss={usernameCss}
+                        flairOverride={{ prefix: flairPrefix, suffix: flairSuffix, icon: flairIcon, sticker: flairSticker }}
+                        disableMiniProfile
+                        className="text-lg"
+                      />
+                    </div>
+                  </div>
+                  <div>
+                    <p className="text-xs font-semibold text-muted-foreground mb-2">Как это выглядит на форуме:</p>
+                    <StickerLivePreview
                       username={username}
                       usernameCss={usernameCss}
                       flairOverride={{ prefix: flairPrefix, suffix: flairSuffix, icon: flairIcon, sticker: flairSticker }}
-                      disableMiniProfile
-                      className="text-lg"
                     />
                   </div>
                   <div className="flex gap-2">
