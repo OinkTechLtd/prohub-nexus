@@ -55,6 +55,8 @@ import SubForumCategoryView from "./pages/SubForumCategoryView";
 import SubForumTopicView from "./pages/SubForumTopicView";
 import SubForumCreateTopic from "./pages/SubForumCreateTopic";
 import SubForumSearchPage from "./pages/SubForumSearchPage";
+import AuthHandoff from "./pages/AuthHandoff";
+import RandomTopic from "./pages/RandomTopic";
 import ChangelogModal from "./components/ChangelogModal";
 import PluginRunner from "./components/PluginRunner";
 import OinkGramBanner from "./components/OinkGramBanner";
@@ -91,6 +93,8 @@ const AppLayout = ({ user }: { user: any }) => {
           <Route path="/" element={<Landing />} />
           <Route path="/forum" element={<ForumPanel />} />
           <Route path="/auth" element={<Auth />} />
+          <Route path="/auth/handoff" element={<AuthHandoff />} />
+          <Route path="/random" element={<RandomTopic />} />
           <Route path="/blocked" element={<Blocked />} />
           <Route path="/category/:slug" element={<CategoryView />} />
           <Route path="/topic/:id" element={<TopicView />} />

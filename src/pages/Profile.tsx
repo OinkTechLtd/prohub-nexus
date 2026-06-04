@@ -1211,6 +1211,22 @@ const Profile = () => {
                 </CardContent>
               </Card>
 
+              {/* Кросс-доменный перенос сессии */}
+              <Card>
+                <CardHeader>
+                  <CardTitle className="flex items-center gap-2">🔁 Перенос сессии на другой домен</CardTitle>
+                </CardHeader>
+                <CardContent className="space-y-3">
+                  <p className="text-xs text-muted-foreground">
+                    Если форум работает на нескольких доменах-зеркалах, сгенерируй одноразовую ссылку —
+                    и войдёшь на другом домене под этим же аккаунтом без повторного ввода пароля.
+                  </p>
+                  <Button size="sm" variant="outline" onClick={() => navigate("/auth/handoff")}>
+                    Открыть перенос сессии
+                  </Button>
+                </CardContent>
+              </Card>
+
               <Card>
                 <CardHeader>
                   <CardTitle className="flex items-center gap-2">
