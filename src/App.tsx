@@ -56,6 +56,7 @@ import SubForumTopicView from "./pages/SubForumTopicView";
 import SubForumCreateTopic from "./pages/SubForumCreateTopic";
 import SubForumSearchPage from "./pages/SubForumSearchPage";
 import AuthHandoff from "./pages/AuthHandoff";
+import BrandAccounts from "./pages/BrandAccounts";
 import RandomTopic from "./pages/RandomTopic";
 import ChangelogModal from "./components/ChangelogModal";
 import PluginRunner from "./components/PluginRunner";
