@@ -263,6 +263,48 @@ export type Database = {
         }
         Relationships: []
       }
+      brand_accounts: {
+        Row: {
+          avatar_url: string | null
+          created_at: string
+          description: string | null
+          handle: string
+          id: string
+          is_verified: boolean
+          link_label: string | null
+          name: string
+          owner_user_id: string
+          updated_at: string
+          website_url: string | null
+        }
+        Insert: {
+          avatar_url?: string | null
+          created_at?: string
+          description?: string | null
+          handle: string
+          id?: string
+          is_verified?: boolean
+          link_label?: string | null
+          name: string
+          owner_user_id: string
+          updated_at?: string
+          website_url?: string | null
+        }
+        Update: {
+          avatar_url?: string | null
+          created_at?: string
+          description?: string | null
+          handle?: string
+          id?: string
+          is_verified?: boolean
+          link_label?: string | null
+          name?: string
+          owner_user_id?: string
+          updated_at?: string
+          website_url?: string | null
+        }
+        Relationships: []
+      }
       categories: {
         Row: {
           created_at: string | null
