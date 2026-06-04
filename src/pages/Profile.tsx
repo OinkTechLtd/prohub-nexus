@@ -1227,6 +1227,22 @@ const Profile = () => {
                 </CardContent>
               </Card>
 
+              {/* Brand / Organization accounts */}
+              <Card>
+                <CardHeader>
+                  <CardTitle className="flex items-center gap-2">🏢 Аккаунты бренда</CardTitle>
+                </CardHeader>
+                <CardContent className="space-y-3">
+                  <p className="text-xs text-muted-foreground">
+                    Как организации на GitHub. До 20 аккаунтов, без ограничений и сброса никнейма.
+                    Можно добавить рабочую ссылку, которая будет видна в профиле.
+                  </p>
+                  <Button size="sm" variant="outline" onClick={() => navigate("/brands")}>
+                    Управлять брендами
+                  </Button>
+                </CardContent>
+              </Card>
+
               <Card>
                 <CardHeader>
                   <CardTitle className="flex items-center gap-2">
