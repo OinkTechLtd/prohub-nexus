@@ -93,6 +93,8 @@ const AppLayout = ({ user }: { user: any }) => {
           <Route path="/" element={<Landing />} />
           <Route path="/forum" element={<ForumPanel />} />
           <Route path="/auth" element={<Auth />} />
+          <Route path="/auth/handoff" element={<AuthHandoff />} />
+          <Route path="/random" element={<RandomTopic />} />
           <Route path="/blocked" element={<Blocked />} />
           <Route path="/category/:slug" element={<CategoryView />} />
           <Route path="/topic/:id" element={<TopicView />} />
