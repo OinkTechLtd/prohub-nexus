@@ -206,11 +206,13 @@ const Auth = () => {
       if (error) throw error;
 
       toast({
-        title: "Регистрация успешна!",
-        description: "Теперь настройте двухфакторную аутентификацию",
+        title: "Подтвердите email",
+        description: "Мы отправили письмо со ссылкой подтверждения. Перейдите по ней, затем войдите и настройте 2FA.",
+        duration: 10000,
       });
-      
-      setAuthStep("2fa-setup");
+      // Don't proceed to 2FA setup: user must confirm email first, then sign in.
+      setLoading(false);
+      return;
     } catch (error: any) {
       toast({
         title: "Ошибка регистрации",
