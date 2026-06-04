@@ -55,6 +55,8 @@ import SubForumCategoryView from "./pages/SubForumCategoryView";
 import SubForumTopicView from "./pages/SubForumTopicView";
 import SubForumCreateTopic from "./pages/SubForumCreateTopic";
 import SubForumSearchPage from "./pages/SubForumSearchPage";
+import AuthHandoff from "./pages/AuthHandoff";
+import RandomTopic from "./pages/RandomTopic";
 import ChangelogModal from "./components/ChangelogModal";
 import PluginRunner from "./components/PluginRunner";
 import OinkGramBanner from "./components/OinkGramBanner";
