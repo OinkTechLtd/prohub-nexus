@@ -12,11 +12,13 @@ import { Separator } from "@/components/ui/separator";
 import TwoFactorSetup from "@/components/TwoFactorSetup";
 import TwoFactorVerify from "@/components/TwoFactorVerify";
 import TurnstileWidget from "@/components/TurnstileWidget";
+import AuthStepper, { AuthStep as StepperStep } from "@/components/AuthStepper";
+import { Mail, Loader2 } from "lucide-react";
 
 const SLTV_CLIENT_ID = "aa0b8e6fea64873f8355043e6b3a42ff";
 const SLTV_API = "https://sltvid.lovable.app";
 
-type AuthStep = "login" | "2fa-setup" | "2fa-verify";
+type AuthStep = "login" | "2fa-setup" | "2fa-verify" | "email-pending";
 
 const Auth = () => {
   const [email, setEmail] = useState("");
@@ -26,6 +28,8 @@ const Auth = () => {
   const [loading, setLoading] = useState(false);
   const [sltvLoading, setSltvLoading] = useState(false);
   const [authStep, setAuthStep] = useState<AuthStep>("login");
+  const [resendingEmail, setResendingEmail] = useState(false);
+  const [pendingEmail, setPendingEmail] = useState("");
   const [turnstileToken, setTurnstileToken] = useState<string | null>(null);
   const [turnstileSiteKey, setTurnstileSiteKey] = useState<string | undefined>(undefined);
   const navigate = useNavigate();
