@@ -214,7 +214,8 @@ const Auth = () => {
         description: "Мы отправили письмо со ссылкой подтверждения. Перейдите по ней, затем войдите и настройте 2FA.",
         duration: 10000,
       });
-      // Don't proceed to 2FA setup: user must confirm email first, then sign in.
+      setPendingEmail(email);
+      setAuthStep("email-pending");
       setLoading(false);
       return;
     } catch (error: any) {
