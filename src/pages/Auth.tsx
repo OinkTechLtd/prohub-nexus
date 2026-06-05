@@ -12,11 +12,13 @@ import { Separator } from "@/components/ui/separator";
 import TwoFactorSetup from "@/components/TwoFactorSetup";
 import TwoFactorVerify from "@/components/TwoFactorVerify";
 import TurnstileWidget from "@/components/TurnstileWidget";
+import AuthStepper, { AuthStep as StepperStep } from "@/components/AuthStepper";
+import { Mail, Loader2 } from "lucide-react";
 
 const SLTV_CLIENT_ID = "aa0b8e6fea64873f8355043e6b3a42ff";
 const SLTV_API = "https://sltvid.lovable.app";
 
-type AuthStep = "login" | "2fa-setup" | "2fa-verify";
+type AuthStep = "login" | "2fa-setup" | "2fa-verify" | "email-pending";
 
 const Auth = () => {
   const [email, setEmail] = useState("");
@@ -26,6 +28,8 @@ const Auth = () => {
   const [loading, setLoading] = useState(false);
   const [sltvLoading, setSltvLoading] = useState(false);
   const [authStep, setAuthStep] = useState<AuthStep>("login");
+  const [resendingEmail, setResendingEmail] = useState(false);
+  const [pendingEmail, setPendingEmail] = useState("");
   const [turnstileToken, setTurnstileToken] = useState<string | null>(null);
   const [turnstileSiteKey, setTurnstileSiteKey] = useState<string | undefined>(undefined);
   const navigate = useNavigate();
@@ -210,7 +214,8 @@ const Auth = () => {
         description: "Мы отправили письмо со ссылкой подтверждения. Перейдите по ней, затем войдите и настройте 2FA.",
         duration: 10000,
       });
-      // Don't proceed to 2FA setup: user must confirm email first, then sign in.
+      setPendingEmail(email);
+      setAuthStep("email-pending");
       setLoading(false);
       return;
     } catch (error: any) {
@@ -308,11 +313,64 @@ const Auth = () => {
     setAuthStep("login");
   };
 
+  const handleResendConfirmation = async () => {
+    if (!pendingEmail) return;
+    setResendingEmail(true);
+    try {
+      const { error } = await supabase.auth.resend({
+        type: "signup",
+        email: pendingEmail,
+        options: { emailRedirectTo: `${window.location.origin}/` },
+      });
+      if (error) throw error;
+      toast({ title: "Письмо отправлено повторно", description: pendingEmail });
+    } catch (e: any) {
+      toast({ title: "Ошибка", description: e.message, variant: "destructive" });
+    } finally {
+      setResendingEmail(false);
+    }
+  };
+
+  // Email-pending screen
+  if (authStep === "email-pending") {
+    return (
+      <div className="min-h-screen flex items-center justify-center bg-background p-4">
+        <Card className="w-full max-w-md">
+          <CardHeader className="text-center">
+            <CardTitle className="text-2xl">Подтвердите email</CardTitle>
+            <CardDescription>Шаг 2 из 3 — после подтверждения email будет настройка 2FA</CardDescription>
+          </CardHeader>
+          <CardContent className="space-y-4">
+            <AuthStepper current="email" />
+            <div className="flex items-start gap-3 p-4 rounded-lg bg-muted">
+              <Mail className="h-5 w-5 text-primary mt-0.5" />
+              <div className="text-sm">
+                Мы отправили письмо на <strong>{pendingEmail}</strong>. Перейдите по ссылке из письма, затем вернитесь и войдите.
+              </div>
+            </div>
+            <Button onClick={handleResendConfirmation} disabled={resendingEmail} className="w-full" variant="outline">
+              {resendingEmail ? <Loader2 className="h-4 w-4 animate-spin mr-2" /> : <Mail className="h-4 w-4 mr-2" />}
+              Отправить код повторно
+            </Button>
+            <Button onClick={() => setAuthStep("login")} variant="ghost" className="w-full">
+              Я подтвердил — войти
+            </Button>
+          </CardContent>
+        </Card>
+      </div>
+    );
+  }
+
+
+
   // Render 2FA setup/verify screens
   if (authStep === "2fa-setup") {
     return (
       <div className="min-h-screen flex items-center justify-center bg-background p-4">
-        <TwoFactorSetup onComplete={handle2FASetupComplete} />
+        <div className="w-full max-w-md space-y-4">
+          <AuthStepper current="2fa" />
+          <TwoFactorSetup onComplete={handle2FASetupComplete} />
+        </div>
       </div>
     );
   }
@@ -320,10 +378,14 @@ const Auth = () => {
   if (authStep === "2fa-verify") {
     return (
       <div className="min-h-screen flex items-center justify-center bg-background p-4">
-        <TwoFactorVerify onSuccess={handle2FAVerifySuccess} onCancel={handle2FACancel} />
+        <div className="w-full max-w-md space-y-4">
+          <AuthStepper current="2fa" />
+          <TwoFactorVerify onSuccess={handle2FAVerifySuccess} onCancel={handle2FACancel} />
+        </div>
       </div>
     );
   }
+
 
   return (
     <div className="min-h-screen flex items-center justify-center bg-background p-4">
@@ -333,6 +395,7 @@ const Auth = () => {
           <CardDescription>Форум разработчиков и профессионалов</CardDescription>
         </CardHeader>
         <CardContent>
+          <AuthStepper current="register" />
           <Tabs defaultValue="signin" className="w-full">
             <TabsList className="grid w-full grid-cols-2">
               <TabsTrigger value="signin">Вход</TabsTrigger>
@@ -364,6 +427,7 @@ const Auth = () => {
                 </div>
                 <TurnstileWidget siteKey={turnstileSiteKey} onVerify={setTurnstileToken} />
                 <Button type="submit" className="w-full" disabled={loading || sltvLoading}>
+                  {loading ? "Загрузка..." : "Войти"}
                 </Button>
 
                 <div className="relative my-4">

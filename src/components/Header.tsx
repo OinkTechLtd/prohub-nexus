@@ -161,6 +161,10 @@ const Header = ({ user, onSearchActivity }: HeaderProps) => {
                       <User className="mr-2 h-4 w-4" />
                       Профиль
                     </DropdownMenuItem>
+                    <DropdownMenuItem onClick={() => navigate("/brands")}>
+                      <User className="mr-2 h-4 w-4" />
+                      Аккаунты бренда
+                    </DropdownMenuItem>
                     <DropdownMenuItem onClick={() => navigate("/messages")} className="md:hidden">
                       <MessageCircle className="mr-2 h-4 w-4" />
                       Сообщения

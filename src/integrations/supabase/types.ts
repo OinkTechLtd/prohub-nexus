@@ -266,6 +266,8 @@ export type Database = {
       brand_accounts: {
         Row: {
           avatar_url: string | null
+          bio: string | null
+          cover_url: string | null
           created_at: string
           description: string | null
           handle: string
@@ -279,6 +281,8 @@ export type Database = {
         }
         Insert: {
           avatar_url?: string | null
+          bio?: string | null
+          cover_url?: string | null
           created_at?: string
           description?: string | null
           handle: string
@@ -292,6 +296,8 @@ export type Database = {
         }
         Update: {
           avatar_url?: string | null
+          bio?: string | null
+          cover_url?: string | null
           created_at?: string
           description?: string | null
           handle?: string
