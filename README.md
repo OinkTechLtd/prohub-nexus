@@ -6,7 +6,7 @@
 
 ## 🚀 Демо
 
-> [prohub-forumru.vercel.app](https://prohub-forumru.tatnet.app)
+> [prohub-forumru](https://prohub-forumru.tatnet.app)
 
 ---
 
