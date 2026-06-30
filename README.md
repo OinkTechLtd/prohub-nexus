@@ -1,1 +1,133 @@
-IyBQcm9IdWIgTmV4dXMgKFByb2h1YikKClthZ2UtQmFkd2FnZXNdKDogaHR0cHM6Ly9zaGllbGRzLmlvL2dpdGh1Yi9zdGF0dXMvT0lua1RlY2hMdGQvcHJvaHViLW5leHVzKQ0KDQojIyBQb2lzdGJpcmFuaWUlQ29udGFjdA0KDQpQcm9IdWIgTmV4dXMgLSBwdWJsaWMgYXBpIGFuZCBjb2xsYWJvcmF0aW9uIHBsYXRmb3JtIGZvciBtYW5hZ2luZyBwcm9qZWN0cywgYXNzZXRzIGFuZCBkYXRhIGluIG9yZ2FuaXphdGlvbi4gUGVybWlzc2lvbnM6IG1vZHVsYXJpdHksIEFQSSwgYXV0aGVudGljYXRpb24sIHJvbGVzLCBhbmQgcGVybWlzc2lvbmluZyByZXNvdXJjZXMuDQoNCiM1IFNlY3Rpb25zDQotIEJ1aWxkIC0IENJIC9IEF1dG9tYXRlZCBGbG93cw0KLSBJbnN0YWxsYXRpb24gLSBOb2RlL1B5dGhvbiBEZXBsb3ltZW50DQotIFJ1biAtIERvY2tlciBvciBsb2NhbCBkZXBsb3ltZW50cw0KLSBVc2UgdGhlIEFQSSAtIEVuZHBvaW50cyBhbmQgVHJhbnNhY3Rpb25zDQoNCiMjJ0luc3RhbGxhdGlvbicnDQoNCiNQcmVxdWlzaXRlcy0gVHJ5IHRvIHJ1biB0aGUgc29mdHdhcmUgdXNpbmcgYSNwcm9kdWN0IG9yIGluIGRldmVsb3BtZW50IGVudmlyb25tZW50cy4NCg0KLSBSZXF1aXJlZDogTm9kZS4gKFBhY2thZ2UgcGFuLikgKyBPS08vb3RoZXIgdG9vbHMgYXMgc2V0dXAgZGlyZWN0bGllcy4NCi0gQVBJLVByaW9yaXR5IFZhcmlhYmxlczogQURNSU5fUEFTU1dPUkQsREFUQUJBU0VfVVJMX0tFWS4NCg0KCiMjIEluc3RhbGxhdGlvbiAqKEd1aWRlKToNCg0KMS4gQ2xvbmUgdGhlIHJlcG9zaXRvcnkgZW5naW5lcmVkIGluIHRvIHlvdXIgbWFjaGluZSBvciBkZXZlbG9wbWVudCBZWQogIC0gR2l0IG9yIEhUVFBTIGludGVybmV0IGZyb20gR2l0SHViOiBodHRwczovL2dpdGh1Yi5jb20vT0lua1RlY2hMdGQvcHJvaHViLW5leHVzDQoyLiBSdW4gZGVwZW5kZW5jaWVzIGNvcmUgb24geW91ciBteGxvY2FsIG1hY2hpbmUuIFNvbWUgcHJvamVjdHMgcmVxdWlyZSBOb2RlLl9fDQozLiBPcHRpb25hbDogU2V0IHVwIE5PREVfUVVFVF9FTlYgdmFyaWFibGVzIGJhc2VkIG9uIHlvdXIgZGVwbG95bWVudC4gDQoNCiMjIFN0YXJ0aW5nIChEZXZlbG9wZXIpDQoNCi0gQ2xvuWFsbCBjbG9uZSB0aGUgYWN0aW9ucyOgMzo=[truncated]
+ProHub Nexus — форумное сообщество
+ProHub Nexus — это современное веб-приложение для создания и ведения форумов. Платформа позволяет пользователям общаться в тематических разделах, создавать темы, оставлять сообщения, управлять профилями и модерировать контент. Проект построен на реактивном стеке и готов к масштабированию.
+
+🚀 Демо
+prohub-forumru.vercel.app
+
+📋 Оглавление
+Технологии
+
+Возможности
+
+Установка
+
+Переменные окружения
+
+Запуск
+
+Структура проекта
+
+API (форумные эндпоинты)
+
+Вклад в проект
+
+Лицензия
+
+🛠 Технологии
+Технология	Назначение
+TypeScript	Основной язык (93.5%)
+React	Интерфейс
+Vite	Сборка и разработка
+Tailwind CSS + shadcn/ui	Стилизация и компоненты
+Supabase	База данных, аутентификация, реальное время
+Bun	Пакетный менеджер
+Vitest	Тестирование
+ESLint	Линтинг
+✨ Возможности форума
+🔐 Регистрация и вход через электронную почту или OAuth (Google, GitHub)
+
+📂 Категории и разделы — иерархическая структура обсуждений
+
+💬 Темы и сообщения — создание, редактирование, цитирование, лайки
+
+👤 Профили пользователей — аватар, статус, подпись, личные сообщения (в плане)
+
+🛡 Модерация — назначение модераторов, удаление/перемещение тем, предупреждения
+
+🔔 Уведомления — ответы на темы, упоминания, личные сообщения
+
+📊 Статистика — количество тем, сообщений, активность пользователей
+
+🌐 Публичное API — интеграция с внешними сервисами (чтение тем/постов)
+
+📱 Адаптивность — полноценная работа на мобильных устройствах
+
+📦 Установка
+Требования
+Node.js (LTS)
+
+Bun или npm
+
+Supabase (бесплатный план подойдёт)
+
+Шаги
+bash
+git clone https://github.com/OinkTechLtd/prohub-nexus.git
+cd prohub-nexus
+bun install   # или npm install
+Создайте файл .env (см. ниже).
+
+🔐 Переменные окружения
+env
+ADMIN_PASSWORD=your_admin_password
+DATABASE_URL_KEY=your_supabase_database_url
+ADMIN_PASSWORD используется для создания первого администратора при инициализации.
+DATABASE_URL_KEY — строка подключения к Supabase (схема postgresql://...).
+
+🚀 Запуск
+Команда	Действие
+bun run dev	Режим разработки
+bun run build	Сборка для production
+bun run preview	Превью собранного приложения
+bun run test	Запуск тестов
+📁 Структура проекта (ключевые папки)
+text
+src/
+├── components/          # UI-компоненты (форумные: темы, посты, категории)
+├── pages/               # Страницы (главная, категория, тема, профиль)
+├── hooks/               # Кастомные хуки (аутентификация, данные)
+├── lib/                 # Утилиты, клиент Supabase, API-запросы
+├── types/               # TypeScript-типы
+└── styles/              # Глобальные стили
+supabase/
+├── migrations/          # Миграции БД (таблицы: users, categories, topics, posts)
+└── seed.sql             # Начальные данные (категории, тестовый контент)
+📡 API (форумные эндпоинты)
+Публичное API доступно по пути /api. Основные маршруты:
+
+Метод	Эндпоинт	Описание
+GET	/api/categories	Список категорий
+GET	/api/categories/:slug/topics	Темы в категории
+GET	/api/topics/:id	Тема с сообщениями
+POST	/api/topics	Создать тему (требуется auth)
+POST	/api/posts	Создать сообщение (требуется auth)
+PUT	/api/posts/:id	Редактировать сообщение
+DELETE	/api/posts/:id	Удалить сообщение (модератор или автор)
+🔒 Все мутирующие методы требуют JWT-токена, полученного при входе.
+
+🤝 Вклад в проект
+Мы рады вашим идеям и исправлениям!
+
+Форкните репозиторий
+
+Создайте ветку (git checkout -b feature/awesome-feature)
+
+Внесите изменения и зафиксируйте (git commit -m 'Add awesome feature')
+
+Отправьте в свой форк (git push origin feature/awesome-feature)
+
+Откройте Pull Request
+
+📄 Лицензия
+Проект является проприетарным и принадлежит OinkTech Ltd.
+Использование без письменного разрешения запрещено.
+
+👥 Участники
+OinkTechLtd
+
+lovable-dev[bot]
+
+📞 Контакты
+По всем вопросам обращайтесь в команду OinkTech Ltd (контакты на сайте компании).
+
+⚡ Сделано с ❤️ на Vite + React + shadcn/ui.
