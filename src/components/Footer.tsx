@@ -22,6 +22,12 @@ const Footer = () => {
             <Link to="/codeforum" className="hover:text-foreground transition-colors">
               Code Forum
             </Link>
+            <Link
+              to="/flexdev"
+              className="font-semibold bg-clip-text text-transparent bg-gradient-to-r from-fuchsia-500 via-purple-400 to-cyan-400 hover:opacity-80 transition-opacity"
+            >
+              FlexDev
+            </Link>
             <a
               href="https://voracious-connect-world-now.base44.app"
               target="_blank"

@@ -547,6 +547,27 @@ export type Database = {
         }
         Relationships: []
       }
+      flexdev_roles: {
+        Row: {
+          assigned_at: string
+          id: string
+          role: Database["public"]["Enums"]["flexdev_role"]
+          user_id: string
+        }
+        Insert: {
+          assigned_at?: string
+          id?: string
+          role?: Database["public"]["Enums"]["flexdev_role"]
+          user_id: string
+        }
+        Update: {
+          assigned_at?: string
+          id?: string
+          role?: Database["public"]["Enums"]["flexdev_role"]
+          user_id?: string
+        }
+        Relationships: []
+      }
       forum_plugins: {
         Row: {
           author: string | null
@@ -2408,6 +2429,13 @@ export type Database = {
     }
     Enums: {
       app_role: "newbie" | "pro" | "editor" | "moderator" | "admin"
+      flexdev_role:
+        | "admin"
+        | "senior_admin"
+        | "curator"
+        | "moderator"
+        | "vip"
+        | "newbie"
     }
     CompositeTypes: {
       [_ in never]: never
@@ -2536,6 +2564,14 @@ export const Constants = {
   public: {
     Enums: {
       app_role: ["newbie", "pro", "editor", "moderator", "admin"],
+      flexdev_role: [
+        "admin",
+        "senior_admin",
+        "curator",
+        "moderator",
+        "vip",
+        "newbie",
+      ],
     },
   },
 } as const

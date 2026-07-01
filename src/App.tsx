@@ -50,6 +50,8 @@ import CodeForumResourceView from "./pages/CodeForumResourceView";
 import CodeForumRules from "./pages/CodeForumRules";
 import CodeForumPrivacy from "./pages/CodeForumPrivacy";
 import CodeForumTerms from "./pages/CodeForumTerms";
+import FlexDevLanding from "./pages/FlexDevLanding";
+import FlexDevPanel from "./pages/FlexDevPanel";
 import SubForumPanel from "./pages/SubForumPanel";
 import SubForumCategoryView from "./pages/SubForumCategoryView";
 import SubForumTopicView from "./pages/SubForumTopicView";
@@ -85,13 +87,16 @@ const CodeForumGate = () => {
 const AppLayout = ({ user }: { user: any }) => {
   const location = useLocation();
   const isCodeForumRoute = location.pathname === "/codeforum" || location.pathname.startsWith("/codeforum/");
+  const isFlexDevRoute = location.pathname === "/flexdev" || location.pathname.startsWith("/flexdev/");
+  const isNeonRoute = isCodeForumRoute || isFlexDevRoute;
 
   return (
     <AuthGuard>
       <PluginRunner hookPoint="global_header" />
-      {!isCodeForumRoute && <OinkGramBanner />}
-      {!isCodeForumRoute && <RecruitmentBanner />}
-      <div className={isCodeForumRoute ? "" : "pb-16 lg:pb-0"}>
+      {!isNeonRoute && <OinkGramBanner />}
+      {!isNeonRoute && <RecruitmentBanner />}
+      <div className={isNeonRoute ? "" : "pb-16 lg:pb-0"}>
+
         <Routes>
           <Route path="/" element={<Landing />} />
           <Route path="/forum" element={<ForumPanel />} />
@@ -146,6 +151,8 @@ const AppLayout = ({ user }: { user: any }) => {
           <Route path="/codeforum/rules" element={<CodeForumRules />} />
           <Route path="/codeforum/privacy" element={<CodeForumPrivacy />} />
           <Route path="/codeforum/terms" element={<CodeForumTerms />} />
+          <Route path="/flexdev" element={<FlexDevLanding />} />
+          <Route path="/flexdev/forum" element={<FlexDevPanel />} />
           <Route path="/f/:slug" element={<SubForumPanel />} />
           <Route path="/f/:slug/c/:catSlug" element={<SubForumCategoryView />} />
           <Route path="/f/:slug/t/:topicId" element={<SubForumTopicView />} />
@@ -155,8 +162,8 @@ const AppLayout = ({ user }: { user: any }) => {
         </Routes>
       </div>
       <PluginRunner hookPoint="global_footer" />
-      {!isCodeForumRoute && <Footer />}
-      {!isCodeForumRoute && <MobileBottomNav user={user} />}
+      {!isNeonRoute && <Footer />}
+      {!isNeonRoute && <MobileBottomNav user={user} />}
       <BackToTopButton />
     </AuthGuard>
   );
