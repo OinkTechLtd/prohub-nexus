@@ -5,7 +5,7 @@ import FlexDevHeader from "@/components/FlexDevHeader";
 import StyledUsername from "@/components/StyledUsername";
 import BannedUserInlineBadge from "@/components/BannedUserInlineBadge";
 import AvatarWithBorder from "@/components/AvatarWithBorder";
-import { CF_ROLES } from "@/hooks/useFlexDevRole";
+import { FLEXDEV_ROLES } from "@/hooks/useFlexDevRole";
 import { formatDistanceToNow } from "date-fns";
 import { ru } from "date-fns/locale";
 
@@ -75,7 +75,7 @@ const FlexDevMembers = () => {
       const enriched: Member[] = profiles.map((p) => {
         const cfRole = cfRolesMap.get(p.id);
         if (cfRole) {
-          const found = CF_ROLES.find((r) => r.key === cfRole) || CF_ROLES[4];
+          const found = FLEXDEV_ROLES.find((r) => r.key === cfRole) || FLEXDEV_ROLES[4];
           return { ...p, cfRole: found.key, cfRoleLabel: found.label, cfRoleColor: found.color };
         }
         const phRole = phRolesMap.get(p.id) || "newbie";
