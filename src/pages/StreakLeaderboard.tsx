@@ -17,9 +17,11 @@ interface StreakEntry {
 
 const milestones = [
   { days: 7, label: "7 дней", bonus: 50, icon: Flame },
-  { days: 14, label: "14 дней", bonus: 100, icon: Medal },
   { days: 30, label: "30 дней", bonus: 250, icon: Award },
   { days: 100, label: "100 дней", bonus: 1000, icon: Trophy },
+  { days: 365, label: "365 дней", bonus: 5000, icon: Trophy },
+  { days: 1000, label: "1000 дней", bonus: 15000, icon: Trophy },
+  { days: 4000, label: "4000 дней", bonus: 50000, icon: Trophy },
 ];
 
 const StreakLeaderboard = () => {

@@ -15,6 +15,9 @@ const StreakBadge = ({ currentStreak, longestStreak, className }: StreakBadgePro
   if (currentStreak === 0) return null;
 
   const getStreakColor = (streak: number) => {
+    if (streak >= 1000) return "text-cyan-400 drop-shadow-[0_0_8px_rgba(34,211,238,0.8)] font-black";
+    if (streak >= 365) return "text-yellow-400 drop-shadow-[0_0_5px_rgba(250,204,21,0.6)] font-bold";
+    if (streak >= 100) return "text-pink-500 font-bold";
     if (streak >= 30) return "text-purple-500";
     if (streak >= 14) return "text-red-500";
     if (streak >= 7) return "text-orange-500";

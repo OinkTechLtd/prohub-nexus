@@ -17,6 +17,7 @@ import GuildInviteNotifications from "./GuildInviteNotifications";
 import { useUnreadMessages } from "@/hooks/useUnreadMessages";
 import { useStreak } from "@/hooks/useStreak";
 import StreakBadge from "./StreakBadge";
+import CheckInDialog from "./CheckInDialog";
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -196,6 +197,7 @@ const Header = ({ user, onSearchActivity }: HeaderProps) => {
         onOpenChange={setSearchOpen} 
         onSearchActivity={onSearchActivity}
       />
+      <CheckInDialog streak={streak} onOpenChange={() => {}} />
     </>
   );
 };
