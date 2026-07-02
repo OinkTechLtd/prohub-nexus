@@ -63,7 +63,7 @@ const FlexDevResources = () => {
 
   return (
     <div className="min-h-screen bg-[#0a0118] text-gray-200">
-      <FlexDevHeader user={user} />
+      <FlexDevHeader />
 
       <main className="container mx-auto px-4 py-6">
         <div className="mb-6 flex flex-col gap-4 md:flex-row md:items-center md:justify-between">

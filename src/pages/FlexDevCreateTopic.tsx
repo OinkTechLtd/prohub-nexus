@@ -72,7 +72,7 @@ const FlexDevCreateTopic = () => {
 
   return (
     <div className="min-h-screen bg-[#0a0118] text-gray-200">
-      <FlexDevHeader user={user} />
+      <FlexDevHeader />
 
       <main className="container mx-auto px-4 py-6 max-w-3xl">
         <h1 className="text-xl font-bold text-white mb-6">Создать тему</h1>

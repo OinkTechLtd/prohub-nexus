@@ -97,7 +97,7 @@ const FlexDevMembers = () => {
 
   return (
     <div className="min-h-screen bg-[#0a0118] text-gray-200">
-      <FlexDevHeader user={user} />
+      <FlexDevHeader />
 
       <main className="container mx-auto px-4 py-6">
         <h1 className="text-xl md:text-2xl font-bold text-white mb-6">Участники Code Forum</h1>

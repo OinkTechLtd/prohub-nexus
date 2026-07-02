@@ -190,7 +190,7 @@ const FlexDevTopicView = () => {
   if (loading) {
     return (
       <div className="min-h-screen bg-[#0a0118]">
-        <FlexDevHeader user={user} />
+        <FlexDevHeader />
         <div className="container mx-auto px-4 py-8 text-center text-gray-400">Загрузка...</div>
       </div>
     );
@@ -200,7 +200,7 @@ const FlexDevTopicView = () => {
 
   return (
     <div className="min-h-screen bg-[#0a0118] text-gray-200">
-      <FlexDevHeader user={user} />
+      <FlexDevHeader />
 
       <main className="container mx-auto px-4 py-6">
         <div className="mb-4">
