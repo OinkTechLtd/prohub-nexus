@@ -277,6 +277,7 @@ export type Database = {
           link_label: string | null
           name: string
           owner_user_id: string
+          role: string
           updated_at: string
           views: number
           website_url: string | null
@@ -294,6 +295,7 @@ export type Database = {
           link_label?: string | null
           name: string
           owner_user_id: string
+          role?: string
           updated_at?: string
           views?: number
           website_url?: string | null
@@ -311,6 +313,7 @@ export type Database = {
           link_label?: string | null
           name?: string
           owner_user_id?: string
+          role?: string
           updated_at?: string
           views?: number
           website_url?: string | null
@@ -1112,6 +1115,7 @@ export type Database = {
       }
       posts: {
         Row: {
+          author_brand_id: string | null
           content: string
           created_at: string | null
           hidden_reason: string | null
@@ -1123,6 +1127,7 @@ export type Database = {
           user_id: string | null
         }
         Insert: {
+          author_brand_id?: string | null
           content: string
           created_at?: string | null
           hidden_reason?: string | null
@@ -1134,6 +1139,7 @@ export type Database = {
           user_id?: string | null
         }
         Update: {
+          author_brand_id?: string | null
           content?: string
           created_at?: string | null
           hidden_reason?: string | null
@@ -1145,6 +1151,13 @@ export type Database = {
           user_id?: string | null
         }
         Relationships: [
+          {
+            foreignKeyName: "posts_author_brand_id_fkey"
+            columns: ["author_brand_id"]
+            isOneToOne: false
+            referencedRelation: "brand_accounts"
+            referencedColumns: ["id"]
+          },
           {
             foreignKeyName: "posts_topic_id_fkey"
             columns: ["topic_id"]
@@ -1333,6 +1346,7 @@ export type Database = {
       }
       resource_comments: {
         Row: {
+          author_brand_id: string | null
           content: string
           created_at: string
           id: string
@@ -1342,6 +1356,7 @@ export type Database = {
           user_id: string
         }
         Insert: {
+          author_brand_id?: string | null
           content: string
           created_at?: string
           id?: string
@@ -1351,6 +1366,7 @@ export type Database = {
           user_id: string
         }
         Update: {
+          author_brand_id?: string | null
           content?: string
           created_at?: string
           id?: string
@@ -1360,6 +1376,13 @@ export type Database = {
           user_id?: string
         }
         Relationships: [
+          {
+            foreignKeyName: "resource_comments_author_brand_id_fkey"
+            columns: ["author_brand_id"]
+            isOneToOne: false
+            referencedRelation: "brand_accounts"
+            referencedColumns: ["id"]
+          },
           {
             foreignKeyName: "resource_comments_resource_id_fkey"
             columns: ["resource_id"]
@@ -1410,10 +1433,12 @@ export type Database = {
       }
       resources: {
         Row: {
+          author_brand_id: string | null
           created_at: string | null
           description: string
           downloads: number | null
           file_url: string | null
+          forum_id: string
           hidden_reason: string | null
           id: string
           is_hidden: boolean | null
@@ -1425,10 +1450,12 @@ export type Database = {
           user_id: string | null
         }
         Insert: {
+          author_brand_id?: string | null
           created_at?: string | null
           description: string
           downloads?: number | null
           file_url?: string | null
+          forum_id?: string
           hidden_reason?: string | null
           id?: string
           is_hidden?: boolean | null
@@ -1440,10 +1467,12 @@ export type Database = {
           user_id?: string | null
         }
         Update: {
+          author_brand_id?: string | null
           created_at?: string | null
           description?: string
           downloads?: number | null
           file_url?: string | null
+          forum_id?: string
           hidden_reason?: string | null
           id?: string
           is_hidden?: boolean | null
@@ -1455,6 +1484,13 @@ export type Database = {
           user_id?: string | null
         }
         Relationships: [
+          {
+            foreignKeyName: "resources_author_brand_id_fkey"
+            columns: ["author_brand_id"]
+            isOneToOne: false
+            referencedRelation: "brand_accounts"
+            referencedColumns: ["id"]
+          },
           {
             foreignKeyName: "resources_user_id_fkey"
             columns: ["user_id"]
@@ -1719,6 +1755,7 @@ export type Database = {
       }
       topics: {
         Row: {
+          author_brand_id: string | null
           category_id: string | null
           content: string
           created_at: string | null
@@ -1733,6 +1770,7 @@ export type Database = {
           views: number | null
         }
         Insert: {
+          author_brand_id?: string | null
           category_id?: string | null
           content: string
           created_at?: string | null
@@ -1747,6 +1785,7 @@ export type Database = {
           views?: number | null
         }
         Update: {
+          author_brand_id?: string | null
           category_id?: string | null
           content?: string
           created_at?: string | null
@@ -1761,6 +1800,13 @@ export type Database = {
           views?: number | null
         }
         Relationships: [
+          {
+            foreignKeyName: "topics_author_brand_id_fkey"
+            columns: ["author_brand_id"]
+            isOneToOne: false
+            referencedRelation: "brand_accounts"
+            referencedColumns: ["id"]
+          },
           {
             foreignKeyName: "topics_category_id_fkey"
             columns: ["category_id"]
