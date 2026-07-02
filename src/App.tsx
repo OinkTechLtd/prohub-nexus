@@ -163,7 +163,14 @@ const AppLayout = ({ user }: { user: any }) => {
           <Route path="/f/:slug/c/:catSlug" element={<SubForumCategoryView />} />
           <Route path="/f/:slug/t/:topicId" element={<SubForumTopicView />} />
           <Route path="/f/:slug/new" element={<SubForumCreateTopic />} />
-          <Route path="/f/:slug/search" element={<SubForumSearchPage />} />
+          <Route path="/flexdev" element={<FlexDevLanding />} />
+          <Route path="/flexdev/forum" element={<FlexDevPanel />} />
+          <Route path="/flexdev/category/:slug" element={<FlexDevCategoryView />} />
+          <Route path="/flexdev/topic/:id" element={<FlexDevTopicView />} />
+          <Route path="/flexdev/create-topic" element={<FlexDevCreateTopic />} />
+          <Route path="/flexdev/members" element={<FlexDevMembers />} />
+          <Route path="/flexdev/resources" element={<FlexDevResources />} />
+          <Route path="/flexdev/resource/:id" element={<FlexDevResourceView />} />
           <Route path="*" element={<NotFound />} />
         </Routes>
       </div>
