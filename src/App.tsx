@@ -52,6 +52,12 @@ import CodeForumPrivacy from "./pages/CodeForumPrivacy";
 import CodeForumTerms from "./pages/CodeForumTerms";
 import FlexDevLanding from "./pages/FlexDevLanding";
 import FlexDevPanel from "./pages/FlexDevPanel";
+import FlexDevCategoryView from "./pages/FlexDevCategoryView";
+import FlexDevTopicView from "./pages/FlexDevTopicView";
+import FlexDevCreateTopic from "./pages/FlexDevCreateTopic";
+import FlexDevMembers from "./pages/FlexDevMembers";
+import FlexDevResources from "./pages/FlexDevResources";
+import FlexDevResourceView from "./pages/FlexDevResourceView";
 import SubForumPanel from "./pages/SubForumPanel";
 import SubForumCategoryView from "./pages/SubForumCategoryView";
 import SubForumTopicView from "./pages/SubForumTopicView";
@@ -153,6 +159,12 @@ const AppLayout = ({ user }: { user: any }) => {
           <Route path="/codeforum/terms" element={<CodeForumTerms />} />
           <Route path="/flexdev" element={<FlexDevLanding />} />
           <Route path="/flexdev/forum" element={<FlexDevPanel />} />
+          <Route path="/flexdev/category/:slug" element={<FlexDevCategoryView />} />
+          <Route path="/flexdev/topic/:id" element={<FlexDevTopicView />} />
+          <Route path="/flexdev/create-topic" element={<FlexDevCreateTopic />} />
+          <Route path="/flexdev/members" element={<FlexDevMembers />} />
+          <Route path="/flexdev/resources" element={<FlexDevResources />} />
+          <Route path="/flexdev/resource/:id" element={<FlexDevResourceView />} />
           <Route path="/f/:slug" element={<SubForumPanel />} />
           <Route path="/f/:slug/c/:catSlug" element={<SubForumCategoryView />} />
           <Route path="/f/:slug/t/:topicId" element={<SubForumTopicView />} />
