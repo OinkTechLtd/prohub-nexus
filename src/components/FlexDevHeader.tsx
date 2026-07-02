@@ -32,7 +32,10 @@ const FlexDevHeader = () => {
           <Button variant="ghost" size="sm" className="text-slate-300 hover:text-white hover:bg-fuchsia-500/10" onClick={() => navigate("/flexdev/forum")}>
             <Home className="h-4 w-4 sm:mr-1.5" /> <span className="hidden sm:inline">Форум</span>
           </Button>
-          <Button variant="ghost" size="sm" className="text-slate-300 hover:text-white hover:bg-cyan-500/10" onClick={() => navigate("/members")}>
+          <Button variant="ghost" size="sm" className="text-slate-300 hover:text-white hover:bg-cyan-500/10" onClick={() => navigate("/flexdev/resources")}>
+            <span className="hidden sm:inline">Ресурсы</span><span className="sm:hidden">📦</span>
+          </Button>
+          <Button variant="ghost" size="sm" className="text-slate-300 hover:text-white hover:bg-cyan-500/10" onClick={() => navigate("/flexdev/members")}>
             <Users className="h-4 w-4 sm:mr-1.5" /> <span className="hidden sm:inline">Участники</span>
           </Button>
           <Button variant="ghost" size="sm" className="text-slate-300 hover:text-white hover:bg-fuchsia-500/10" onClick={() => navigate("/forum")}>
